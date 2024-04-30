@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "ceiling=false,facing=north": {
+      "model": "goopyutil:block/camera"
+    },
+    "ceiling=false,facing=east": {
+      "model": "goopyutil:block/camera",
+      "y": 90
+    },
+    "ceiling=false,facing=south": {
+      "model": "goopyutil:block/camera",
+      "y": 180
+    },
+    "ceiling=false,facing=west": {
+      "model": "goopyutil:block/camera",
+      "y": 270
+    },
+    "ceiling=true,facing=north": {
+      "model": "goopyutil:block/camera_top"
+    },
+    "ceiling=true,facing=east": {
+      "model": "goopyutil:block/camera_top",
+      "y": 90
+    },
+    "ceiling=true,facing=south": {
+      "model": "goopyutil:block/camera_top",
+      "y": 180
+    },
+    "ceiling=true,facing=west": {
+      "model": "goopyutil:block/camera_top",
+      "y": 270
+    }
+  }
+}

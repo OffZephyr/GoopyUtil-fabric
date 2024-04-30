@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "net.zephyr.goopyutil.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"BlacklistMixin",
+		"ModEntityDataSaverMixin",
+		"GameRendererMixin",
+		"CameraMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

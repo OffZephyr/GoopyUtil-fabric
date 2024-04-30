@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "goopyutil",
+	"version": "${version}",
+	"name": "GoopyUtil",
+	"description": "This is a Utility mod mainly used to implement more complex behaviors into Minecraft Mods mainly related to Five Nights at Freddy's.",
+	"authors": [
+		"ZephyrOff"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "ARR",
+	"icon": "assets/goopyutil/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.zephyr.goopyutil.GoopyUtil"
+		],
+		"client": [
+			"net.zephyr.goopyutil.GoopyUtilClient"
+		],
+		"fabric-datagen": [
+			"net.zephyr.goopyutil.GoopyUtilDataGenerator"
+		]
+	},
+	"mixins": [
+		"goopyutil.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
