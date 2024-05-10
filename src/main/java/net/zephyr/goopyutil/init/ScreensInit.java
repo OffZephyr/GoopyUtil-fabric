@@ -1,11 +1,10 @@
 package net.zephyr.goopyutil.init;
 
 import net.minecraft.text.Text;
-import net.zephyr.goopyutil.client.gui.CameraTabletScreen;
+import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.client.gui.screens.CameraEditScreen;
 import net.zephyr.goopyutil.client.gui.screens.PaintbrushScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBootupScreen;
-import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
 import net.zephyr.goopyutil.util.GoopyScreens;
 
 public class ScreensInit {

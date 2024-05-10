@@ -19,16 +19,14 @@ public class WrenchItem extends Item {
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();
-        if(!world.isClient()){
-            if(world.getBlockState(context.getBlockPos()).isOf(BlockInit.CAMERA)){
+        if (world.getBlockState(context.getBlockPos()).isOf(BlockInit.CAMERA)) {
 
-                if(world.getBlockEntity(context.getBlockPos()) instanceof CameraBlockEntity entity){
-                    NbtCompound data = entity.getCustomData();
+            if (world.getBlockEntity(context.getBlockPos()) instanceof CameraBlockEntity entity) {
+                NbtCompound data = entity.getCustomData();
 
-                    if (context.getPlayer() instanceof ServerPlayerEntity p) {
-                        GoopyScreens.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
-                        return ActionResult.SUCCESS;
-                    }
+                if (context.getPlayer() instanceof ServerPlayerEntity p) {
+                    GoopyScreens.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
+                    return ActionResult.SUCCESS;
                 }
             }
         }

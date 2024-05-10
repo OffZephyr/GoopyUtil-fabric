@@ -9,4 +9,6 @@ public class JavaModels {
             new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "layered_block_face"), "main");
     public static final EntityModelLayer CAMERA_HEAD =
             new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "camera_head"), "main");
+    public static final EntityModelLayer CAMERA_MAP =
+            new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "camera_map"), "main");
 }

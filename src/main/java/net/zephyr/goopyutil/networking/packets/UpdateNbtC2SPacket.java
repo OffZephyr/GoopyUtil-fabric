@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
+import net.zephyr.goopyutil.entity.GoopyEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.networking.NetChannels;
 
@@ -40,9 +41,9 @@ public class UpdateNbtC2SPacket {
             }
         }
         else if(nbt.getLong("entityID") != 0) {
-            /*if(serverWorld.getEntityById(id) instanceof GoopyEntity ent) {
+            if(serverWorld.getEntityById(id) instanceof GoopyEntity ent) {
                 ent.putCustomData(data);
-            }*/
+            }
         }
         else if(!nbt.isEmpty()){
             player.getMainHandStack().setNbt(nbt);

@@ -1,6 +1,59 @@
 {
   "block.goopyutil.computer": "Computer",
+  "block.goopyutil.layered_block": "Layered Block",
+  "block.goopyutil.camera": "Security Camera",
+
+  "item.goopyutil.tablet": "Tablet",
+  "item.goopyutil.wrench": "Wrench",
+  "item.goopyutil.paintbrush": "Paint Brush",
+  "item.goopyutil.tapemeasure": "Tape Measure",
+
   "goopyutil.creative": "GoopyUtil",
 
-  "goopyutil.commands.money": "%s currently owns §a§lF$%d§r."
+  "goopyutil.commands.money": "%s currently owns §a§lF$%d§r.",
+
+  "goopyutil.screens.camera_edit.tooltip": "Hold %s to show helpful tips and info.",
+
+  "goopyutil.screens.camera_edit.speed.title": "§lPanning Speed (%s§l)",
+  "goopyutil.screens.camera_edit.speed.description0": "§6Scroll/Click §7to change the speed",
+  "goopyutil.screens.camera_edit.speed.description1": "§7(Left = SLOW | Right = FAST).",
+
+  "goopyutil.screens.camera_edit.rotation.title": "§lCamera Angle (%s§l)",
+  "goopyutil.screens.camera_edit.rotation.description0": "§6Click and Drag §7to change the angle.",
+  "goopyutil.screens.camera_edit.rotation.description1": "§7(Left = DOWN | Right = UP).",
+
+  "goopyutil.screens.camera_edit.range.title": "§lCamera Angle Range (%s§l)",
+  "goopyutil.screens.camera_edit.range.description0": "§6Click and Drag §7to change the angle.",
+  "goopyutil.screens.camera_edit.range.description1": "§7The angle is locked between the two sliders.",
+  "goopyutil.screens.camera_edit.range.description2": "§7(Left = DOWN | Right = UP).",
+
+  "goopyutil.screens.camera_edit.mode0.title": "§lSet Angle (%s§l)",
+  "goopyutil.screens.camera_edit.mode0.description0": "§7The camera is §6locked at the set angle.",
+
+  "goopyutil.screens.camera_edit.mode1.title": "§lPanning (%s§l)",
+  "goopyutil.screens.camera_edit.mode1.description0": "§7The camera §6pans §7between §6two preset angles§7.",
+  "goopyutil.screens.camera_edit.mode1.description1": "§7Use the §6dual slider §7below to set the range.",
+
+  "goopyutil.screens.camera_edit.mode2.title": "§lSlider (%s§l)",
+  "goopyutil.screens.camera_edit.mode2.description0": "§7The §6player §7using the camera can §6change its angle§7.",
+  "goopyutil.screens.camera_edit.mode2.description1": "§7Use the §6dual slider §7below to set the range.",
+
+  "goopyutil.screens.camera_edit.name.title": "§lName",
+  "goopyutil.screens.camera_edit.name.description0": "§7Change the §6name §7of the camera.",
+
+  "goopyutil.screens.camera_edit.flashlight.title": "§lTOGGLE Flashlight",
+  "goopyutil.screens.camera_edit.flashlight.description0": "§6Allow/Deny §7the use of the §6Flashlight§7.",
+
+  "goopyutil.screens.camera_edit.action.title": "§lTOGGLE Action Button",
+  "goopyutil.screens.camera_edit.action.description0": "§6Allow/Deny §7the §6Action Button§7.",
+  "goopyutil.screens.camera_edit.action.description1": "§7The button triggers §6Redstone §7behind the camera.",
+
+  "goopyutil.screens.camera_edit.nightvision.title": "§lTOGGLE Night Vision",
+  "goopyutil.screens.camera_edit.nightvision.description0": "§7Change the behavior of the §6Night Vision§7.",
+  "goopyutil.screens.camera_edit.nightvision.description1": "§73 possible modes: §6OFF | TOGGLE | ON§7.",
+  "goopyutil.screens.camera_edit.nightvision.description2": "§7TOGGLE mode allows the player to toggle it.",
+
+  "goopyutil.screens.camera_edit.power.title": "§lPower button",
+  "goopyutil.screens.camera_edit.power.description0": "§6Enable/Disable §7the §6Video feed§7.",
+  "goopyutil.screens.camera_edit.power.description1": "§7If OFF, only Audio will go through the camera."
 }

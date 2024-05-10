@@ -8,6 +8,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
+import net.zephyr.goopyutil.entity.GoopyEntity;
 
 public class UpdateNbtS2CPacket {
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
@@ -30,9 +31,9 @@ public class UpdateNbtS2CPacket {
         }
         else if(nbt.getLong("entityID") != 0){
             client.execute(() -> {
-                /*if(world.getEntityById(id) instanceof GoopyEntity ent) {
+                if(world.getEntityById(id) instanceof GoopyEntity ent) {
                     ent.putCustomData(data);
-                }*/
+                }
             });
         }
         else if(!nbt.isEmpty()){

@@ -1,5 +1,6 @@
 package net.zephyr.goopyutil.blocks.camera;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
@@ -59,7 +60,10 @@ public class CameraBlockEntity extends GoopyBlockEntity {
         }
 
         if(state.get(CameraBlock.LIT) != getCustomData().getBoolean("Lit")) {
-            world.setBlockState(blockPos, state.with(CameraBlock.LIT, getCustomData().getBoolean("Lit")), 3);
+            world.setBlockState(blockPos, state.with(CameraBlock.LIT, getCustomData().getBoolean("Lit")), Block.NOTIFY_ALL);
+        }
+        if(state.get(CameraBlock.POWERED) != getCustomData().getBoolean("Powered")) {
+            world.setBlockState(blockPos, state.with(CameraBlock.POWERED, getCustomData().getBoolean("Powered")), Block.NOTIFY_ALL);
         }
         super.tick(world, blockPos, state, entity);
     }

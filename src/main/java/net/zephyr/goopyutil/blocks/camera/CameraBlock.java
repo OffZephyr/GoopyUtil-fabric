@@ -36,6 +36,7 @@ import java.util.List;
 
 public class CameraBlock extends BlockWithEntity {
     public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
+    public static final BooleanProperty POWERED = LeverBlock.POWERED;
     public static final BooleanProperty CEILING = BooleanProperty.of("ceiling");
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public CameraBlock(Settings settings) {
@@ -71,7 +72,7 @@ public class CameraBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, CEILING, LIT);
+        builder.add(FACING, CEILING, LIT, POWERED);
     }
 
     @Override
@@ -120,6 +121,7 @@ public class CameraBlock extends BlockWithEntity {
         data.putBoolean("panningYReverse", false);
         data.putByte("yawSpeed", (byte)4);
         data.putByte("pitchSpeed", (byte)4);
+        data.putBoolean("Powered", true);
         BlockPos oppositePos = pos.offset(state.get(FACING).getOpposite());
         world.setBlockState(pos, state.with(CEILING, !world.getBlockState(oppositePos).isOpaqueFullCube(world, oppositePos)), 3);
         super.onPlaced(world, pos, state, placer, itemStack);
@@ -156,5 +158,48 @@ public class CameraBlock extends BlockWithEntity {
         return checkType(type, BlockEntityInit.CAMERA,
                 (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity));
 
+    }
+    @Override
+    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        if (state.get(POWERED) && (state.get(FACING) == direction || state.get(CEILING))) {
+            return 15;
+        }
+        return 0;
+    }
+
+    @Override
+    public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        if (state.get(POWERED) && (state.get(FACING) == direction || state.get(CEILING))) {
+            return 15;
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean emitsRedstonePower(BlockState state) {
+        return true;
+    }
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if ((state.get(POWERED) != newState.get(POWERED)) || (state.get(CEILING) != newState.get(CEILING))) {
+            this.updateNeighbors(state, world, pos);
+        }
+        if (moved || state.isOf(newState.getBlock())) {
+            return;
+        }
+
+        super.onStateReplaced(state, world, pos, newState, moved);
+    }
+    private void updateNeighbors(BlockState state, World world, BlockPos pos) {
+        world.updateNeighborsAlways(pos, this);
+        for(Direction direction : DIRECTIONS){
+            world.updateNeighborsExcept(pos.offset(direction), this, direction.getOpposite());
+        }
+    }
+
+    @Override
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+        updateNeighbors(state, world, pos);
+        super.neighborUpdate(state, world, pos, sourceBlock, sourcePos, notify);
     }
 }

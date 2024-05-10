@@ -1,14 +1,21 @@
 package net.zephyr.goopyutil.client.gui.screens;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.util.GoopyScreens;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class CameraEditScreen extends BlockEntityScreen {
     Identifier texture = new Identifier(GoopyUtil.MOD_ID, "textures/gui/camera/camera_edit.png");
@@ -33,27 +40,19 @@ public class CameraEditScreen extends BlockEntityScreen {
     boolean flashlight = false;
     boolean action = false;
     byte nightvision = 0;
+    boolean sneaking = false;
 
     public CameraEditScreen(Text title) {
         super(title);
     }
+
     @Override
     protected void init() {
-        this.isActive = getNbtData().getBoolean("Active");
+        this.sneaking = false;
         int i = this.width / 2 - 43;
-        int j =  this.height / 2 - 25;
-        this.nameField = new TextFieldWidget(this.textRenderer, i, j, 82, 12, Text.translatable("container.repair"));
-        this.nameField.setFocusUnlocked(false);
-        this.nameField.setEditableColor(-1);
-        this.nameField.setUneditableColor(-1);
-        this.nameField.setDrawsBackground(false);
-        this.nameField.setMaxLength(50);
-        this.nameField.setChangedListener(this::onRenamed);
-        this.nameField.setText(getNbtData().getString("Name"));
-        this.addSelectableChild(this.nameField);
-        this.setInitialFocus(this.nameField);
-        this.nameField.setEditable(true);
+        int j = this.height / 2 - 25;
 
+        this.isActive = getNbtData().getBoolean("Active");
         this.modeX = getNbtData().getByte("ModeX");
         this.modeY = getNbtData().getByte("ModeY");
         this.xSlider = -getNbtData().getDouble("yaw");
@@ -69,8 +68,28 @@ public class CameraEditScreen extends BlockEntityScreen {
         this.action = getNbtData().getBoolean("Action");
         this.nightvision = getNbtData().getByte("NightVision");
 
+
+        this.nameField = new TextFieldWidget(this.textRenderer, i, j, 82, 12, Text.translatable("container.repair"));
+        this.nameField.setFocusUnlocked(true);
+        this.nameField.setEditableColor(-1);
+        this.nameField.setUneditableColor(-1);
+        this.nameField.setDrawsBackground(false);
+        this.nameField.setMaxLength(50);
+        this.nameField.setChangedListener(this::onRenamed);
+        this.nameField.setText(getNbtData().getString("Name"));
+        this.addSelectableChild(this.nameField);
+        this.nameField.setEditable(true);
+
         this.holding = false;
         super.init();
+    }
+
+    @Override
+    public void tick() {
+        if(!(MinecraftClient.getInstance().world.getBlockEntity(getBlockPos()) instanceof CameraBlockEntity)) {
+            MinecraftClient.getInstance().setScreen(null);
+        }
+        super.tick();
     }
 
     private void onRenamed(String name){
@@ -106,6 +125,8 @@ public class CameraEditScreen extends BlockEntityScreen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.holding = true;
 
+        if(!this.nameField.isMouseOver(mouseX, mouseY)) this.nameField.setFocused(false);
+
         if (mouseX > this.width / 2f - 77 && mouseX < this.width / 2f - 66 && mouseY > this.height / 2f + 6 && mouseY < this.height / 2f + 20) {
             this.isActive = !this.isActive;
             float pitch = this.isActive ? 1f : 0.85f;
@@ -117,21 +138,21 @@ public class CameraEditScreen extends BlockEntityScreen {
 
         if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 9, 7, 7)){
             if(button == 0){
-                speedX++;
+                speedX = speedX + 1 > 8 ? 8 : (byte)(speedX + 1);
                 compileData();
             }
             else if(button == 1){
-                speedX--;
+                speedX = speedX - 1 < 0 ? 0 : (byte)(speedX - 1);
                 compileData();
             }
         }
         else if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 21, 7, 7)){
             if(button == 0){
-                speedY++;
+                speedX = speedX + 1 > 8 ? 8 : (byte)(speedX + 1);
                 compileData();
             }
             else if(button == 1){
-                speedY--;
+                speedX = speedX - 1 < 0 ? 0 : (byte)(speedX - 1);
                 compileData();
             }
         }
@@ -303,18 +324,18 @@ public class CameraEditScreen extends BlockEntityScreen {
             }
 
             if(flashlight){
-                renderButton(context, this.width / 2 - 77, this.height / 2 - 28, 98, 72, 98, 80, 10, 8, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, this.width / 2 - 77, this.height / 2 - 28, 98, 72, 98, 80, 10, 8, 256, 256, mouseX, mouseY);
             }
 
             if(action){
-                renderButton(context, this.width / 2 - 77, this.height / 2 - 19, 108, 72, 108, 80, 10, 8, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, this.width / 2 - 77, this.height / 2 - 19, 108, 72, 108, 80, 10, 8, 256, 256, mouseX, mouseY);
             }
 
             if(nightvision == 1){
-                renderButton(context, this.width / 2 - 77, this.height / 2 - 10, 118, 72, 118, 80, 10, 8, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, this.width / 2 - 77, this.height / 2 - 10, 118, 72, 118, 80, 10, 8, 256, 256, mouseX, mouseY);
             }
             else if(nightvision == 2){
-                renderButton(context, this.width / 2 - 77, this.height / 2 - 10, 128, 72, 128, 80, 10, 8, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, this.width / 2 - 77, this.height / 2 - 10, 128, 72, 128, 80, 10, 8, 256, 256, mouseX, mouseY);
             }
 
             for(int i = 0; i < 3; i++)
@@ -322,26 +343,26 @@ public class CameraEditScreen extends BlockEntityScreen {
                 int u = i*11;
                 int v = modeX == i ? 72 : 94;
                 int xOffset = i*13;
-                    renderButton(context, this.width / 2 - 47 + xOffset, this.height / 2 - 8, u, v, u, 83, 11, 11, 256, 256, mouseX, mouseY);
+                    renderButton(texture, context, this.width / 2 - 47 + xOffset, this.height / 2 - 8, u, v, u, 83, 11, 11, 256, 256, mouseX, mouseY);
             }
             for(int i = 0; i < 3; i++)
             {
                 int u = i > 0 ? 22 + i*11 : 0;
                 int v = modeY == i ? 72 : 94;
                 int xOffset = i*13;
-                renderButton(context, this.width / 2 + 10 + xOffset, this.height / 2 - 8, u, v, u, 83, 11, 11, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, this.width / 2 + 10 + xOffset, this.height / 2 - 8, u, v, u, 83, 11, 11, 256, 256, mouseX, mouseY);
             }
 
             if(modeX == 0){
                 int x = this.width / 2 - 2 + (int)xSlider;
-                renderButton(context, x, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
             }
             else {
                 int x = this.width / 2 - 2;
                 int x1 = x + (int)xRange0;
                 int x2 = x + (int)xRange1;
-                renderButton(context, x1, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
-                renderButton(context, x2, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x1, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x2, this.height / 2 + 9, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
 
                 context.fill(x - 44, this.height / 2 + 9, x1, this.height / 2 + 16, 0xFF555555);
                 context.fill(x2 + 5, this.height / 2 + 9, x + 48, this.height / 2 + 16, 0xFF555555);
@@ -349,14 +370,14 @@ public class CameraEditScreen extends BlockEntityScreen {
 
             if(modeY == 0){
                 int x = this.width / 2 - 2 + (int)ySlider;
-                renderButton(context, x, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
             }
             else {
                 int x = this.width / 2 - 2;
                 int x1 = x + (int)yRange0;
                 int x2 = x + (int)yRange1;
-                renderButton(context, x1, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
-                renderButton(context, x2, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x1, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
+                renderButton(texture, context, x2, this.height / 2 + 21, 88 ,72, 93, 72, 5, 7, 256, 256, mouseX, mouseY);
 
                 context.fill(x - 44, this.height / 2 + 21, x1, this.height / 2 + 28, 0xFF555555);
                 context.fill(x2 + 5, this.height / 2 + 21, x + 48, this.height / 2 + 28, 0xFF555555);
@@ -378,20 +399,168 @@ public class CameraEditScreen extends BlockEntityScreen {
 
         this.nameField.render(context, mouseX, mouseY, delta);
 
+        drawTooltip(context, mouseX, mouseY);
+
+        String key = "§l" + MinecraftClient.getInstance().options.sneakKey.getBoundKeyLocalizedText().getString();
+        Text tooltips = Text.translatable("goopyutil.screens.camera_edit.tooltip", key);
+        context.drawCenteredTextWithShadow(textRenderer, tooltips, this.width/2, this.height / 2 + 42, 0xFFFFFFFF);
         super.render(context, mouseX, mouseY, delta);
     }
 
-    boolean isOnButton(double mouseX, double mouseY, int x, int y, int width, int height) {
-        return (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height);
+    void drawTooltip(DrawContext context, int mouseX, int mouseY){
+        TextRenderer render = MinecraftClient.getInstance().textRenderer;
+
+        boolean speedBL1 = isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 9, 7, 7);
+        boolean speedBL2 = isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 21, 7, 7);
+
+        boolean sliderBL1 = isOnButton(mouseX, mouseY, this.width/2 - 46, this.height / 2 + 9, 92, 7);
+        boolean sliderBL2 = isOnButton(mouseX, mouseY, this.width/2 - 46, this.height / 2 + 21, 92, 7);
+
+        boolean mode0BL1 = isOnButton(mouseX, mouseY, this.width / 2 - 47, this.height / 2 - 8, 11, 11);
+        boolean mode1BL1 = isOnButton(mouseX, mouseY, this.width / 2 - 34, this.height / 2 - 8, 11, 11);
+        boolean mode2BL1 = isOnButton(mouseX, mouseY, this.width / 2 - 21, this.height / 2 - 8, 11, 11);
+        boolean mode0BL2 = isOnButton(mouseX, mouseY, this.width / 2 + 10, this.height / 2 - 8, 11, 11);
+        boolean mode1BL2 = isOnButton(mouseX, mouseY, this.width / 2 + 23, this.height / 2 - 8, 11, 11);
+        boolean mode2BL2 = isOnButton(mouseX, mouseY, this.width / 2 + 36, this.height / 2 - 8, 11, 11);
+
+        boolean nameBL = this.nameField.isMouseOver(mouseX, mouseY);
+
+        boolean flashlightBL = isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 28, 10, 8);
+        boolean actionBL = isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 19, 10, 8);
+        boolean nightvisionBL = isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 10, 10, 8);
+        boolean powerBL = isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 + 6, 11, 14);
+
+        enum TitleArg{
+            NONE,
+            X,
+            Y
+        }
+        String argTitle;
+        TitleArg titleArg = TitleArg.NONE;
+        enum Buttons{
+            SPEED,
+            SLIDER,
+            RANGE,
+            MODE0,
+            MODE1,
+            MODE2,
+            NAME,
+            POWER,
+            FLASHLIGHT,
+            ACTION,
+            NIGHT_VISION
+
+        }
+        String button = "";
+        Buttons buttons = Buttons.POWER;
+
+        if(speedBL1 || speedBL2) buttons = Buttons.SPEED;
+        if(sliderBL1) buttons = modeX == 0 ? Buttons.SLIDER : Buttons.RANGE;
+        if(sliderBL2) buttons = modeY == 0 ? Buttons.SLIDER : Buttons.RANGE;
+        if(mode0BL1 || mode0BL2) buttons = Buttons.MODE0;
+        if(mode1BL1 || mode1BL2) buttons = Buttons.MODE1;
+        if(mode2BL1 || mode2BL2) buttons = Buttons.MODE2;
+        if(nameBL) buttons = Buttons.NAME;
+        if(flashlightBL) buttons = Buttons.FLASHLIGHT;
+        if(actionBL) buttons = Buttons.ACTION;
+        if(nightvisionBL) buttons = Buttons.NIGHT_VISION;
+        if(powerBL) buttons = Buttons.POWER;
+
+        int descriptionLength = 0;
+        switch(buttons){
+            case SPEED: {
+                button = "speed";
+                descriptionLength = 2;
+                titleArg = speedBL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case SLIDER: {
+                button = "rotation";
+                descriptionLength = sliderBL1 ? 1 : 2;
+                titleArg = sliderBL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case RANGE: {
+                button = "range";
+                descriptionLength = sliderBL1 ? 2 : 3;
+                titleArg = sliderBL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case MODE0: {
+                button = "mode0";
+                descriptionLength = 1;
+                titleArg = mode0BL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case MODE1: {
+                button = "mode1";
+                descriptionLength = 2;
+                titleArg = mode1BL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case MODE2: {
+                button = "mode2";
+                descriptionLength = 2;
+                titleArg = mode2BL1 ? TitleArg.X : TitleArg.Y;
+                break;
+            }
+            case NAME: {
+                button = "name";
+                descriptionLength = 1;
+                break;
+            }
+            case FLASHLIGHT: {
+                button = "flashlight";
+                descriptionLength = 1;
+                break;
+            }
+            case ACTION: {
+                button = "action";
+                descriptionLength = 2;
+                break;
+            }
+            case NIGHT_VISION: {
+                button = "nightvision";
+                descriptionLength = 3;
+                break;
+            }
+            case POWER: {
+                button = "power";
+                descriptionLength = 2;
+                break;
+            }
+        }
+        switch(titleArg){
+            default -> argTitle = "";
+            case X -> argTitle = "§lX";
+            case Y -> argTitle = "§lY";
+        }
+
+        Text name = Text.translatable("goopyutil.screens.camera_edit." + button + ".title", argTitle);
+        String desc = "goopyutil.screens.camera_edit." + button + ".description";
+
+        if(this.sneaking && (speedBL1 || speedBL2 || sliderBL1 || sliderBL2 || mode0BL1 || mode0BL2 || mode1BL1 || mode1BL2 || mode2BL1 || mode2BL2 || nameBL || flashlightBL || actionBL || nightvisionBL || powerBL)) {
+            List<Text> tooltip = new ArrayList<>();
+            tooltip.add(name);
+            for(int i = 0; i < descriptionLength; i++){
+                tooltip.add(Text.translatable(desc + i));
+            }
+            context.drawTooltip(render, tooltip, mouseX, mouseY);
+        }
     }
 
-    void renderButton(DrawContext context, int x, int y, int u, int v, int u2, int v2, int width, int height, int textureWidth, int textureHeight, int mouseX, int mouseY){
-        if(isOnButton(mouseX, mouseY, x, y, width, height)){
-            context.drawTexture(texture, x, y, u2, v2, width, height, textureWidth, textureHeight);
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        this.sneaking = MinecraftClient.getInstance().options.sneakKey.matchesKey(keyCode, scanCode);
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if(sneaking && MinecraftClient.getInstance().options.sneakKey.matchesKey(keyCode, scanCode)){
+            this.sneaking = false;
         }
-        else {
-            context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
-        }
+        return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
     @Override

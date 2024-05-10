@@ -4,14 +4,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.RaycastContext;
-import net.zephyr.goopyutil.client.gui.CameraTabletScreen;
+import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,6 +41,12 @@ public class CameraMixin {
     double clipToSpace(double desiredCameraDistance) {
         return 0;
     }
+    @Shadow
+    private final Vector3f horizontalPlane = new Vector3f(0.0f, 0.0f, 1.0f);
+    @Shadow
+    private final Vector3f verticalPlane = new Vector3f(0.0f, 1.0f, 0.0f);
+    @Shadow
+    private final Vector3f diagonalPlane = new Vector3f(1.0f, 0.0f, 0.0f);
 
     @Overwrite
     public void update(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta) {

@@ -3,6 +3,7 @@ package net.zephyr.goopyutil;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -10,8 +11,10 @@ import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
+import net.zephyr.goopyutil.entity.CameraMappingEntityRenderer;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.init.EntityInit;
 import net.zephyr.goopyutil.networking.NetChannels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,11 @@ public class GoopyUtilClient implements ClientModInitializer {
 
 		EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_HEAD, CameraBlockRenderer::getTexturedModelData);
 		BlockEntityRendererFactories.register(BlockEntityInit.CAMERA, CameraBlockRenderer::new);
+
+		EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_MAP, CameraMappingEntityRenderer::getTexturedModelData);
+		EntityRendererRegistry.register(EntityInit.CAMERA_MAPPING, CameraMappingEntityRenderer::new);
+
+
 
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CAMERA, RenderLayer.getCutout());
 	}
