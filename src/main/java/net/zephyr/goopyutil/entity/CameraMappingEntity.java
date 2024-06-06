@@ -2,13 +2,14 @@ package net.zephyr.goopyutil.entity;
 
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.init.ItemInit;
 
 public class CameraMappingEntity extends GoopyEntity {
     int delTimer = 60;
-    public CameraMappingEntity(EntityType<?> type, World world) {
+    public CameraMappingEntity(EntityType<? extends CameraMappingEntity> type, World world) {
         super(type, world);
     }
 
@@ -21,7 +22,7 @@ public class CameraMappingEntity extends GoopyEntity {
                     delete = false;
                 }
             }
-            delTimer = delete ? delTimer - 1 : 60;
+            delTimer = delete ? delTimer - 1 : 20;
             if (delTimer <= 0) remove(RemovalReason.DISCARDED);
         }
         super.tick();

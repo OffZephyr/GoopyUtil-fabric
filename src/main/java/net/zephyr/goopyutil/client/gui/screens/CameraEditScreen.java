@@ -21,6 +21,7 @@ public class CameraEditScreen extends BlockEntityScreen {
     Identifier texture = new Identifier(GoopyUtil.MOD_ID, "textures/gui/camera/camera_edit.png");
     boolean isActive = false;
     private TextFieldWidget nameField;
+    private TextFieldWidget actionName;
     boolean holding = false;
     byte modeX = 0;
     byte modeY = 0;
@@ -41,6 +42,7 @@ public class CameraEditScreen extends BlockEntityScreen {
     boolean action = false;
     byte nightvision = 0;
     boolean sneaking = false;
+    boolean renameActionButton = false;
 
     public CameraEditScreen(Text title) {
         super(title);
@@ -48,6 +50,7 @@ public class CameraEditScreen extends BlockEntityScreen {
 
     @Override
     protected void init() {
+        this.renameActionButton = false;
         this.sneaking = false;
         int i = this.width / 2 - 43;
         int j = this.height / 2 - 25;
@@ -80,6 +83,17 @@ public class CameraEditScreen extends BlockEntityScreen {
         this.addSelectableChild(this.nameField);
         this.nameField.setEditable(true);
 
+        this.actionName = new TextFieldWidget(this.textRenderer, this.width / 3, this.height / 2 + 25, this.width/3, 15, Text.translatable("container.repair"));
+        this.actionName.setFocusUnlocked(false);
+        this.actionName.setEditableColor(-1);
+        this.actionName.setUneditableColor(-1);
+        this.actionName.setDrawsBackground(true);
+        this.actionName.setMaxLength(24);
+        this.actionName.setChangedListener(this::onActionRenamed);
+        this.actionName.setText(getNbtData().getString("ActionName"));
+        this.addSelectableChild(this.actionName);
+        this.actionName.setEditable(true);
+
         this.holding = false;
         super.init();
     }
@@ -95,6 +109,11 @@ public class CameraEditScreen extends BlockEntityScreen {
     private void onRenamed(String name){
         NbtCompound newData = getNbtData().copy();
         newData.putString("Name", name);
+        compileData(newData);
+    }
+    private void onActionRenamed(String name){
+        NbtCompound newData = getNbtData().copy();
+        newData.putString("ActionName", name);
         compileData(newData);
     }
 
@@ -125,110 +144,127 @@ public class CameraEditScreen extends BlockEntityScreen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.holding = true;
 
+
+        if(!this.actionName.isMouseOver(mouseX, mouseY)) {
+            this.actionName.setFocused(false);
+            this.renameActionButton = false;
+            this.actionName.setFocusUnlocked(false);
+            this.nameField.setFocusUnlocked(true);
+        }
         if(!this.nameField.isMouseOver(mouseX, mouseY)) this.nameField.setFocused(false);
 
-        if (mouseX > this.width / 2f - 77 && mouseX < this.width / 2f - 66 && mouseY > this.height / 2f + 6 && mouseY < this.height / 2f + 20) {
-            this.isActive = !this.isActive;
-            float pitch = this.isActive ? 1f : 0.85f;
-            MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, pitch);
-            compileData();
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
+
+        if(!renameActionButton) {
+            if (mouseX > this.width / 2f - 77 && mouseX < this.width / 2f - 66 && mouseY > this.height / 2f + 6 && mouseY < this.height / 2f + 20) {
+                this.isActive = !this.isActive;
+                float pitch = this.isActive ? 1f : 0.85f;
+                MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, pitch);
+                compileData();
+                return super.mouseClicked(mouseX, mouseY, button);
+            }
 
 
-        if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 9, 7, 7)){
-            if(button == 0){
-                speedX = speedX + 1 > 8 ? 8 : (byte)(speedX + 1);
-                compileData();
+            if (isOnButton(mouseX, mouseY, this.width / 2 + 51, this.height / 2 + 9, 7, 7)) {
+                if (button == 0) {
+                    speedX = speedX + 1 > 8 ? 8 : (byte) (speedX + 1);
+                    compileData();
+                } else if (button == 1) {
+                    speedX = speedX - 1 < 0 ? 0 : (byte) (speedX - 1);
+                    compileData();
+                }
+            } else if (isOnButton(mouseX, mouseY, this.width / 2 + 51, this.height / 2 + 21, 7, 7)) {
+                if (button == 0) {
+                    speedX = speedX + 1 > 8 ? 8 : (byte) (speedX + 1);
+                    compileData();
+                } else if (button == 1) {
+                    speedX = speedX - 1 < 0 ? 0 : (byte) (speedX - 1);
+                    compileData();
+                }
             }
-            else if(button == 1){
-                speedX = speedX - 1 < 0 ? 0 : (byte)(speedX - 1);
-                compileData();
-            }
-        }
-        else if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 21, 7, 7)){
-            if(button == 0){
-                speedX = speedX + 1 > 8 ? 8 : (byte)(speedX + 1);
-                compileData();
-            }
-            else if(button == 1){
-                speedX = speedX - 1 < 0 ? 0 : (byte)(speedX - 1);
-                compileData();
-            }
-        }
 
-        if(isActive) {
-            for (byte i = 0; i < 3; i++) {
-                int xOffset = i * 13;
-                if (isOnButton(mouseX, mouseY, this.width / 2 - 47 + xOffset, this.height / 2 - 8, 11, 11)) {
-                    if(this.modeX != i){
+            if (isActive) {
+                for (byte i = 0; i < 3; i++) {
+                    int xOffset = i * 13;
+                    if (isOnButton(mouseX, mouseY, this.width / 2 - 47 + xOffset, this.height / 2 - 8, 11, 11)) {
+                        if (this.modeX != i) {
+                            MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+                            this.modeX = i;
+                            compileData();
+                        }
+                    }
+                }
+                for (byte i = 0; i < 3; i++) {
+                    int xOffset = i * 13;
+                    if (isOnButton(mouseX, mouseY, this.width / 2 + 10 + xOffset, this.height / 2 - 8, 11, 11)) {
+                        if (this.modeY != i) {
+                            MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+                            this.modeY = i;
+                            compileData();
+                        }
+                    }
+
+                }
+
+                if (modeX == 0) {
+                    int x = this.width / 2 - 2 + (int) xSlider;
+                    if (isOnButton(mouseX, mouseY, x, this.height / 2 + 9, 5, 7)) {
+                        this.holdingXSlider = true;
+                    }
+                } else {
+                    int x = this.width / 2 - 2;
+                    int x1 = x + (int) xRange0;
+                    int x2 = x + (int) xRange1;
+                    if (isOnButton(mouseX, mouseY, x1, this.height / 2 + 9, 5, 7)) {
+                        this.holdingXRangeMin = true;
+                    } else if (isOnButton(mouseX, mouseY, x2, this.height / 2 + 9, 5, 7)) {
+                        this.holdingXRangeMax = true;
+                    }
+                }
+                if (modeY == 0) {
+                    int x = this.width / 2 - 2 + (int) ySlider;
+                    if (isOnButton(mouseX, mouseY, x, this.height / 2 + 21, 5, 7)) {
+                        this.holdingYSlider = true;
+                    }
+                } else {
+                    int x = this.width / 2 - 2;
+                    int x1 = x + (int) yRange0;
+                    int x2 = x + (int) yRange1;
+                    if (isOnButton(mouseX, mouseY, x1, this.height / 2 + 21, 5, 7)) {
+                        this.holdingYRangeMin = true;
+                    } else if (isOnButton(mouseX, mouseY, x2, this.height / 2 + 21, 5, 7)) {
+                        this.holdingYRangeMax = true;
+                    }
+                }
+                if (isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 28, 10, 8)) {
+                    MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+                    this.flashlight = !flashlight;
+                    compileData();
+                }
+                if (isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 19, 10, 8)) {
+                    MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+                    this.action = !action;
+                    compileData();
+                }
+                if (isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 10, 10, 8)) {
+                    MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
+                    this.nightvision = nightvision - 1 < 0 ? 2 : (byte) (nightvision - 1);
+                    compileData();
+                }
+
+                if (action) {
+                    if (isOnButton(mouseX, mouseY, this.width / 2 - 87, this.height / 2 - 18, 6, 7)) {
                         MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
-                        this.modeX = i;
-                        compileData();
+                        this.renameActionButton = true;
+                        this.nameField.setFocused(false);
+                        this.nameField.setFocusUnlocked(false);
+                        this.actionName.setFocusUnlocked(true);
+                        this.actionName.setFocused(true);
                     }
                 }
             }
-            for (byte i = 0; i < 3; i++) {
-                int xOffset = i * 13;
-                if (isOnButton(mouseX, mouseY, this.width / 2 + 10 + xOffset, this.height / 2 - 8, 11, 11)) {
-                    if(this.modeY != i) {
-                        MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
-                        this.modeY = i;
-                        compileData();
-                    }
-                }
+        }
+        else {
 
-            }
-
-            if(modeX == 0){
-                int x = this.width / 2 - 2 + (int)xSlider;
-                if(isOnButton(mouseX, mouseY, x, this.height / 2 + 9, 5, 7)){
-                    this.holdingXSlider = true;
-                }
-            }
-            else {
-                int x = this.width / 2 - 2;
-                int x1 = x + (int)xRange0;
-                int x2 = x + (int)xRange1;
-                if(isOnButton(mouseX, mouseY, x1, this.height / 2 + 9, 5, 7)){
-                    this.holdingXRangeMin = true;
-                }
-                else if(isOnButton(mouseX, mouseY, x2, this.height / 2 + 9, 5, 7)){
-                    this.holdingXRangeMax = true;
-                }
-            }
-            if(modeY == 0){
-                int x = this.width / 2 - 2 + (int)ySlider;
-                if(isOnButton(mouseX, mouseY, x, this.height / 2 + 21, 5, 7)){
-                    this.holdingYSlider = true;
-                }
-            }
-            else {
-                int x = this.width / 2 - 2;
-                int x1 = x + (int)yRange0;
-                int x2 = x + (int)yRange1;
-                if(isOnButton(mouseX, mouseY, x1, this.height / 2 + 21, 5, 7)){
-                    this.holdingYRangeMin = true;
-                }
-                else if(isOnButton(mouseX, mouseY, x2, this.height / 2 + 21, 5, 7)){
-                    this.holdingYRangeMax = true;
-                }
-            }
-            if(isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 28, 10, 8)){
-                MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
-                this.flashlight = !flashlight;
-                compileData();
-            }
-            if(isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 19, 10, 8)){
-                MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
-                this.action = !action;
-                compileData();
-            }
-            if(isOnButton(mouseX, mouseY, this.width / 2 - 77, this.height / 2 - 10, 10, 8)){
-                MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1);
-                this.nightvision = nightvision - 1 < 0 ? 2 : (byte)(nightvision - 1);
-                compileData();
-            }
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
@@ -286,9 +322,9 @@ public class CameraEditScreen extends BlockEntityScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 9, 7, 7)){
-            if(amount > 0) {
+            if(horizontalAmount > 0 || verticalAmount > 0) {
                 speedX = speedX + 1 > 8 ? 8 : (byte)(speedX + 1);
             }
             else {
@@ -297,7 +333,7 @@ public class CameraEditScreen extends BlockEntityScreen {
             compileData();
         }
         else if(isOnButton(mouseX, mouseY, this.width/2 + 51, this.height / 2 + 21, 7, 7)){
-            if(amount > 0) {
+            if(horizontalAmount > 0 || verticalAmount > 0) {
                 speedY = speedY + 1 > 8 ? 8 : (byte)(speedY + 1);
             }
             else {
@@ -305,13 +341,13 @@ public class CameraEditScreen extends BlockEntityScreen {
             }
             compileData();
         }
-        return super.mouseScrolled(mouseX, mouseY, amount);
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 
-        renderBackground(context);
+        renderInGameBackground(context);
 
         context.drawTexture(texture, this.width/2 - 81, this.height/2 - 36, 0, 0, 146, 72, 256, 256);
 
@@ -385,6 +421,9 @@ public class CameraEditScreen extends BlockEntityScreen {
 
             //context.drawTexture(texture, this.width/2 - 47, this.height/2 - 8, 0, 72, 11, 11, 256, 256);
 
+            if(action) {
+                renderButton(texture, context, this.width / 2 - 87, this.height / 2 - 18, 146, 63, 152, 63, 6, 7, 256, 256, mouseX, mouseY);
+            }
         }
         else {
             if (mouseX > this.width / 2 - 77 && mouseX < this.width / 2 - 66 && mouseY > this.height / 2 + 6 && mouseY < this.height / 2 + 20) {
@@ -397,14 +436,30 @@ public class CameraEditScreen extends BlockEntityScreen {
         context.drawTexture(texture, this.width/2 + 51, this.height / 2 + 9, 146, speedX * 7, 7, 7, 256, 256);
         context.drawTexture(texture, this.width/2 + 51, this.height / 2 + 21, 146, speedY * 7, 7, 7, 256, 256);
 
-        this.nameField.render(context, mouseX, mouseY, delta);
-
-        drawTooltip(context, mouseX, mouseY);
-
         String key = "§l" + MinecraftClient.getInstance().options.sneakKey.getBoundKeyLocalizedText().getString();
         Text tooltips = Text.translatable("goopyutil.screens.camera_edit.tooltip", key);
-        context.drawCenteredTextWithShadow(textRenderer, tooltips, this.width/2, this.height / 2 + 42, 0xFFFFFFFF);
-        super.render(context, mouseX, mouseY, delta);
+        Text renameAction = Text.translatable("goopyutil.screens.camera_edit.renameAction", key);
+
+        if(renameActionButton){
+            renderInGameBackground(context);
+            context.drawCenteredTextWithShadow(textRenderer, renameAction, this.width/2, this.height / 2 - 32, 0xFFFFFFFF);
+
+            int width = textRenderer.getWidth(this.actionName.getText() + 10);
+            int height = 30;
+            int x = this.width / 2 - width/2;
+            int y = this.height / 2 - height/2;
+            context.fill(x - 1, y - 1, x + width + 1, y + height + 1, 0xFFFFFFFF);
+            context.fill(x, y, x + width, y + height, 0xFF666666);
+            context.drawCenteredTextWithShadow(textRenderer, this.actionName.getText(), this.width / 2, this.height / 2 - 4, 0xFFFFFFFF);
+            this.actionName.render(context, mouseX, mouseY, delta);
+        }
+        else {
+            context.drawCenteredTextWithShadow(textRenderer, tooltips, this.width/2, this.height / 2 + 42, 0xFFFFFFFF);
+
+            this.nameField.render(context, mouseX, mouseY, delta);
+        }
+
+        drawTooltip(context, mouseX, mouseY);super.render(context, mouseX, mouseY, delta);
     }
 
     void drawTooltip(DrawContext context, int mouseX, int mouseY){

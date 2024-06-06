@@ -83,11 +83,6 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        return super.mouseScrolled(mouseX, mouseY, amount);
-    }
-
-    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         dragging = true;
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);

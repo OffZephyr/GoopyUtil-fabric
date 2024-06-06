@@ -32,16 +32,13 @@ public class GoopyScreens {
     public static Map<String, Screen> getScreens(){
         return ScreenList;
     }
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex, BlockPos blockPos){
         openScreenOnServer(player, screenIndex, blockPos, new NbtCompound());
     }
 
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex, int entityID){
         openScreenOnServer(player, screenIndex, entityID, new NbtCompound());
     }
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex, BlockPos blockPos, NbtCompound data){
         PacketByteBuf buf = PacketByteBufs.create();
         NbtCompound nbt = new NbtCompound();
@@ -52,7 +49,6 @@ public class GoopyScreens {
 
         ServerPlayNetworking.send(player, NetChannels.SCREEN_PACKET_ID, buf);
     }
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex, int entityID, NbtCompound data){
         PacketByteBuf buf = PacketByteBufs.create();
         NbtCompound nbt = new NbtCompound();
@@ -62,7 +58,6 @@ public class GoopyScreens {
         buf.writeNbt(nbt);
         ServerPlayNetworking.send(player, NetChannels.SCREEN_PACKET_ID, buf);
     }
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex, NbtCompound data){
         PacketByteBuf buf = PacketByteBufs.create();
         NbtCompound nbt = new NbtCompound();
@@ -71,7 +66,6 @@ public class GoopyScreens {
         buf.writeNbt(nbt);
         ServerPlayNetworking.send(player, NetChannels.SCREEN_PACKET_ID, buf);
     }
-    @Environment(EnvType.CLIENT)
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex){
         PacketByteBuf buf = PacketByteBufs.create();
         NbtCompound nbt = new NbtCompound();

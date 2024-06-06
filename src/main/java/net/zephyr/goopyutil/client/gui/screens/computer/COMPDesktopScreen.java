@@ -106,12 +106,12 @@ public class COMPDesktopScreen extends COMPBaseScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if(wallpaperSelect) {
-            this.wallpapersListOffset -= (amount*15);
-            this.wallpapersListOffsetOld -= (amount*15);
+            this.wallpapersListOffset -= (float) (verticalAmount * 15);
+            this.wallpapersListOffsetOld -= (float) (verticalAmount * 15);
         }
-        return super.mouseScrolled(mouseX, mouseY, amount);
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override

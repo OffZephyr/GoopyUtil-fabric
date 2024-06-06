@@ -1,6 +1,7 @@
 package net.zephyr.goopyutil.blocks.camera;
 
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BeaconBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -155,8 +156,7 @@ public class CameraBlock extends BlockWithEntity {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
 
-        return checkType(type, BlockEntityInit.CAMERA,
-                (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity));
+        return validateTicker(type, BlockEntityInit.CAMERA, (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity));
 
     }
     @Override
@@ -177,7 +177,7 @@ public class CameraBlock extends BlockWithEntity {
 
     @Override
     public boolean emitsRedstonePower(BlockState state) {
-        return true;
+        return false;
     }
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {

@@ -3,11 +3,15 @@ package net.zephyr.goopyutil.item;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.*;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -24,6 +28,7 @@ import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
 import net.zephyr.goopyutil.entity.CameraMappingEntity;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.init.EntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 
 import java.util.ArrayList;
@@ -34,6 +39,7 @@ public class TapeMesurerItem extends Item {
     public TapeMesurerItem(Settings settings) {
         super(settings);
     }
+
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
@@ -127,33 +133,35 @@ public class TapeMesurerItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        map = new CameraMappingEntity(EntityInit.CAMERA_MAPPING, world);
 
         boolean flag1 = stack.getOrCreateNbt().getBoolean("hasData");
         boolean flag2 = entity instanceof PlayerEntity;
-        Item item = ((PlayerEntity) entity).getOffHandStack().getItem();
+        Item item = flag2 ? ((PlayerEntity) entity).getOffHandStack().getItem() : null;
         boolean flag3 = flag2 && item instanceof TabletItem && stack.getOrCreateNbt().getBoolean("hasCorner");
 
-        if(map != null && !map.getBoundingBox().contract(5).contains(entity.getPos().getX(), entity.getPos().getY(), entity.getPos().getZ())){
-            map.updatePosition(entity.getBlockPos().getX() + 0.5f, entity.getBlockPos().getY() - 20, entity.getBlockPos().getZ() + 0.5f);
+        if (this.map != null && !this.map.getBoundingBox().contract(5).contains(entity.getPos().getX(), entity.getPos().getY(), entity.getPos().getZ())) {
+            this.map.updatePosition(entity.getBlockPos().getX() + 0.5f, entity.getBlockPos().getY() - 20, entity.getBlockPos().getZ() + 0.5f);
         }
 
 
-        if(flag2 && selected && item instanceof TabletItem && !stack.getOrCreateNbt().getBoolean("summon_entity")){
-            if(!world.isClient()) {
-                map = ((EntityType<CameraMappingEntity>) EntityType.get("goopyutil:camera_mapping").get()).create(world);
-                BlockPos entPos = entity.getBlockPos();
-                map.updatePosition(entPos.getX() + 0.5f, entPos.getY() - 20, entPos.getZ() + 0.5f);
-                world.spawnEntity(map);
-                stack.getOrCreateNbt().putInt("mapEntityID", map.getId());
-                map.updateEntityData(map.getCustomData().copy(), map.getServer(), map.getId());
+        if (flag2 && selected && item instanceof TabletItem && !stack.getOrCreateNbt().getBoolean("summon_entity")) {
+            BlockPos entPos = entity.getBlockPos();
+            if (world instanceof ServerWorld servWorld) {
+                System.out.println(this.map);
+                this.map.setPos(entPos.getX() + 0.5f, entPos.getY() - 20, entPos.getZ() + 0.5f);
+                servWorld.spawnEntity(this.map);
+                stack.getOrCreateNbt().putInt("mapEntityID", this.map.getId());
+                this.map.updateEntityData(this.map.getCustomData().copy(), this.map.getServer(), this.map.getId());
             }
             stack.getOrCreateNbt().putBoolean("summon_entity", true);
         }
-        if(!flag2 || !selected || !(item instanceof TabletItem)) {
+        if (!flag2 || !selected || !(item instanceof TabletItem)) {
             stack.getOrCreateNbt().putBoolean("hasCorner", false);
             stack.getOrCreateNbt().putBoolean("summon_entity", false);
-            if(map!=null) map.remove(Entity.RemovalReason.DISCARDED);
-            map = null;
+            if (this.map != null && stack.getOrCreateNbt().getInt("mapEntityID") != 0 && world.getEntityById(stack.getOrCreateNbt().getInt("mapEntityID")) != null) {
+                world.getEntityById(stack.getOrCreateNbt().getInt("mapEntityID")).remove(Entity.RemovalReason.DISCARDED);
+            }
             stack.getOrCreateNbt().putInt("mapEntityID", 0);
         }
 
@@ -164,7 +172,7 @@ public class TapeMesurerItem extends Item {
             if (hasCorner) {
                 long corner1 = stack.getOrCreateNbt().getLong("setupCorner1");
                 HitResult blockHit = entity.raycast(20.0, 0.0f, false);
-                BlockPos pos = ((BlockHitResult)blockHit).getBlockPos();
+                BlockPos pos = ((BlockHitResult) blockHit).getBlockPos();
                 BlockPos startPos = BlockPos.fromLong(corner1);
 
                 stack.getOrCreateNbt().putLong("setupCorner2", corner2(startPos, pos));

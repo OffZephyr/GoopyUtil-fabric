@@ -12,21 +12,32 @@ import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.entity.CameraMappingEntityRenderer;
-import net.zephyr.goopyutil.init.BlockEntityInit;
-import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.init.EntityInit;
+import net.zephyr.goopyutil.init.*;
 import net.zephyr.goopyutil.networking.NetChannels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class GoopyUtilClient implements ClientModInitializer {
 	public static final String MOD_ID = "goopyutil";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static boolean lookForLists = false;
 
 	@Override
 	public void onInitializeClient() {
 		NetChannels.registerS2CPackets();
+		ItemInit.clientRegisterItem();
+		ComputerInit.init();
+		ScreensInit.init();
+		LayeredBlockLayersInit.init();
 		RegisterRenderers();
+		try {
+			BlackWhitelistInit.Init();
+		} catch (IOException e) {
+			lookForLists = true;
+			LOGGER.info("COULDNT FETCH LISTS");
+		}
 
 		HudRenderCallback.EVENT.register(new TabOverlayClass());
 		LOGGER.info("Client Initialized.");

@@ -31,9 +31,6 @@ public class BlockInit {
                 new BlockItem(block, new FabricItemSettings()));
     }
     public static void registerBlocks() {
-        ComputerInit.init();
-        ScreensInit.init();
-        LayeredBlockLayersInit.init();
 
         GoopyUtil.LOGGER.info("Registering Blocks for " + GoopyUtil.MOD_ID.toUpperCase());
     }

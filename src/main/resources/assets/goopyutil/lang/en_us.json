@@ -13,6 +13,7 @@
   "goopyutil.commands.money": "%s currently owns §a§lF$%d§r.",
 
   "goopyutil.screens.camera_edit.tooltip": "Hold %s to show helpful tips and info.",
+  "goopyutil.screens.camera_edit.renameAction": "Pick a name for your Action button.",
 
   "goopyutil.screens.camera_edit.speed.title": "§lPanning Speed (%s§l)",
   "goopyutil.screens.camera_edit.speed.description0": "§6Scroll/Click §7to change the speed",

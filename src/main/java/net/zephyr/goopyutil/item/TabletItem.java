@@ -39,11 +39,13 @@ public class TabletItem extends Item {
                     camsData.add(cams[i]);
                 }
 
-                for (int j = 0; j < camsData.size(); j++) {
-                    if (!(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(camsData.get(j))) instanceof CameraBlockEntity)) {
-                        camsData.remove(j);
-                        data.putLongArray("Cameras", camsData);
-                        GoopyScreens.saveNbtFromScreen(data);
+                if(world.isClient()) {
+                    for (int j = 0; j < camsData.size(); j++) {
+                        if (!(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(camsData.get(j))) instanceof CameraBlockEntity)) {
+                            camsData.remove(j);
+                            data.putLongArray("Cameras", camsData);
+                            GoopyScreens.saveNbtFromScreen(data);
+                        }
                     }
                 }
 

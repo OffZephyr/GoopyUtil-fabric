@@ -26,10 +26,12 @@ public class CameraTabletScreen extends GoopyScreen {
     Identifier overlay = new Identifier(GoopyUtil.MOD_ID, "textures/gui/camera/camera_overlay.png");
     Identifier white = new Identifier(GoopyUtil.MOD_ID, "textures/block/white.png");
     long currentCam = 0;
+    int curCamIndex = 0;
     List<Long> cams;
     boolean hideHud;
     int mapMultiplier = 1;
     int mapCornerPosX, mapCornerPosY, mapEndPosX, mapEndPosY, mapWidth, mapHeight;
+    boolean holding = false;
     BlockPos minPos, maxPos;
     public CameraTabletScreen(Text title) {
         super(title);
@@ -37,6 +39,7 @@ public class CameraTabletScreen extends GoopyScreen {
     @Override
     protected void init() {
         NbtCompound data = getNbtData();
+        holding = false;
         mapCornerPosX = this.width - this.width/2;
         mapCornerPosY = this.height - (this.height/2 + this.height/12);
         mapEndPosX = this.width - this.width/18;
@@ -52,7 +55,8 @@ public class CameraTabletScreen extends GoopyScreen {
         for (long cam : camsData) {
             cams.add(cam);
         }
-        currentCam = !cams.isEmpty() ? cams.get(getNbtData().getInt("currentCam")) : 0;
+        curCamIndex = getNbtData().getInt("currentCam");
+        currentCam = !cams.isEmpty() && getNbtData().getInt("currentCam") < cams.size() ? cams.get(curCamIndex) : 0;
 
         super.init();
     }
@@ -60,9 +64,44 @@ public class CameraTabletScreen extends GoopyScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         context.drawTexture(overlay, 0, 0, 0, 0, this.width, this.height, this.width, this.height);
         drawMap(context, mouseX, mouseY);
+        drawActionButton(context, mouseX, mouseY);
+
         super.render(context, mouseX, mouseY, delta);
     }
 
+    void drawActionButton(DrawContext context, int mouseX, int mouseY){
+        if(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam)) != null) {
+            NbtCompound nbt = ((GoopyBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam))).getCustomData().copy();
+            if (nbt.getBoolean("Action")) {
+                int width = textRenderer.getWidth(nbt.getString("ActionName") + 10);
+                int height = 30;
+                int diff = mapEndPosX + (mapMultiplier * 2) - (mapEndPosX - (mapWidth * mapMultiplier) - mapMultiplier);
+                int x = (mapEndPosX - (mapWidth * mapMultiplier) - mapMultiplier) + (diff / 2) - width / 2;
+                if (width - 10 > diff) x = mapEndPosX + (mapMultiplier * 2) + 5 - width;
+                int y = (mapEndPosY - (mapHeight * mapMultiplier) - mapMultiplier) - 5 - height;
+                context.fill(x - 1, y - 1, x + width + 1, y + height + 1, 0xFFFFFFFF);
+                boolean bl = isOnButton(mouseX, mouseY, x, y, width, height);
+                int color = bl ? holding ? ColorHelper.Argb.getArgb(255, 75, 255, 75) : ColorHelper.Argb.getArgb(255, 150, 150, 150) : ColorHelper.Argb.getArgb(255, 100, 100, 100);
+                context.fill(x, y, x + width, y + height, color);
+                context.drawCenteredTextWithShadow(textRenderer, nbt.getString("ActionName"), x + width / 2, (y + (height / 2)) - 4, 0xFFFFFFFF);
+            }
+        }
+    }
+    void buttonCheck(double mouseX, double mouseY){
+        if( MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam)) != null) {
+            NbtCompound nbt = ((GoopyBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam))).getCustomData().copy();
+
+            int width = textRenderer.getWidth(nbt.getString("ActionName") + 10);
+            int height = 30;
+            int diff = mapEndPosX + (mapMultiplier * 2) - (mapEndPosX - (mapWidth * mapMultiplier) - mapMultiplier);
+            int x = (mapEndPosX - (mapWidth * mapMultiplier) - mapMultiplier) + (diff / 2) - width / 2;
+            if (width - 10 > diff) x = mapEndPosX + (mapMultiplier * 2) + 5 - width;
+            int y = (mapEndPosY - (mapHeight * mapMultiplier) - mapMultiplier) - 5 - height;
+            boolean bl = isOnButton(mouseX, mouseY, x, y, width, height);
+
+            setPowered(bl && holding);
+        }
+    }
     void drawMap(DrawContext context, int mouseX, int mouseY){
         NbtCompound data = getNbtData();
 
@@ -132,6 +171,8 @@ public class CameraTabletScreen extends GoopyScreen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.holding = true;
+        buttonCheck(mouseX, mouseY);
         changeCam(mouseX, mouseY);
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -140,6 +181,13 @@ public class CameraTabletScreen extends GoopyScreen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         changeCam(mouseX, mouseY);
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        this.holding = false;
+        buttonCheck(mouseX, mouseY);
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     void changeCam(double mouseX, double mouseY) {
@@ -154,7 +202,13 @@ public class CameraTabletScreen extends GoopyScreen {
 
             boolean bl2 = isOnButton(mouseX, mouseY, x, z, mapMultiplier, mapMultiplier) && cam != currentCam;
 
-            if (bl2) currentCam = cam;
+            if (bl2) {
+                currentCam = cam;
+                curCamIndex = cams.indexOf(currentCam);
+                NbtCompound nbt = getNbtData();
+                nbt.putInt("currentCam", curCamIndex);
+                compileData(nbt);
+            }
         }
     }
 
@@ -187,12 +241,28 @@ public class CameraTabletScreen extends GoopyScreen {
         nbt.putBoolean("used", used);
         compileData(nbt);
     }
+    public void setPowered(boolean power){
+        if(MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam)) != null) {
+            NbtCompound nbt = ((GoopyBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam))).getCustomData().copy();
+            if (nbt.getBoolean("Action")) {
+                if (nbt.getBoolean("Powered") != power) {
+                    nbt.putBoolean("Powered", power);
+                    GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
+                }
+            } else {
+                if (nbt.getBoolean("Powered")) {
+                    nbt.putBoolean("Powered", false);
+                    GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
+                }
+            }
+        }
+    }
     private void compileData(NbtCompound nbt){
         GoopyScreens.saveNbtFromScreen(nbt);
     }
 
     void setLight(long pos, boolean value){
-        if(MinecraftClient.getInstance().world != null) {
+        if(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(pos)) != null) {
             NbtCompound nbt = ((GoopyBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(pos))).getCustomData().copy();
             if (nbt.getBoolean("Flashlight")) {
                 if (nbt.getBoolean("Lit") != value) {
@@ -208,7 +278,7 @@ public class CameraTabletScreen extends GoopyScreen {
         }
     }
     void setUsed(long pos, boolean value){
-        if(MinecraftClient.getInstance().world != null) {
+        if(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(pos)) != null) {
             NbtCompound nbt = ((GoopyBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(pos))).getCustomData().copy();
             if (nbt.getBoolean("isUsed") != value) {
                 nbt.putBoolean("isUsed", value);

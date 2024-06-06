@@ -11,8 +11,14 @@ import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.entity.CameraMappingEntity;
 
 public class EntityInit {
-    public static final EntityType<CameraMappingEntity> CAMERA_MAPPING = Registry.register(Registries.ENTITY_TYPE,
-            new Identifier(GoopyUtil.MOD_ID, "camera_mapping"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, CameraMappingEntity::new)
-                    .dimensions(EntityDimensions.changing(50, 40)).build());
+    public static final EntityType<CameraMappingEntity> CAMERA_MAPPING =
+            Registry.register(
+                    Registries.ENTITY_TYPE, new Identifier(GoopyUtil.MOD_ID, "camera_mapping"),
+                    FabricEntityTypeBuilder.create(SpawnGroup.MISC, CameraMappingEntity::new)
+                            .dimensions(EntityDimensions.fixed(50, 40)).build()
+            );
+
+    public static void registerEntities(){
+        GoopyUtil.LOGGER.info("Registering Entities for " + GoopyUtil.MOD_ID.toUpperCase());
+    }
 }

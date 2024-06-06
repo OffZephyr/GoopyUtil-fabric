@@ -36,6 +36,10 @@ public class ItemInit {
     }
     public static void registerItems() {
         GoopyUtil.LOGGER.info("Registering Items for " + GoopyUtil.MOD_ID.toUpperCase());
+    }
+
+    public static void clientRegisterItem(){
+        GoopyUtil.LOGGER.info("Registering Items on Client for " + GoopyUtil.MOD_ID.toUpperCase());
 
         ModelPredicateProviderRegistry.register(TABLET, new Identifier("offhand"), (itemStack, clientWorld, livingEntity, i) -> {
             if (livingEntity == null) {
