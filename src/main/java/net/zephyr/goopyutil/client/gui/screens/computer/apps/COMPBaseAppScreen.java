@@ -10,9 +10,9 @@ import net.zephyr.goopyutil.client.gui.screens.computer.COMPBaseScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
 
 public abstract class COMPBaseAppScreen extends COMPBaseScreen {
-    public Identifier BOTTOM_BAR = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
-    public Identifier WINDOW_BASE = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/window_base.png");
-    public Identifier BUTTONS = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/computer_buttons.png");
+    public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
+    public Identifier WINDOW_BASE = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/window_base.png");
+    public Identifier BUTTONS = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/computer_buttons.png");
     public COMPBaseAppScreen(Text title) {
         super(title);
     }

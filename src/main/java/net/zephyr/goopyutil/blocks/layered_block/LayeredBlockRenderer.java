@@ -1,27 +1,42 @@
 package net.zephyr.goopyutil.blocks.layered_block;
 
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.BlockModelRenderer;
+import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.init.BlockInit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class LayeredBlockRenderer implements BlockEntityRenderer<LayeredBlockEntity> {
+    private final BlockRenderManager renderManager;
+    private final BlockModelRenderer blockModelRenderer;
     private final ModelPart model;
     private static final String MODEL = "model";
     BlockPos[] posOffset;
@@ -29,13 +44,15 @@ public class LayeredBlockRenderer implements BlockEntityRenderer<LayeredBlockEnt
 
     private LayeredBlockLayer[][] Layers = new LayeredBlockLayer[3][6];
     public LayeredBlockRenderer(BlockEntityRendererFactory.Context context){
+        this.renderManager = context.getRenderManager();
+        this.blockModelRenderer = new BlockModelRenderer(MinecraftClient.getInstance().getBlockColors());
         ModelPart modelPart = context.getLayerModelPart(JavaModels.LAYERED_BLOCK_FACE);
         this.model = modelPart.getChild(MODEL);
     }
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        modelPartData.addChild("model", ModelPartBuilder.create().uv(0, 0).cuboid(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 0.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 16.0F, 0.0F));
+        modelPartData.addChild("model", ModelPartBuilder.create().uv(0, 0).cuboid(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 0.0F, Set.of(Direction.NORTH)), ModelTransform.pivot(0.0F, 16.0F, 0.0F));
         return TexturedModelData.of(modelData, 16, 16);
     }
 
@@ -103,7 +120,7 @@ public class LayeredBlockRenderer implements BlockEntityRenderer<LayeredBlockEnt
                     if(i == 0){
                         matrices.push();
                         matrices.translate(0.5f, -0.5f, 0.5f);
-                        Identifier texture = new Identifier(GoopyUtil.MOD_ID, "block/layered_block");
+                        Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "block/layered_block");
                         SpriteIdentifier spriteIdentifier = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture);
                         VertexConsumer vertexConsumer = spriteIdentifier.getVertexConsumer(vertexConsumers, RenderLayer::getEntityCutout);
 
@@ -145,10 +162,13 @@ public class LayeredBlockRenderer implements BlockEntityRenderer<LayeredBlockEnt
             model.roll = (float) Math.PI / 180 * roll;
             model.pitch = (float) Math.PI / 180 * pitch;
             model.yaw = (float) Math.PI / 180 * yaw;
-            model.render(matrices, vertices, getLightLevel(world, checkPos), overlay, r, g, b, 1f);
-
+            float red = r * 255;
+            float green = g * 255;
+            float blue = b * 255;
+            int color = ColorHelper.Argb.getArgb(1, (int)red, (int)green, (int)blue);
+            model.render(matrices, vertices, getLightLevel(world, checkPos), overlay, color);
         }
-    }
+ }
 
     boolean flag(World world, BlockPos pos){
         return !world.getBlockState(pos).isOpaqueFullCube(world, pos);

@@ -1,11 +1,15 @@
 package net.zephyr.goopyutil.blocks.layered_block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
@@ -20,6 +24,8 @@ import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.WorldView;
+import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
@@ -35,14 +41,22 @@ public class LayeredBlock extends GoopyBlockWithEntity {
     }
 
     @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return null;
+    }
+
+    @Override
     public BlockState rotate(BlockState state, BlockRotation rotation) {
         return (BlockState)state.with(FACING, rotation.rotate(state.get(FACING)));
     }
 
     @Override
-    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
         ItemStack itemStack = super.getPickStack(world, pos, state);
-        world.getBlockEntity(pos, BlockEntityInit.LAYERED_BLOCK).ifPresent(blockEntity -> blockEntity.setStackNbt(itemStack));
+        world.getBlockEntity(pos, BlockEntityInit.LAYERED_BLOCK).ifPresent((blockEntity) -> {
+            blockEntity.setStackNbt(itemStack, world.getRegistryManager());
+        });
+
         return itemStack;
     }
 
@@ -50,7 +64,10 @@ public class LayeredBlock extends GoopyBlockWithEntity {
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         ItemStack itemStack = new ItemStack(this);
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
-        blockEntity.setStackNbt(itemStack);
+        if(blockEntity instanceof GoopyBlockEntity ent){
+            NbtCompound nbt = ent.getCustomData();
+            itemStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, existingNbt -> NbtComponent.of(existingNbt.copyNbt().copyFrom(nbt)));
+        }
         List<ItemStack> item = new ArrayList<>();
         item.add(itemStack);
         return item;
@@ -82,7 +99,7 @@ public class LayeredBlock extends GoopyBlockWithEntity {
     }
 
     @Override
-    public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+    public boolean canPathfindThrough(BlockState state, NavigationType type) {
         return false;
     }
 

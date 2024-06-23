@@ -25,14 +25,14 @@ public class LayeredBlockLayer {
     }
 
     public Identifier getTexture() {
-        return new Identifier(GoopyUtil.MOD_ID, "block/layers/" + this.name);
+        return Identifier.of(GoopyUtil.MOD_ID, "block/layers/" + this.name);
     }
     public int getTextureSize() {
         return this.textureSize;
     }
 
     public Identifier getRgbTexture(Integer index) {
-        return new Identifier(GoopyUtil.MOD_ID, "block/layers/" + this.name + "_rgb" + index.toString());
+        return Identifier.of(GoopyUtil.MOD_ID, "block/layers/" + this.name + "_rgb" + index.toString());
     }
     public byte getRgbCount(){
         return rgbLayers;

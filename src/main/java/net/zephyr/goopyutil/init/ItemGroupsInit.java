@@ -1,6 +1,5 @@
 package net.zephyr.goopyutil.init;
 
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -13,8 +12,8 @@ import net.zephyr.goopyutil.GoopyUtil;
 
 public class ItemGroupsInit {
 
-    Item icon = new Item(new FabricItemSettings());
-    public static final ItemGroup GOOPY_UTIL = Registry.register(Registries.ITEM_GROUP, new Identifier(GoopyUtil.MOD_ID, "creative"),
+    Item icon = new Item(new Item.Settings());
+    public static final ItemGroup GOOPY_UTIL = Registry.register(Registries.ITEM_GROUP, Identifier.of(GoopyUtil.MOD_ID, "creative"),
             FabricItemGroup.builder()
                     .displayName(Text.translatable(GoopyUtil.MOD_ID + ".creative"))
                     .noRenderedName()

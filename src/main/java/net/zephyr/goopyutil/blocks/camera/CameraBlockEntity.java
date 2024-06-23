@@ -23,6 +23,7 @@ public class CameraBlockEntity extends GoopyBlockEntity {
 
             float offset = (cameraBaseSpeed * (speedX+1));
             offset = data.getBoolean("panningXReverse") ? -offset : offset;
+            if(state.get(CameraBlock.POWERED)) offset = 0;
 
             if(data.getFloat("panningXProgress") >= 150) data.putBoolean("panningXReverse", true);
             else if(data.getFloat("panningXProgress") <= -50) data.putBoolean("panningXReverse", false);
@@ -43,6 +44,7 @@ public class CameraBlockEntity extends GoopyBlockEntity {
 
             float offset = (cameraBaseSpeed * (speedX+1));
             offset = data.getBoolean("panningYReverse") ? -offset : offset;
+            if(state.get(CameraBlock.POWERED)) offset = 0;
 
             if(data.getFloat("panningYProgress") >= 150) data.putBoolean("panningYReverse", true);
             else if(data.getFloat("panningYProgress") <= -50) data.putBoolean("panningYReverse", false);

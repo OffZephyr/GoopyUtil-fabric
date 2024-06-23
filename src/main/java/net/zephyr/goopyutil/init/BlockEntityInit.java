@@ -17,16 +17,16 @@ public class BlockEntityInit {
 
     public static void registerBlockEntities() {
         COMPUTER =
-                Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(GoopyUtil.MOD_ID, "computer"),
+                Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "computer"),
                         FabricBlockEntityTypeBuilder.create(ComputerBlockEntity::new,
                                 BlockInit.COMPUTER).build());
         LAYERED_BLOCK =
-                Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(GoopyUtil.MOD_ID, "layered_block"),
+                Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "layered_block"),
                         FabricBlockEntityTypeBuilder.create(LayeredBlockEntity::new,
                                 BlockInit.LAYERED_BLOCK_BASE).build());
 
         CAMERA =
-                Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(GoopyUtil.MOD_ID, "camera"),
+                Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "camera"),
                         FabricBlockEntityTypeBuilder.create(CameraBlockEntity::new,
                                 BlockInit.CAMERA).build());
 

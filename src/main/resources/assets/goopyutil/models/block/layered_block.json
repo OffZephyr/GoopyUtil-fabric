@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"0": "goopyutil:block/layered_block",
-		"particle": "goopyutil:block/layered_block_empty"
+		"particle": "goopyutil:block/layered_block"
 	},
 	"elements": [
 		{

@@ -11,9 +11,10 @@ import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
-import net.zephyr.goopyutil.entity.CameraMappingEntityRenderer;
+import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntityRenderer;
+import net.zephyr.goopyutil.entity.zephyr.ZephyrRenderer;
 import net.zephyr.goopyutil.init.*;
-import net.zephyr.goopyutil.networking.NetChannels;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,6 @@ public class GoopyUtilClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		NetChannels.registerS2CPackets();
 		ItemInit.clientRegisterItem();
 		ComputerInit.init();
 		ScreensInit.init();
@@ -39,6 +39,7 @@ public class GoopyUtilClient implements ClientModInitializer {
 			LOGGER.info("COULDNT FETCH LISTS");
 		}
 
+		PayloadDef.registerS2CPackets();
 		HudRenderCallback.EVENT.register(new TabOverlayClass());
 		LOGGER.info("Client Initialized.");
 	}
@@ -52,6 +53,10 @@ public class GoopyUtilClient implements ClientModInitializer {
 
 		EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_MAP, CameraMappingEntityRenderer::getTexturedModelData);
 		EntityRendererRegistry.register(EntityInit.CAMERA_MAPPING, CameraMappingEntityRenderer::new);
+
+		EntityModelLayerRegistry.registerModelLayer(JavaModels.ZEPHYR, CameraMappingEntityRenderer::getTexturedModelData);
+
+		EntityRendererRegistry.register(EntityInit.ZEPHYR, ZephyrRenderer::new);
 
 
 

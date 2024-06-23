@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CameraEditScreen extends BlockEntityScreen {
-    Identifier texture = new Identifier(GoopyUtil.MOD_ID, "textures/gui/camera/camera_edit.png");
+    Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/camera/camera_edit.png");
     boolean isActive = false;
     private TextFieldWidget nameField;
     private TextFieldWidget actionName;

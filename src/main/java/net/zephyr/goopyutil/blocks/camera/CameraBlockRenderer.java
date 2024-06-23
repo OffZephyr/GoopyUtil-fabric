@@ -70,8 +70,7 @@ public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntit
         matrices.translate(0.5f, -0.125f, 0.5f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-f + 180));
         String id = "block/camera";
-        if(data.getBoolean("isUsed") && data.getBoolean("Active")) id = id + "_on";
-        Identifier texture = new Identifier(GoopyUtil.MOD_ID, id);
+        Identifier texture = Identifier.of(GoopyUtil.MOD_ID, id);
         SpriteIdentifier spriteIdentifier = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture);
         VertexConsumer vertexConsumer = spriteIdentifier.getVertexConsumer(vertexConsumers, RenderLayer::getEntityCutout);
 
@@ -89,6 +88,16 @@ public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntit
             model.yaw = (float) Math.PI / 180 * 0;
         }
         model.render(matrices, vertexConsumer, getLightLevel(world, pos), overlay);
+
+        if(data.getBoolean("isUsed") && data.getBoolean("Active")){
+            String on_id = "block/camera_on";
+
+            Identifier textureOn = Identifier.of(GoopyUtil.MOD_ID, on_id);
+            SpriteIdentifier spriteIdentifier2 = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, textureOn);
+            VertexConsumer vertexConsumer2 = spriteIdentifier2.getVertexConsumer(vertexConsumers, RenderLayer::getEntityCutout);
+
+            model.render(matrices, vertexConsumer2, LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, overlay);
+        }
         matrices.pop();
     }
     private int getLightLevel(World world, BlockPos pos) {

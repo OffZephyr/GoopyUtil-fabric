@@ -1,0 +1,23 @@
+package net.zephyr.goopyutil.init;
+
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+import net.zephyr.goopyutil.GoopyUtil;
+
+public class SoundsInit {
+    public static final SoundEvent CAM_OPEN = registerSoundEvent("cam_open");
+    public static final SoundEvent CAM_CLOSE = registerSoundEvent("cam_close");
+    public static final SoundEvent CAM_SWITCH = registerSoundEvent("cam_switch");
+    public static final SoundEvent CAM_NV_ON = registerSoundEvent("cam_nv_on");
+    public static final SoundEvent CAM_NV_OFF = registerSoundEvent("cam_nv_off");
+    public static SoundEvent registerSoundEvent(String name) {
+        Identifier id = Identifier.of(GoopyUtil.MOD_ID, name);
+        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
+    }
+
+    public static void registerSounds() {
+        GoopyUtil.LOGGER.info("Registering Sounds for " + GoopyUtil.MOD_ID.toUpperCase());
+    }
+}

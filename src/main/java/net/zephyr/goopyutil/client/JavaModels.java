@@ -6,9 +6,11 @@ import net.zephyr.goopyutil.GoopyUtil;
 
 public class JavaModels {
     public static final EntityModelLayer LAYERED_BLOCK_FACE =
-            new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "layered_block_face"), "main");
+            new EntityModelLayer(Identifier.of(GoopyUtil.MOD_ID, "layered_block_face"), "main");
     public static final EntityModelLayer CAMERA_HEAD =
-            new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "camera_head"), "main");
+            new EntityModelLayer(Identifier.of(GoopyUtil.MOD_ID, "camera_head"), "main");
     public static final EntityModelLayer CAMERA_MAP =
-            new EntityModelLayer(new Identifier(GoopyUtil.MOD_ID, "camera_map"), "main");
+            new EntityModelLayer(Identifier.of(GoopyUtil.MOD_ID, "camera_map"), "main");
+    public static final EntityModelLayer ZEPHYR =
+            new EntityModelLayer(Identifier.of(GoopyUtil.MOD_ID, "zephyr"), "main");
 }

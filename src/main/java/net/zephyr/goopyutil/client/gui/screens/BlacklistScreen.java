@@ -10,11 +10,11 @@ import net.zephyr.goopyutil.GoopyUtil;
 
 public class BlacklistScreen extends Screen {
     long backgroundFadeStart = 0;
-    Identifier BACKGROUND = new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_bg.png");
-    Identifier TEXT1 = new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_1.png");
-    Identifier TEXT2 = new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_2.png");
-    Identifier TEXT_SCROLL = new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_scroll.png");
-    Identifier ZEPHYR = new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_1.png");
+    Identifier BACKGROUND = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_bg.png");
+    Identifier TEXT1 = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_1.png");
+    Identifier TEXT2 = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_2.png");
+    Identifier TEXT_SCROLL = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_text_scroll.png");
+    Identifier ZEPHYR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_1.png");
     int textScroll = 0, bgScroll = 0, zephTimer;
     final int zephTimerMax = 40;
     int clickcolor = 0x00FFFFFF;
@@ -25,11 +25,15 @@ public class BlacklistScreen extends Screen {
     @Override
     public void tick() {
         ZEPHYR = zephTimer > zephTimerMax/2 ?
-                new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_2.png")
-                : new Identifier(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_1.png");
+                Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_2.png")
+                : Identifier.of(GoopyUtil.MOD_ID, "textures/gui/blacklist/blacklist_zeph_1.png");
 
         zephTimer = zephTimer > zephTimerMax ? 0 : zephTimer + 1;
         super.tick();
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
     }
 
     @Override

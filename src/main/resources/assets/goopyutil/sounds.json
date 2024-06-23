@@ -1,0 +1,32 @@
+{
+  "cam_open": {
+    "subtitle": "sounds.goopyutil.cam_open",
+    "sounds": [
+      "goopyutil:cameras/cam_open"
+    ]
+  },
+  "cam_close": {
+    "subtitle": "sounds.goopyutil.cam_close",
+    "sounds": [
+      "goopyutil:cameras/cam_close"
+    ]
+  },
+  "cam_switch": {
+    "subtitle": "sounds.goopyutil.cam_switch",
+    "sounds": [
+      "goopyutil:cameras/cam_switch"
+    ]
+  },
+  "cam_nv_on": {
+    "subtitle": "sounds.goopyutil.cam_nv_on",
+    "sounds": [
+      "goopyutil:cameras/cam_nv_on"
+    ]
+  },
+  "cam_nv_off": {
+    "subtitle": "sounds.goopyutil.cam_nv_off",
+    "sounds": [
+      "goopyutil:cameras/cam_nv_off"
+    ]
+  }
+}

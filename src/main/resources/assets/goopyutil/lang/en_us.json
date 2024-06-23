@@ -56,5 +56,13 @@
 
   "goopyutil.screens.camera_edit.power.title": "§lPower button",
   "goopyutil.screens.camera_edit.power.description0": "§6Enable/Disable §7the §6Video feed§7.",
-  "goopyutil.screens.camera_edit.power.description1": "§7If OFF, only Audio will go through the camera."
+  "goopyutil.screens.camera_edit.power.description1": "§7If OFF, only Audio will go through the camera.",
+
+  "goopyutil.screens.camera_tablet.default_name": "Unnamed Camera",
+  "goopyutil.screens.camera_tablet.default_action_name": "Trigger Redstone",
+
+  "goopyutil.screens.camera_tablet.no_visual": "-CAMERA DISABLED-",
+  "goopyutil.screens.camera_tablet.audio_only": "AUDIO ONLY",
+  "goopyutil.screens.camera_tablet.no_cams": "-NO CONNECTION-",
+  "goopyutil.screens.camera_tablet.no_cams_desc": "PLEASE CONNECT AT LEAST ONE CAMERA"
 }

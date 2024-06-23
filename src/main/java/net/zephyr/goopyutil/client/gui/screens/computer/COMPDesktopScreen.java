@@ -10,8 +10,8 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
 
 public class COMPDesktopScreen extends COMPBaseScreen {
-    public Identifier BOTTOM_BAR = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
-    public Identifier WALLPAPER_MENU = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/wallpapers_window.png");
+    public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
+    public Identifier WALLPAPER_MENU = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/wallpapers_window.png");
     public COMPDesktopScreen(Text title) {
         super(title);
     }
@@ -31,7 +31,7 @@ public class COMPDesktopScreen extends COMPBaseScreen {
         this.holding = false;
         dragging = false;
         this.wallpaperSelect = false;
-        this.BOTTOM_BAR = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
+        this.BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
         iconGrid = 4;
 
         saveData();

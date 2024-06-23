@@ -6,7 +6,9 @@
 		"BlacklistMixin",
 		"ModEntityDataSaverMixin",
 		"GameRendererMixin",
-		"CameraMixin"
+		"CameraMixin",
+		"PlayerEntityRendererMixin",
+		"LightmapTextureManagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

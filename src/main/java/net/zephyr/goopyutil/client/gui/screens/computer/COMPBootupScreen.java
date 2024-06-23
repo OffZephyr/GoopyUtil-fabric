@@ -14,7 +14,7 @@ import net.zephyr.goopyutil.util.Computer.ComputerApp;
 import java.util.Objects;
 
 public class COMPBootupScreen extends COMPBaseScreen {
-    public Identifier BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
+    public Identifier BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
     int bootProgress = 0;
     final int bootProgressLength = 40;
 
@@ -30,7 +30,7 @@ public class COMPBootupScreen extends COMPBaseScreen {
     @Override
     protected void init() {
         bootProgress = 0;
-        BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
+        BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
         super.init();
     }
 
@@ -44,13 +44,13 @@ public class COMPBootupScreen extends COMPBaseScreen {
         }
 
         if(bootProgress == 12)
-            BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_1.png");
+            BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_1.png");
         if(bootProgress == 28)
-            BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_2.png");
+            BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_2.png");
         if(bootProgress == 30)
-            BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_3.png");
+            BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_3.png");
         if(bootProgress == 38)
-            BOOTUP_SCREEN = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/boot_4.png");
+            BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_4.png");
         super.tick();
     }
 

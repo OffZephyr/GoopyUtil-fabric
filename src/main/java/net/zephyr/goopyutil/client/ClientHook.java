@@ -32,6 +32,9 @@ public class ClientHook {
         MinecraftClient.getInstance().setScreen(screen);
     }
     public static void openScreen(Screen screen){
+        if(screen instanceof GoopyScreen goopyScreen) {
+            goopyScreen.putNbtData(new NbtCompound());
+        }
         MinecraftClient.getInstance().setScreen(screen);
     }
 

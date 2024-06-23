@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
-    public Identifier SMALL_BAR = new Identifier(GoopyUtil.MOD_ID, "textures/gui/computer/window_smallbar_20.png");
+    public Identifier SMALL_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/window_smallbar_20.png");
 
     boolean playlistsScreen = false;
     float playlistOffset = 0;

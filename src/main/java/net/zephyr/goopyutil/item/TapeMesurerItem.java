@@ -1,16 +1,16 @@
 package net.zephyr.goopyutil.item;
 
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.*;
-import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -26,13 +26,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
-import net.zephyr.goopyutil.entity.CameraMappingEntity;
+import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntity;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.EntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.zephyr.goopyutil.item.tablet.TabletItem;
+import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.util.IEntityDataSaver;
 
 public class TapeMesurerItem extends Item {
     private CameraMappingEntity map = null;
@@ -50,14 +50,14 @@ public class TapeMesurerItem extends Item {
         return super.use(world, user, hand);
     }
     void resetTape(ItemStack stack, PlayerEntity player, World world){
-        if (stack.getNbt() == null) {
-            NbtCompound data = new NbtCompound();
-            stack.setNbt(data);
-        }
-        stack.getNbt().putBoolean("hasData", false);
+        NbtCompound data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+        data.putBoolean("hasData", false);
         Text resetText = Text.translatable(GoopyUtil.MOD_ID + ".tape_measure.reset");
         player.sendMessage(resetText, true);
         world.playSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_SPYGLASS_STOP_USING, SoundCategory.PLAYERS, 1, 1, true);
+        stack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+            currentNbt.copyFrom(data);
+        }));
     }
 
     @Override
@@ -65,27 +65,35 @@ public class TapeMesurerItem extends Item {
         World world = context.getWorld();
 
         if(!context.getPlayer().getOffHandStack().isEmpty() && context.getPlayer().getOffHandStack().getItem() instanceof TabletItem){
-            boolean hasCorner = context.getStack().getOrCreateNbt().getBoolean("hasCorner");
+            NbtCompound data = context.getStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+            ItemStack tablet = context.getPlayer().getOffHandStack();
+            NbtCompound tabletData = tablet.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+            boolean hasCorner = data.getBoolean("hasCorner");
             if (context.getPlayer().isSneaking()) {
                 if(hasCorner){
-                    context.getStack().getOrCreateNbt().putBoolean("hasCorner", false);
-                    context.getStack().getOrCreateNbt().putLong("setupCorner1", 0);
-                    context.getStack().getOrCreateNbt().putLong("setupCorner2", 0);
+                    data.putBoolean("hasCorner", false);
+                    data.putLong("setupCorner1", 0);
+                    data.putLong("setupCorner2", 0);
                 }
                 else{
-                    ItemStack tablet = context.getPlayer().getOffHandStack();
-                    boolean bl = tablet.getOrCreateNbt().getList("CamMap", NbtElement.LONG_ARRAY_TYPE).isEmpty();
+                    boolean bl = tabletData.getList("CamMap", NbtElement.LONG_ARRAY_TYPE).isEmpty();
                     if(!bl){
-                        NbtList mapNbt = tablet.getOrCreateNbt().getList("CamMap", NbtElement.LONG_ARRAY_TYPE).copy();
+                        NbtList mapNbt = tabletData.getList("CamMap", NbtElement.LONG_ARRAY_TYPE).copy();
                         for(int i = 0; i < mapNbt.size(); i++){
                             if(mapNbt.get(i).getType() == NbtElement.LONG_ARRAY_TYPE){
                                 long[] line = mapNbt.getLongArray(i);
                                 BlockPos pos1 = BlockPos.fromLong(line[0]);
                                 BlockPos pos2 = BlockPos.fromLong(line[1]);
-                                Box box  = new Box(pos1, pos2).expand(0.05f);
-                                if(box.contains(context.getBlockPos().getX(), context.getBlockPos().getY(), context.getBlockPos().getZ())){
+                                Box box  = new Box(pos1.toCenterPos(), pos2.toCenterPos()).expand(0.5f);
+                                if(box.contains(context.getBlockPos().toCenterPos())){
                                     mapNbt.remove(i);
-                                    tablet.getOrCreateNbt().put("CamMap", mapNbt);
+                                    tabletData.put("CamMap", mapNbt);
+                                    context.getStack().apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                                        currentNbt.copyFrom(data);
+                                    }));
+                                    tablet.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                                        currentNbt.copyFrom(tabletData);
+                                    }));
                                     return ActionResult.SUCCESS;
                                 }
                             }
@@ -95,25 +103,30 @@ public class TapeMesurerItem extends Item {
             }
             else {
                 if (!hasCorner) {
-                    context.getStack().getOrCreateNbt().putBoolean("hasCorner", true);
-                    context.getStack().getOrCreateNbt().putLong("setupCorner1", context.getBlockPos().asLong());
+                    data.putBoolean("hasCorner", true);
+                    data.putLong("setupCorner1", context.getBlockPos().asLong());
                 } else {
-                    ItemStack tablet = context.getPlayer().getOffHandStack();
-                    boolean bl = tablet.getOrCreateNbt().getList("CamMap", NbtElement.LONG_ARRAY_TYPE).isEmpty();
-                    NbtList mapNbt = bl ? new NbtList() : tablet.getOrCreateNbt().getList("CamMap", NbtElement.LONG_ARRAY_TYPE).copy();
+                    boolean bl = tabletData.getList("CamMap", NbtElement.LONG_ARRAY_TYPE).isEmpty();
+                    NbtList mapNbt = bl ? new NbtList() : tabletData.getList("CamMap", NbtElement.LONG_ARRAY_TYPE).copy();
 
                     long[] line = new long[]{
-                            context.getStack().getOrCreateNbt().getLong("setupCorner1"),
-                            context.getStack().getOrCreateNbt().getLong("setupCorner2")
+                            data.getLong("setupCorner1"),
+                            data.getLong("setupCorner2")
                     };
                     NbtLongArray lineNbt = new NbtLongArray(line);
                     mapNbt.add(lineNbt);
 
-                    tablet.getOrCreateNbt().put("CamMap", mapNbt);
+                    tabletData.put("CamMap", mapNbt);
 
-                    context.getStack().getOrCreateNbt().putBoolean("hasCorner", false);
+                    data.putBoolean("hasCorner", false);
                 }
             }
+            context.getStack().apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                currentNbt.copyFrom(data);
+            }));
+            tablet.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                currentNbt.copyFrom(tabletData);
+            }));
         }
         else {
             if (world.getBlockState(context.getBlockPos()).isOf(BlockInit.LAYERED_BLOCK_BASE)) {
@@ -133,56 +146,67 @@ public class TapeMesurerItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-        map = new CameraMappingEntity(EntityInit.CAMERA_MAPPING, world);
+        NbtCompound data = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
 
-        boolean flag1 = stack.getOrCreateNbt().getBoolean("hasData");
+        if(map == null || map.getId() != data.getInt("mapEntityID") || !data.getBoolean("summon_entity")){
+            map = new CameraMappingEntity(EntityInit.CAMERA_MAPPING, world);
+        }
+
+        boolean flag1 = data.getBoolean("hasData");
         boolean flag2 = entity instanceof PlayerEntity;
         Item item = flag2 ? ((PlayerEntity) entity).getOffHandStack().getItem() : null;
-        boolean flag3 = flag2 && item instanceof TabletItem && stack.getOrCreateNbt().getBoolean("hasCorner");
+        boolean flag3 = flag2 && item instanceof TabletItem && data.getBoolean("hasCorner");
 
-        if (this.map != null && !this.map.getBoundingBox().contract(5).contains(entity.getPos().getX(), entity.getPos().getY(), entity.getPos().getZ())) {
-            this.map.updatePosition(entity.getBlockPos().getX() + 0.5f, entity.getBlockPos().getY() - 20, entity.getBlockPos().getZ() + 0.5f);
-        }
-
-
-        if (flag2 && selected && item instanceof TabletItem && !stack.getOrCreateNbt().getBoolean("summon_entity")) {
+        if (flag2 && selected && item instanceof TabletItem && !data.getBoolean("summon_entity")) {
             BlockPos entPos = entity.getBlockPos();
             if (world instanceof ServerWorld servWorld) {
-                System.out.println(this.map);
                 this.map.setPos(entPos.getX() + 0.5f, entPos.getY() - 20, entPos.getZ() + 0.5f);
+                System.out.println(this.map);
                 servWorld.spawnEntity(this.map);
-                stack.getOrCreateNbt().putInt("mapEntityID", this.map.getId());
-                this.map.updateEntityData(this.map.getCustomData().copy(), this.map.getServer(), this.map.getId());
+                data.putInt("mapEntityID", this.map.getId());
+
+                for (ServerPlayerEntity p : PlayerLookup.tracking(entity)){
+                    NbtCompound pack = new NbtCompound();
+                    pack.put("data", ((IEntityDataSaver)this.map).getPersistentData().copy());
+                    pack.putInt("entityID", this.map.getId());
+                    ServerPlayNetworking.send(p, new SetNbtS2CPayload(pack));
+                }
             }
-            stack.getOrCreateNbt().putBoolean("summon_entity", true);
+            data.putBoolean("summon_entity", true);
         }
         if (!flag2 || !selected || !(item instanceof TabletItem)) {
-            stack.getOrCreateNbt().putBoolean("hasCorner", false);
-            stack.getOrCreateNbt().putBoolean("summon_entity", false);
-            if (this.map != null && stack.getOrCreateNbt().getInt("mapEntityID") != 0 && world.getEntityById(stack.getOrCreateNbt().getInt("mapEntityID")) != null) {
-                world.getEntityById(stack.getOrCreateNbt().getInt("mapEntityID")).remove(Entity.RemovalReason.DISCARDED);
+            data.putBoolean("hasCorner", false);
+            data.putBoolean("summon_entity", false);
+            if (this.map != null && data.getInt("mapEntityID") != 0 && world.getEntityById(data.getInt("mapEntityID")) != null) {
+                world.getEntityById(data.getInt("mapEntityID")).remove(Entity.RemovalReason.DISCARDED);
             }
-            stack.getOrCreateNbt().putInt("mapEntityID", 0);
+            data.putInt("mapEntityID", 0);
         }
 
-        stack.getOrCreateNbt().putBoolean("used", flag1 || flag3);
+        data.putBoolean("used", flag1 || flag3);
 
-        boolean hasCorner = stack.getOrCreateNbt().getBoolean("hasCorner");
+        boolean hasCorner = data.getBoolean("hasCorner");
         if (entity instanceof PlayerEntity p) {
             if (hasCorner) {
-                long corner1 = stack.getOrCreateNbt().getLong("setupCorner1");
+                long corner1 = data.getLong("setupCorner1");
                 HitResult blockHit = entity.raycast(20.0, 0.0f, false);
                 BlockPos pos = ((BlockHitResult) blockHit).getBlockPos();
                 BlockPos startPos = BlockPos.fromLong(corner1);
 
-                stack.getOrCreateNbt().putLong("setupCorner2", corner2(startPos, pos));
+                data.putLong("setupCorner2", corner2(startPos, pos));
 
             }
+        }
+        if(!data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt())) {
+            stack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                currentNbt.copyFrom(data);
+            }));
         }
         super.inventoryTick(stack, world, entity, slot, selected);
     }
     private void copyPaste(ItemUsageContext context, LayeredBlockEntity entity){
         World world = context.getWorld();
+        NbtCompound nbt = context.getStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
 
         byte direction;
         switch (context.getSide()) {
@@ -194,7 +218,7 @@ public class TapeMesurerItem extends Item {
             case DOWN -> direction = 5;
         }
 
-        if (context.getStack().getNbt() == null || !context.getStack().getNbt().getBoolean("hasData")) {
+        if (nbt == null || !nbt.getBoolean("hasData")) {
             NbtCompound data = new NbtCompound();
             data.putBoolean("hasData", true);
             data.putByte("editSide", direction);
@@ -211,12 +235,14 @@ public class TapeMesurerItem extends Item {
                 }
             }
             data.put("data", blockData);
-            context.getStack().setNbt(data);
+            context.getStack().apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
+                currentNbt.copyFrom(data);
+            }));
             PlayerEntity player = context.getPlayer();
             world.playSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_SPYGLASS_USE, SoundCategory.PLAYERS, 1, 1, true);
         } else {
             NbtCompound entityData = entity.getCustomData().copy();
-            NbtCompound itemData = context.getStack().getNbt().getCompound("data");
+            NbtCompound itemData = nbt.getCompound("data");
             for (int i = 0; i < 3; i++) {
 
                 NbtCompound layerData = entityData.getCompound("layer" + i);

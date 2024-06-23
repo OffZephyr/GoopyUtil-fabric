@@ -14,7 +14,8 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.zephyr.goopyutil.networking.NetChannels;
+import net.zephyr.goopyutil.networking.PayloadDef;
+import net.zephyr.goopyutil.networking.payloads.MoneySyncDataS2CPayload;
 import net.zephyr.goopyutil.util.IEntityDataSaver;
 
 public class MoneyCommand {
@@ -35,8 +36,8 @@ public class MoneyCommand {
             ((IEntityDataSaver)p).getPersistentData().putInt("Credits", amount);
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(amount);
-            ServerPlayNetworking.send(p, NetChannels.MONEY_SYNC, buf);
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getEntityName(), amount), true);
+            ServerPlayNetworking.send(p, new MoneySyncDataS2CPayload(amount));
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), amount), true);
             return amount;
         }
         return 0;
@@ -50,8 +51,8 @@ public class MoneyCommand {
             ((IEntityDataSaver)p).getPersistentData().putInt("Credits", money + amount);
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(money + amount);
-            ServerPlayNetworking.send(p, NetChannels.MONEY_SYNC, buf);
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getEntityName(), money + amount), true);
+            ServerPlayNetworking.send(p, new MoneySyncDataS2CPayload(amount));
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), money + amount), true);
             return money + amount;
         }
         return 0;
@@ -61,7 +62,7 @@ public class MoneyCommand {
         if(player instanceof ServerPlayerEntity p) {
 
             int money = ((IEntityDataSaver)p).getPersistentData().getInt("Credits");
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getEntityName(), money), true);
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), money), true);
             return money;
         }
         return 0;

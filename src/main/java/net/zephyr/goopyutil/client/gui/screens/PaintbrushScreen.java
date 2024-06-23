@@ -23,7 +23,7 @@ import java.awt.*;
 import java.util.Objects;
 
 public class PaintbrushScreen extends BlockEntityScreen {
-    Identifier texture = new Identifier(GoopyUtil.MOD_ID, "textures/gui/paintbrush.png");
+    Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/paintbrush.png");
     int cornerX, cornerY;
     int selectedLayer, direction;
     float transOff;
@@ -254,10 +254,10 @@ public class PaintbrushScreen extends BlockEntityScreen {
         float m = (float)ColorHelper.Argb.getBlue(colorEnd) / 255.0f;
         Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
 
-        vertexConsumer.vertex(matrix4f, startX, startY, z).color(g, h, i, f).next();
-        vertexConsumer.vertex(matrix4f, startX, endY, z).color(g, h, i, f).next();
-        vertexConsumer.vertex(matrix4f, endX, endY, z).color(k, l, m, j).next();
-        vertexConsumer.vertex(matrix4f, endX, startY, z).color(k, l, m, j).next();
+        vertexConsumer.vertex(matrix4f, startX, startY, z).color(g, h, i, f);
+        vertexConsumer.vertex(matrix4f, startX, endY, z).color(g, h, i, f);
+        vertexConsumer.vertex(matrix4f, endX, endY, z).color(k, l, m, j);
+        vertexConsumer.vertex(matrix4f, endX, startY, z).color(k, l, m, j);
     }
 
     @Override

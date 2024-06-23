@@ -8,6 +8,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.util.GoopyScreens;
 
@@ -24,10 +25,10 @@ public class WrenchItem extends Item {
             if (world.getBlockEntity(context.getBlockPos()) instanceof CameraBlockEntity entity) {
                 NbtCompound data = entity.getCustomData();
 
-                if (context.getPlayer() instanceof ServerPlayerEntity p) {
-                    GoopyScreens.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
-                    return ActionResult.SUCCESS;
+                if (world.isClient()) {
+                    ClientHook.openScreen(GoopyScreens.getScreens().get("camera_edit"), context.getBlockPos(), data);
                 }
+                return ActionResult.SUCCESS;
             }
         }
         return super.useOnBlock(context);
