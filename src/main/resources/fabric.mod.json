@@ -36,5 +36,7 @@
 	},
 	"suggests": {
 		"another-mod": "*"
-	}
+	},
+
+	"accessWidener" : "goopyutil.accesswidener"
 }

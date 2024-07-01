@@ -49,6 +49,10 @@ public class CameraMixin {
     @Shadow
     private final Vector3f diagonalPlane = new Vector3f(1.0f, 0.0f, 0.0f);
 
+    /**
+     * @author zephyr
+     * @reason FCK U
+     */
     @Overwrite
     public void update(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta) {
         this.ready = true;

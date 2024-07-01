@@ -3,6 +3,7 @@ package net.zephyr.goopyutil.networking.payloads;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.nbt.NbtCompound;
@@ -34,8 +35,9 @@ public class GetNbtC2SPayload implements CustomPayload {
 
         if(nbt.getLong("pos") != 0) {
 
-            if(serverWorld.getWorldChunk(pos).getBlockEntity(pos, WorldChunk.CreationType.IMMEDIATE) instanceof GoopyBlockEntity ent) {
+            if(serverWorld.getBlockEntity(pos) instanceof GoopyBlockEntity ent) {
                 ent.putCustomData(data.copy());
+                serverWorld.setBlockState(pos, serverWorld.getBlockState(pos), Block.NOTIFY_LISTENERS);
             }
         }
         else if(nbt.getLong("entityID") != 0) {
@@ -47,7 +49,7 @@ public class GetNbtC2SPayload implements CustomPayload {
             }));
         }
 
-        for(ServerPlayerEntity p : PlayerLookup.tracking(context.player())) {
+        for(ServerPlayerEntity p : PlayerLookup.all(context.player().getServer())) {
             ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt));
         }
     }

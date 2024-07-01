@@ -23,7 +23,7 @@ public class EntityInit {
             Registry.register(
                     Registries.ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "zephyr"),
                     FabricEntityTypeBuilder.create(SpawnGroup.MISC, ZephyrEntity::new)
-                            .dimensions(EntityDimensions.fixed(0.65f, 1.65f)).build()
+                            .dimensions(EntityDimensions.fixed(0.65f, 1.65f).withEyeHeight(1.55f)).build()
             );
 
     public static void registerEntities(){

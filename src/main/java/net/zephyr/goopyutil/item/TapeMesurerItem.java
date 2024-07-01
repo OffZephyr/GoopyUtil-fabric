@@ -229,9 +229,7 @@ public class TapeMesurerItem extends Item {
                 blockData.putString("layer" + i, entity.getCustomData().getCompound("layer" + i).getString("" + direction));
                 blockData.putString("layer" + i, entity.getCustomData().getCompound("layer" + i).getString("" + direction));
                 for (int j = 0; j < 3; j++) {
-                    blockData.putInt(i + "_r_" + j, entity.getCustomData().getCompound("layer" + i).getInt(direction + "_" + j + "_r"));
-                    blockData.putInt(i + "_g_" + j, entity.getCustomData().getCompound("layer" + i).getInt(direction + "_" + j + "_g"));
-                    blockData.putInt(i + "_b_" + j, entity.getCustomData().getCompound("layer" + i).getInt(direction + "_" + j + "_b"));
+                    blockData.putInt(i + "_color_" + j, entity.getCustomData().getCompound("layer" + i).getInt(direction + "_" + j + "_color"));
                 }
             }
             data.put("data", blockData);
@@ -248,9 +246,7 @@ public class TapeMesurerItem extends Item {
                 NbtCompound layerData = entityData.getCompound("layer" + i);
                 layerData.putString("" + direction, itemData.getString("layer" + i));
                 for (int j = 0; j < 3; j++) {
-                    layerData.putInt(direction + "_" + j + "_r", itemData.getInt(i + "_r_" + j));
-                    layerData.putInt(direction + "_" + j + "_g", itemData.getInt(i + "_g_" + j));
-                    layerData.putInt(direction + "_" + j + "_b", itemData.getInt(i + "_b_" + j));
+                    layerData.putInt(direction + "_" + j + "_color", itemData.getInt(i + "_color_" + j));
                 }
                 entityData.put("layer" + i, layerData);
             }

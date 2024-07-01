@@ -1,6 +1,8 @@
 package net.zephyr.goopyutil.networking.payloads;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
@@ -31,7 +33,8 @@ public class SetNbtS2CPayload implements CustomPayload {
 
         if (nbt.getLong("pos") != 0) {
             context.client().execute(() -> {
-                if (world.getBlockEntity(pos) instanceof GoopyBlockEntity ent) {
+                if (world.getWorldChunk(pos).getBlockEntity(pos) instanceof GoopyBlockEntity ent) {
+                    world.setBlockState(pos, world.getBlockState(pos), Block.NOTIFY_LISTENERS);
                     ent.putCustomData(data);
                 }
             });

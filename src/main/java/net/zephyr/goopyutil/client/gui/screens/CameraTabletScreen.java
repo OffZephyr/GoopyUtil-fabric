@@ -25,6 +25,7 @@ import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.IPostProcessorLoader;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import java.util.List;
 public class CameraTabletScreen extends GoopyScreen {
     boolean closing = false;
     Identifier overlay = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/camera/camera_overlay.png");
+    Identifier normalShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera.json");
+    Identifier nvShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera_nightvision.json");
     int Static = 0;
     long currentCam = 0;
     int curCamIndex = 0;
@@ -59,6 +62,7 @@ public class CameraTabletScreen extends GoopyScreen {
     }
     @Override
     protected void init() {
+
         this.closing = false;
         NbtCompound data = getNbtData();
         holding = false;
@@ -80,13 +84,17 @@ public class CameraTabletScreen extends GoopyScreen {
         this.allowNightVision = false;
         this.doubleClick = 0;
 
+
+        if (data.getBoolean("closing")) {
+            data.putBoolean("closing", false);
+        }
         compileData(data);
         this.transition = 4;
 
-        if (getNbtData().getBoolean("closing")) {
-            getNbtData().putBoolean("closing", false);
-            compileData(getNbtData());
-        }
+        this.updateNightVision();
+
+        Identifier shader = nightVision ? nvShader : normalShader;
+        ((IPostProcessorLoader)MinecraftClient.getInstance().gameRenderer).setPostProcessor(shader);
         super.init();
     }
     @Override
@@ -98,7 +106,8 @@ public class CameraTabletScreen extends GoopyScreen {
         NbtCompound nbt = bl ? ((GoopyBlockEntity)ent).getCustomData().copy() : new NbtCompound();
         boolean Active = bl && nbt.getBoolean("Active");
         this.allowNightVision = bl && nbt.getByte("NightVision") == 2;
-        this.nightVision = bl && nbt.getByte("NightVision") == 1 || (nbt.getByte("NightVision") == 2 && this.enableNightVision);
+        updateNightVision();
+
         boolean hasNoSignal = currentCam == 0 || !Active;
         if(hasNoSignal) context.fill(0, 0, this.width, this.height, 0xFF000000);
 
@@ -223,8 +232,8 @@ public class CameraTabletScreen extends GoopyScreen {
                 double newYaw = yaw + ((((nbt.getByte("yawSpeed") + 1) / 2f) * sideX) * delta);
                 double newPitch = pitch + ((((nbt.getByte("pitchSpeed") + 1) / 2f) * sideY) * delta);
 
-                if(newYaw > -maxYaw && newYaw < -minYaw && width > height) nbt.putDouble("yaw", newYaw);
-                if(newPitch > -maxPitch && newPitch < -minPitch && width < height) nbt.putDouble("pitch", newPitch);
+                if(newYaw > -maxYaw && newYaw < -minYaw && nbt.getByte("ModeX") == 2) nbt.putDouble("yaw", newYaw);
+                if(newPitch > -maxPitch && newPitch < -minPitch && nbt.getByte("ModeY") == 2) nbt.putDouble("pitch", newPitch);
                 if (!nbt.isEmpty()) {
                     GoopyScreens.saveNbtFromScreen(nbt, ent.getPos());
 
@@ -322,7 +331,6 @@ public class CameraTabletScreen extends GoopyScreen {
 
             float camScale = 0.25f;
             MatrixStack matrices = context.getMatrices();
-            VertexConsumerProvider verticies = context.getVertexConsumers();
 
             matrices.push();
             matrices.scale(camScale, camScale, camScale);
@@ -412,6 +420,13 @@ public class CameraTabletScreen extends GoopyScreen {
                 doubleClick = 0;
                 MinecraftClient.getInstance().player.playSound(SoundsInit.CAM_SWITCH, 1, 1);
             }
+
+            updateNightVision();
+
+            if(bl2 || bl3){
+                Identifier shader = nightVision ? nvShader : normalShader;
+                ((IPostProcessorLoader)MinecraftClient.getInstance().gameRenderer).setPostProcessor(shader);
+            }
         }
     }
 
@@ -453,6 +468,13 @@ public class CameraTabletScreen extends GoopyScreen {
             this.r = false;
         }
         return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+
+    public void updateNightVision(){
+        BlockEntity ent = MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(currentCam));
+        boolean bl = ent instanceof GoopyBlockEntity;
+        NbtCompound nbt = bl ? ((GoopyBlockEntity)ent).getCustomData().copy() : new NbtCompound();
+        this.nightVision = bl && nbt.getByte("NightVision") == 1 || (nbt.getByte("NightVision") == 2 && this.enableNightVision);
     }
 
     @Override
@@ -527,6 +549,7 @@ public class CameraTabletScreen extends GoopyScreen {
 
     @Override
     public void close() {
+        ((IPostProcessorLoader)MinecraftClient.getInstance().gameRenderer).clearPostProcessor();
         this.closing = true;
 
         NbtCompound nbt = getNbtData();

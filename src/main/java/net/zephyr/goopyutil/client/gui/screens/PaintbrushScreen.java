@@ -11,6 +11,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayers;
@@ -100,10 +101,9 @@ public class PaintbrushScreen extends BlockEntityScreen {
                             NbtCompound layer = getNbtData().getCompound("layer" + (selectedLayer - 1));
                             for (int i = 0; i < LayeredBlockLayers.getLayers().get(k).getRgbCount(); i++) {
                                 float grayMultiplier = (1f / 3) * i;
-                                float color = Math.lerp(256, 76f, grayMultiplier);
-                                layer.putFloat(direction + "_" + i + "_r", color);
-                                layer.putFloat(direction + "_" + i + "_g", color);
-                                layer.putFloat(direction + "_" + i + "_b", color);
+                                float gray = Math.lerp(255, 76f, grayMultiplier);
+                                int color = ColorHelper.Argb.getArgb(255, (int)gray, (int)gray, (int)gray);
+                                layer.putInt(direction + "_" + i + "_color", color);
                             }
                             layer.putString("" + direction, LayeredBlockLayers.getLayers().get(k + (4 * selectedRow)).getName());
                         } else {
@@ -123,18 +123,7 @@ public class PaintbrushScreen extends BlockEntityScreen {
                 this.holdingScroll = true;
             }
 
-            for(int i = 0; i < 3; i++){
-                int xCorner2 = cornerX + 118;
-                int yCorner2 = cornerY + 8 + ((49 + 6) * i);
-                for(int j = 0; j < 3; j++) {
-                    if (mouseX > xCorner2 + 2 - 55 + (int) transColor[i] + (int) colorScrollX[i][j] &&
-                            mouseX < xCorner2 + 8 - 55 + (int) transColor[i] + (int) colorScrollX[i][j] &&
-                            mouseY > yCorner2 + 5 + (j * 9) &&
-                            mouseY < yCorner2 + 12 + (j * 9)) {
-                       colorHoldingScroll[i][j] = true;
-                    }
-                }
-            }
+            sliderCheck(mouseX, mouseY);
         }
 
         boolean rotatesCheck = getNbtData().getBoolean("rotates");
@@ -159,12 +148,13 @@ public class PaintbrushScreen extends BlockEntityScreen {
     void updateColorScroll() {
         for (int i = 0; i < 3; i++) {
             NbtCompound layerData = getNbtData().getCompound("layer" + (selectedLayer - 1));
-            int r = layerData.getInt(direction + "_" + i + "_r");
-            int g = layerData.getInt(direction + "_" + i + "_g");
-            int b = layerData.getInt(direction + "_" + i + "_b");
-            r = java.lang.Math.min(r, 255);
-            g = java.lang.Math.min(g, 255);
-            b = java.lang.Math.min(b, 255);
+            int color = layerData.getInt(direction + "_" + i + "_color");
+            int r = ColorHelper.Argb.getRed(color);
+            int g = ColorHelper.Argb.getGreen(color);
+            int b = ColorHelper.Argb.getBlue(color);
+            r = java.lang.Math.clamp(r, 0, 255);
+            g = java.lang.Math.clamp(g, 0, 255);
+            b = java.lang.Math.clamp(b, 0, 255);
 
             float[] hsv = Color.RGBtoHSB(r, g, b, null);
             float hue = hsv[0];
@@ -178,6 +168,8 @@ public class PaintbrushScreen extends BlockEntityScreen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        sliderCheck(mouseX, mouseY);
+
         if (this.holdingScroll) {
             scrollBarY += deltaY;
             scrollBarY = scrollBarY < 0 ? 0 : scrollBarY;
@@ -185,12 +177,15 @@ public class PaintbrushScreen extends BlockEntityScreen {
             if (scrollBarY > ((123f / layerRows) * selectedRow) + ((123f / layerRows) / 2)) selectedRow++;
             if (scrollBarY < ((123f / layerRows) * selectedRow) - ((123f / layerRows) / 2)) selectedRow--;
         }
-
-
-        for (int i = 0; i < 3; i++) {
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+    private void sliderCheck(double mouseX, double mouseY){
+        for(int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (colorHoldingScroll[i][j]) {
-                    colorScrollX[i][j] = colorScrollX[i][j] + deltaX > 42 ? 42 : colorScrollX[i][j] + deltaX < 0 ? 0 : colorScrollX[i][j] + deltaX;
+                int xCorner2 = cornerX + 118 + 3;
+                int yCorner2 = cornerY + 8 + ((49 + 6) * i) + 5 + (j * 9);
+                if (isOnButton(mouseX, mouseY, xCorner2, yCorner2, 48, 7)) {
+                    colorScrollX[i][j] = MathHelper.clamp(mouseX - xCorner2, 0, 42);
 
                     float hueIndex = (float)colorScrollX[i][0]/42;
                     float satIndex = (float)colorScrollX[i][1]/42;
@@ -202,14 +197,11 @@ public class PaintbrushScreen extends BlockEntityScreen {
 
                     NbtCompound layer = getNbtData().getCompound("layer" + (selectedLayer-1));
                     {
-                        layer.putFloat(direction + "_" + i + "_r", ColorHelper.Argb.getRed(color));
-                        layer.putFloat(direction + "_" + i + "_g", ColorHelper.Argb.getGreen(color));
-                        layer.putFloat(direction + "_" + i + "_b", ColorHelper.Argb.getBlue(color));
+                        layer.putFloat(direction + "_" + i + "_color", color);
                     }
                 }
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     @NotNull
@@ -218,10 +210,9 @@ public class PaintbrushScreen extends BlockEntityScreen {
         layer.putString("" + direction, LayeredBlockLayers.getLayers().get(k).getName());
         for (int i = 0; i < LayeredBlockLayers.getLayers().get(k).getRgbCount(); i++) {
             float grayMultiplier = (1f / 3) * i;
-            float color = Math.lerp(256, 76f, grayMultiplier);
-            layer.putFloat(direction + "_" + i + "_r", color);
-            layer.putFloat(direction + "_" + i + "_g", color);
-            layer.putFloat(direction + "_" + i + "_b", color);
+            float gray = Math.lerp(255, 76f, grayMultiplier);
+            int color = ColorHelper.Argb.getArgb(255, (int)gray, (int)gray, (int)gray);
+            layer.putInt(direction + "_" + i + "_color", color);
         }
         return layer;
     }
@@ -314,9 +305,10 @@ public class PaintbrushScreen extends BlockEntityScreen {
                 context.drawTexture(texture, xCorner, yCorner, 75 - (int) transColor[i], 176, (int) transColor[i], 49, 256, 256);
 
                 NbtCompound layerData = getNbtData().getCompound("layer" + (selectedLayer - 1));
-                int r = layerData.getInt(direction + "_" + i + "_r");
-                int g = layerData.getInt(direction + "_" + i + "_g");
-                int b = layerData.getInt(direction + "_" + i + "_b");
+                int color = layerData.getInt(direction + "_" + i + "_color");
+                int r = ColorHelper.Argb.getRed(color);
+                int g = ColorHelper.Argb.getGreen(color);
+                int b = ColorHelper.Argb.getBlue(color);
                 r = java.lang.Math.min(r, 255);
                 g = java.lang.Math.min(g, 255);
                 b = java.lang.Math.min(b, 255);
@@ -423,9 +415,10 @@ public class PaintbrushScreen extends BlockEntityScreen {
                     for (int j = 0; j < layer.getRgbCount(); j++) {
                         Identifier texture = layer.getRgbTexture(j);
                         Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
-                        float r = layerData.getFloat(direction + "_" + j + "_r") / 256f;
-                        float g = layerData.getFloat(direction + "_" + j + "_g") / 256f;
-                        float b = layerData.getFloat(direction + "_" + j + "_b") / 256f;
+                        int color = layerData.getInt(direction + "_" + j + "_color");
+                        float r = ColorHelper.Argb.getRed(color) / 255f;
+                        float g = ColorHelper.Argb.getGreen(color) / 255f;
+                        float b = ColorHelper.Argb.getBlue(color) / 255f;
                         context.drawSprite(cornerX + 8 + i * (36), cornerY + 25, 3, 30, 30, sprite, r, g, b, 1);
 
                         context.drawSprite(cornerX + 8, cornerY + 61, 3, 102, 102, sprite, r, g, b, 1);

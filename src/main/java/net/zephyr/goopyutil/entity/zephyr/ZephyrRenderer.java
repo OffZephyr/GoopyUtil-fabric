@@ -18,11 +18,6 @@ public class ZephyrRenderer extends GeoEntityRenderer<ZephyrEntity> {
     }
 
     @Override
-    public Identifier getTextureLocation(ZephyrEntity animatable) {
-        return Identifier.of(GoopyUtil.MOD_ID, "textures/entity/zephyr/zephyr.png");
-    }
-
-    @Override
     public void render(ZephyrEntity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

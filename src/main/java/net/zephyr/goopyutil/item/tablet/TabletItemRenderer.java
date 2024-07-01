@@ -32,6 +32,7 @@ public class TabletItemRenderer extends GeoItemRenderer<TabletItem> {
     public TabletItemRenderer(TabletItemModel model) {
         super(model);
         this.model = model;
+        addRenderLayer(new GlowLayer(this));
     }
     public TabletItemRenderer() {
         this(new TabletItemModel());

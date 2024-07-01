@@ -1,19 +1,15 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "goopyutil:block/layered_block"
-    },
     "facing=east": {
-      "model": "goopyutil:block/layered_block",
       "y": 90
     },
     "facing=south": {
-      "model": "goopyutil:block/layered_block",
       "y": 180
     },
     "facing=west": {
-      "model": "goopyutil:block/layered_block",
       "y": 270
+    },
+    "inventory": {
     }
   }
 }

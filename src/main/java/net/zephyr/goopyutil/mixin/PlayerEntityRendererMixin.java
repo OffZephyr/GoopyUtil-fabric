@@ -15,6 +15,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 @Mixin(PlayerEntityRenderer.class)
 public class PlayerEntityRendererMixin {
+    /**
+     * @author zephyr
+     * @reason geckolib didn't do it, so I did.
+     */
     @Overwrite
     private static BipedEntityModel.ArmPose getArmPose(AbstractClientPlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getStackInHand(hand);
