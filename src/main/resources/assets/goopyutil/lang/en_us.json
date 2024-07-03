@@ -1,9 +1,40 @@
 {
+  "goopyutil.symbol.wrench": "§c§l🔧",
+  "goopyutil.symbol.paintbrush": "§a§l🖌",
+  "goopyutil.symbol.tapemeasure": "§e§l📏",
+
   "block.goopyutil.computer": "Computer",
+
   "block.goopyutil.layered_block": "Layered Block",
+  "block.goopyutil.layered_block.description.0.length": "3",
+  "block.goopyutil.layered_block.description.0.0": "§b§lClick §ron a side of this block with",
+  "block.goopyutil.layered_block.description.0.1": "the §a§lPaint Brush §rselected to start",
+  "block.goopyutil.layered_block.description.0.2": "§bediting the texture of the selected side!",
+  "block.goopyutil.layered_block.description.1.length": "5",
+  "block.goopyutil.layered_block.description.1.0": "§b§lClick §ron a side of this block with",
+  "block.goopyutil.layered_block.description.1.1": "the §e§lTape Measure §rselected to §bcopy",
+  "block.goopyutil.layered_block.description.1.2": "§bthe texture of the selected side.",
+  "block.goopyutil.layered_block.description.1.3": "§b§lClick §ron a different side to paste it,",
+  "block.goopyutil.layered_block.description.1.4": "and §b§lShift-Click §rto §aclear the §6'clipboard'§r.",
+
   "block.goopyutil.camera": "Security Camera",
+  "block.goopyutil.camera.description.0.length": "2",
+  "block.goopyutil.camera.description.0.0": "§b§lClick §ron this block with the §c§lWrench",
+  "block.goopyutil.camera.description.0.1": "to start §bediting its behavior.",
+
+  "item.goopyutil.default_description": "Hold %s to show more.",
 
   "item.goopyutil.tablet": "Tablet",
+  "item.goopyutil.tablet.description.0.length": "6",
+  "item.goopyutil.tablet.description.0.0": "§b§lEquip this item in your Off Hand §rand",
+  "item.goopyutil.tablet.description.0.1": "the §e§lTape Measure §b§lin your Main Hand §rto",
+  "item.goopyutil.tablet.description.0.2": "start drawing the map for this Camera System.",
+  "item.goopyutil.tablet.description.0.3": "§b§lClick once §ron a block to §bset the first point,",
+  "item.goopyutil.tablet.description.0.4": "and §b§lclick again §rto §bset the second point",
+  "item.goopyutil.tablet.description.0.5": "§bof a line.",
+
+  "item.goopyutil.floppy_disk": "Floppy Disk",
+
   "item.goopyutil.wrench": "Wrench",
   "item.goopyutil.paintbrush": "Paint Brush",
   "item.goopyutil.tapemeasure": "Tape Measure",

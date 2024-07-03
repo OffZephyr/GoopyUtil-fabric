@@ -223,7 +223,7 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
         mesh.outputTo(context.getEmitter());
     }
 
-    int getDirectionId(Direction direction) {
+    public static int getDirectionId(Direction direction) {
         switch (direction) {
             default:
                 return 0;

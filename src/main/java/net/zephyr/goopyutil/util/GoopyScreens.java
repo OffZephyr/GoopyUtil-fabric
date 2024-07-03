@@ -52,7 +52,6 @@ public class GoopyScreens {
         nbt.putString("index", screenIndex);
         nbt.put("data", data);
 
-        System.out.println("sent");
         ServerPlayNetworking.send(player, new SetScreenS2CPayload(nbt));
     }
     public static void openScreenOnServer(ServerPlayerEntity player, String screenIndex){

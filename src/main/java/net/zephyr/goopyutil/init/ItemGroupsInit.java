@@ -22,6 +22,7 @@ public class ItemGroupsInit {
                     .entries((displayContext, entries) -> {
 
                         entries.add(BlockInit.COMPUTER);
+                        entries.add(ItemInit.FLOPPYDISK);
                         entries.add(BlockInit.LAYERED_BLOCK_BASE);
                         entries.add(BlockInit.CAMERA);
                         entries.add(ItemInit.TABLET);

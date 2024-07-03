@@ -26,6 +26,7 @@ import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.SoundsInit;
+import net.zephyr.goopyutil.item.ItemWithDescription;
 import net.zephyr.goopyutil.networking.payloads.GetNbtC2SPayload;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
 import net.zephyr.goopyutil.networking.payloads.SetScreenS2CPayload;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TabletItem extends Item implements GeoItem {
+public class TabletItem extends ItemWithDescription implements GeoItem {
     AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     boolean transition = false;
     boolean closing = false;
@@ -52,7 +53,7 @@ public class TabletItem extends Item implements GeoItem {
     private static final RawAnimation CLOSE_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tablet.close");
     private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("animation.tablet.idle");
     public TabletItem(Settings settings) {
-        super(settings);
+        super(settings, ItemWithDescription.TAPE_MEASURE);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
     @Override
@@ -253,7 +254,7 @@ public class TabletItem extends Item implements GeoItem {
             @Override
             public @Nullable BuiltinModelItemRenderer getGeoItemRenderer() {
                 if (this.renderer == null)
-                    this.renderer = new TabletItemRenderer();
+                    this.renderer = new TabletItemRenderer(new TabletItemModel());
 
                 return this.renderer;
             }

@@ -1,5 +1,6 @@
 package net.zephyr.goopyutil.item;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -11,8 +12,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
+import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockModel;
 import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import net.zephyr.goopyutil.init.BlockInit;
@@ -32,15 +36,18 @@ public class PaintbrushItem extends Item {
         World world = context.getWorld();
         if(world.isClient()){
             if(world.getBlockState(context.getBlockPos()).isOf(BlockInit.LAYERED_BLOCK_BASE)){
-                byte direction;
-                switch (context.getSide()){
-                    default -> direction = 0;
-                    case WEST -> direction = 1;
-                    case SOUTH -> direction = 2;
-                    case EAST -> direction = 3;
-                    case UP -> direction = 4;
-                    case DOWN -> direction = 5;
+
+                BlockState state = world.getBlockState(context.getBlockPos());
+                int rotationAmount = LayeredBlockModel.getDirectionId(state.get(LayeredBlock.FACING));
+                Direction directionClicked = context.getSide();
+                Direction textureRotation = directionClicked;
+                if(directionClicked != Direction.UP && directionClicked != Direction.DOWN) {
+                    for (int j = 0; j < rotationAmount; j++) {
+                        textureRotation = textureRotation.rotateYClockwise();
+                    }
                 }
+
+                byte direction = (byte)LayeredBlockModel.getDirectionId(textureRotation);
 
                 if(world.getBlockEntity(context.getBlockPos()) instanceof LayeredBlockEntity entity) {
                     NbtCompound data = entity.getCustomData();

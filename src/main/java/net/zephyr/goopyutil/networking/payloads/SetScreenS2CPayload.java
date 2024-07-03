@@ -26,7 +26,6 @@ public class SetScreenS2CPayload implements CustomPayload {
 
     public static void receive(SetScreenS2CPayload payload, ClientPlayNetworking.Context context) {
         if(context.player() instanceof ClientPlayerEntity) {
-            System.out.println("received");
             String index = nbt.getString("index");
             BlockPos pos = BlockPos.fromLong(nbt.getLong("pos"));
             int id = nbt.getInt("entityID");

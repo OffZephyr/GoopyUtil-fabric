@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
+import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 
 public class COMPDesktopScreen extends COMPBaseScreen {
     public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
@@ -139,7 +140,7 @@ public class COMPDesktopScreen extends COMPBaseScreen {
 
             int x = (int) (((width/2)-(iconGridSize/2) + (i * (iconGridSize / iconGrid))) - (multiplier * iconGridSize));
             int y = (int) ((height/2)-(iconGridSize/2) + (multiplier * (iconGridSize/iconGrid)));
-            context.drawTexture(appIcon, x, y, 0, 0, (int) iconGridSize/iconGrid, (int) iconGridSize/iconGrid, (int) iconGridSize/iconGrid, (int) iconGridSize/iconGrid);
+            super.drawRecolorableTexture(context, appIcon, x, y, 0, iconGridSize/iconGrid, iconGridSize/iconGrid, 0, 0, iconGridSize/iconGrid, iconGridSize/iconGrid, 1, 1, 1, 1);
         }
 
         if(wallpaperSelect) {
@@ -161,12 +162,9 @@ public class COMPDesktopScreen extends COMPBaseScreen {
                     wallpapersListOffsetOld = wallpapersListOffset;
                     wallpapersListOffsetDiff = 0;
 
-                    if (wallpapersListOffset > 0) {
-                        wallpapersListOffset += (0 - wallpapersListOffset) / 30;
-                    }
-                    if (wallpapersListOffset < (-(ComputerData.getWallpapers().size() * (wallpaperSize + wallpaperOffset)) + 175)) {
-                        wallpapersListOffset += ((-(ComputerData.getWallpapers().size() * (wallpaperSize + wallpaperOffset)) + 175) - wallpapersListOffset) / 30;
-                    }
+                    float minOffset = -((ComputerData.getWallpapers().size() - 1) * (wallpaperSize + wallpaperOffset)) + 175;
+                    wallpapersListOffset += wallpapersListOffset > 0 ? (0 - wallpapersListOffset) / 30 :
+                            wallpapersListOffset < minOffset ? (minOffset - wallpapersListOffset) / 30 : 0;
                 }
                 int x = this.width / 2 - this.screenSize / 2 + (int) wallpaperOffset + (i * ((int) wallpaperSize + (int) wallpaperOffset)) + (int) wallpapersListOffset;
                 int y =(this.height / 2 + this.screenSize / 2) - (int) wallpaperMenuHeight + (int) wallpaperHeight;

@@ -5,11 +5,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.Apps.BrowserApp;
+import net.zephyr.goopyutil.blocks.computer.Apps.CodeApp;
 import net.zephyr.goopyutil.blocks.computer.Apps.MusicApp;
 import net.zephyr.goopyutil.blocks.computer.Apps.RemoteApp;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBrowserScreen;
+import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPCodeScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPMusicPlayerScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
 import net.zephyr.goopyutil.util.Computer.ComputerSong;
@@ -25,6 +27,7 @@ public class ComputerInit {
         ComputerData.registerComputerApp(new MusicApp(new COMPMusicPlayerScreen(Text.empty()), "music_player", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/music_icon.png")));
         ComputerData.registerComputerApp(new BrowserApp(new COMPBrowserScreen(Text.empty()), "browser",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/browser_icon.png")));
         ComputerData.registerComputerApp(new RemoteApp(new COMPRemoteScreen(Text.empty()), "remote",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/remote_icon.png")));
+        ComputerData.registerComputerApp(new CodeApp(new COMPCodeScreen(Text.empty()), "code",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/code_icon.png")));
 
         ComputerData.registerComputerSong(new ComputerSong(SoundEvents.MUSIC_DISC_13.value(), "13", "C418", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/music_icons/music_disc_13.png"), 178));
         ComputerData.registerComputerSong(new ComputerSong(SoundEvents.MUSIC_DISC_CAT.value(), "Cat", "C418", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/music_icons/music_disc_cat.png"), 185));

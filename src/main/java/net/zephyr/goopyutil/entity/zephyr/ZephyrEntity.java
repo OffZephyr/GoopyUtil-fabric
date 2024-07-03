@@ -19,7 +19,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.RawAnimation;
 
 public class ZephyrEntity extends GoopyGeckoEntity {
-    public ZephyrEntity(EntityType<?> type, World world) {
+    public ZephyrEntity(EntityType<ZephyrEntity> type, World world) {
         super(type, world);
         IDLE_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.dayidle");
         WALK_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.daywalk");

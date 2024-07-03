@@ -2,6 +2,7 @@ package net.zephyr.goopyutil.item;
 
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
@@ -22,10 +23,13 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
+import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockModel;
 import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntity;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.EntityInit;
@@ -208,15 +212,17 @@ public class TapeMesurerItem extends Item {
         World world = context.getWorld();
         NbtCompound nbt = context.getStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
 
-        byte direction;
-        switch (context.getSide()) {
-            default -> direction = 0;
-            case WEST -> direction = 1;
-            case SOUTH -> direction = 2;
-            case EAST -> direction = 3;
-            case UP -> direction = 4;
-            case DOWN -> direction = 5;
+        BlockState state = world.getBlockState(context.getBlockPos());
+        int rotationAmount = LayeredBlockModel.getDirectionId(state.get(LayeredBlock.FACING));
+        Direction directionClicked = context.getSide();
+        Direction textureRotation = directionClicked;
+        if(directionClicked != Direction.UP && directionClicked != Direction.DOWN) {
+            for (int j = 0; j < rotationAmount; j++) {
+                textureRotation = textureRotation.rotateYClockwise();
+            }
         }
+
+        byte direction = (byte)LayeredBlockModel.getDirectionId(textureRotation);
 
         if (nbt == null || !nbt.getBoolean("hasData")) {
             NbtCompound data = new NbtCompound();

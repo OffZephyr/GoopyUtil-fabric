@@ -49,7 +49,7 @@ public abstract class GoopyScreen extends Screen {
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
     }
 
-    void drawRecolorableTexture(DrawContext context, Identifier texture, int x, int y, int z, float regionWidth, float regionHeight, float u, float v, float textureWidth, float textureHeight, float red, float green, float blue, float alpha) {
+    public void drawRecolorableTexture(DrawContext context, Identifier texture, int x, int y, int z, float regionWidth, float regionHeight, float u, float v, float textureWidth, float textureHeight, float red, float green, float blue, float alpha) {
         float u1 = (u + 0.0f) /textureWidth;
         float u2 = (u + regionWidth) / textureWidth;
         float v1 = (v + 0.0f) / textureHeight;

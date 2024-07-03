@@ -9,6 +9,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.item.FloppyDiskItem;
 import net.zephyr.goopyutil.item.PaintbrushItem;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
 import net.zephyr.goopyutil.item.TapeMesurerItem;
@@ -26,10 +27,11 @@ public class ItemInit {
             new TapeMesurerItem(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
     public static final Item TABLET = registerItem("tablet",
             new TabletItem(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
+    public static final Item FLOPPYDISK = registerItem("floppy_disk",
+            new FloppyDiskItem(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(GoopyUtil.MOD_ID, name), item);
-
     }
     public static void registerItems() {
         GoopyUtil.LOGGER.info("Registering Items for " + GoopyUtil.MOD_ID.toUpperCase());

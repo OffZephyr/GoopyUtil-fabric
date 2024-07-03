@@ -37,8 +37,8 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
     float crawlHeight = 1;
     int crawlingCooldown = 0;
 
-    public GoopyGeckoEntity(EntityType<?> type, World world) {
-        super((EntityType<? extends PathAwareEntity>) type, world);
+    public GoopyGeckoEntity(EntityType<? extends PathAwareEntity> type, World world) {
+        super(type, world);
     }
 
     @Override
