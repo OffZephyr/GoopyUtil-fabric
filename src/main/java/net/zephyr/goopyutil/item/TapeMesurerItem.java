@@ -35,6 +35,7 @@ import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.EntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
 import net.zephyr.goopyutil.util.IEntityDataSaver;
 
@@ -173,7 +174,7 @@ public class TapeMesurerItem extends Item {
                     NbtCompound pack = new NbtCompound();
                     pack.put("data", ((IEntityDataSaver)this.map).getPersistentData().copy());
                     pack.putInt("entityID", this.map.getId());
-                    ServerPlayNetworking.send(p, new SetNbtS2CPayload(pack));
+                    ServerPlayNetworking.send(p, new SetNbtS2CPayload(pack, PayloadDef.ENTITY_DATA));
                 }
             }
             data.putBoolean("summon_entity", true);
@@ -213,7 +214,7 @@ public class TapeMesurerItem extends Item {
         NbtCompound nbt = context.getStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
 
         BlockState state = world.getBlockState(context.getBlockPos());
-        int rotationAmount = LayeredBlockModel.getDirectionId(state.get(LayeredBlock.FACING));
+        int rotationAmount = getDirectionId(state.get(LayeredBlock.FACING));
         Direction directionClicked = context.getSide();
         Direction textureRotation = directionClicked;
         if(directionClicked != Direction.UP && directionClicked != Direction.DOWN) {
@@ -222,7 +223,7 @@ public class TapeMesurerItem extends Item {
             }
         }
 
-        byte direction = (byte)LayeredBlockModel.getDirectionId(textureRotation);
+        byte direction = (byte)getDirectionId(textureRotation);
 
         if (nbt == null || !nbt.getBoolean("hasData")) {
             NbtCompound data = new NbtCompound();
@@ -275,5 +276,21 @@ public class TapeMesurerItem extends Item {
             pos = new BlockPos(start.getX(), start.getY(), pos.getZ());
         }
         return pos.asLong();
+    }
+    public static int getDirectionId(Direction direction) {
+        switch (direction) {
+            default:
+                return 0;
+            case WEST:
+                return 1;
+            case SOUTH:
+                return 2;
+            case EAST:
+                return 3;
+            case UP:
+                return 4;
+            case DOWN:
+                return 5;
+        }
     }
 }

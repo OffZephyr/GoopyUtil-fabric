@@ -3,18 +3,22 @@ package net.zephyr.goopyutil.init;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.Apps.BrowserApp;
 import net.zephyr.goopyutil.blocks.computer.Apps.CodeApp;
 import net.zephyr.goopyutil.blocks.computer.Apps.MusicApp;
 import net.zephyr.goopyutil.blocks.computer.Apps.RemoteApp;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBrowserScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPCodeScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPMusicPlayerScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
+import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.Computer.ComputerSong;
+import software.bernie.geckolib.animation.RawAnimation;
+
+import java.util.ArrayList;
 
 public class ComputerInit {
     public static void init(){
@@ -24,10 +28,10 @@ public class ComputerInit {
         ComputerData.addWallpaper("markiplier", Identifier.of(GoopyUtil.MOD_ID,"textures/gui/computer/wallpapers/markiplier.png"));
         ComputerData.addWallpaper("whistle", Identifier.of(GoopyUtil.MOD_ID,"textures/gui/computer/wallpapers/whistle.png"));
 
-        ComputerData.registerComputerApp(new MusicApp(new COMPMusicPlayerScreen(Text.empty()), "music_player", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/music_icon.png")));
-        ComputerData.registerComputerApp(new BrowserApp(new COMPBrowserScreen(Text.empty()), "browser",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/browser_icon.png")));
-        ComputerData.registerComputerApp(new RemoteApp(new COMPRemoteScreen(Text.empty()), "remote",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/remote_icon.png")));
-        ComputerData.registerComputerApp(new CodeApp(new COMPCodeScreen(Text.empty()), "code",Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/code_icon.png")));
+        ComputerData.registerComputerApp(new MusicApp("music_player", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/music_icon.png")));
+        ComputerData.registerComputerApp(new BrowserApp("browser", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/browser_icon.png")));
+        ComputerData.registerComputerApp(new RemoteApp("remote", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/remote_icon.png")));
+        ComputerData.registerComputerApp(new CodeApp("code", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/code_icon.png")));
 
         ComputerData.registerComputerSong(new ComputerSong(SoundEvents.MUSIC_DISC_13.value(), "13", "C418", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/music_icons/music_disc_13.png"), 178));
         ComputerData.registerComputerSong(new ComputerSong(SoundEvents.MUSIC_DISC_CAT.value(), "Cat", "C418", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/music_icons/music_disc_cat.png"), 185));
@@ -71,5 +75,27 @@ public class ComputerInit {
         ComputerData.addSongToPlaylist("Minecraft", "Creator");
         ComputerData.addSongToPlaylist("Minecraft", "Creator (Music Box)");
 
+
+        ComputerData.addAIBehavior(new ComputerAI("attributes",
+                new ComputerAI.Option<>("aggressive", false),
+                new ComputerAI.Option<>("salvaging", false),
+                new ComputerAI.Option<>("roaming", false)
+        ));
+
+        ComputerData.addAIBehavior(new ComputerAI("statue",
+                new ComputerAI.Option<>("animation", new ArrayList<RawAnimation>()),
+                new ComputerAI.Option<>("spawn_pos", true),
+                new ComputerAI.Option<>("position", new BlockPos(0, 0, 0), "spawn_pos"),
+                new ComputerAI.Option<>("spawn_rot", true),
+                new ComputerAI.Option<>("rotation", 0, "spawn_rot"),
+                new ComputerAI.Option<>("rotate_head", false),
+                new ComputerAI.Option<>("head_yaw", 0, "rotate_head"),
+                new ComputerAI.Option<>("head_pitch", 0, "rotate_head")
+        ));
+
+        ComputerData.addAIBehavior(new ComputerAI("moving",
+                new ComputerAI.Option<>("custom_path", false),
+                new ComputerAI.Option<>("idle_animation", new ArrayList<RawAnimation>(), "custom_path", true)
+        ));
     }
 }

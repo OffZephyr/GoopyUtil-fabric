@@ -21,15 +21,33 @@ import org.joml.Matrix4f;
 import java.util.Set;
 
 public abstract class GoopyScreen extends Screen {
+    BlockPos blockPos;
+    int entityID;
     NbtCompound nbtData = new NbtCompound();
     public void putNbtData(NbtCompound nbt){
         nbtData = nbt.copy();
     }
+    public void putBlockPos(BlockPos newPos){
+        blockPos = newPos;
+    }
+    public void putEntityID(int id){
+        entityID = id;
+    }
     public NbtCompound getNbtData(){
         return nbtData;
     }
+    public BlockPos getBlockPos(){
+        return blockPos;
+    }
+    public int getEntityID(){ return entityID; }
     public GoopyScreen(Text title) {
         super(title);
+    }
+    public GoopyScreen(Text title, NbtCompound nbt, long l) {
+        this(title);
+        this.nbtData = nbt;
+        this.blockPos = BlockPos.fromLong(l);
+        this.entityID = l < Integer.MAX_VALUE ? (int) l : Integer.MAX_VALUE;
     }
 
     public boolean isOnButton(double mouseX, double mouseY, int x, int y, int width, int height) {

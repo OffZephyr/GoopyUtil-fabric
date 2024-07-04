@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CameraEditScreen extends BlockEntityScreen {
+public class CameraEditScreen extends GoopyScreen {
     Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/camera/camera_edit.png");
     boolean isActive = false;
     private TextFieldWidget nameField;
@@ -44,8 +44,8 @@ public class CameraEditScreen extends BlockEntityScreen {
     boolean sneaking = false;
     boolean renameActionButton = false;
 
-    public CameraEditScreen(Text title) {
-        super(title);
+    public CameraEditScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override

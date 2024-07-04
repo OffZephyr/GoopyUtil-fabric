@@ -1,6 +1,7 @@
 package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
@@ -13,14 +14,13 @@ import java.util.Map;
 
 public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
     public Identifier SMALL_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/window_smallbar_20.png");
-
     boolean playlistsScreen = false;
     float playlistOffset = 0;
     float playlistOffsetDiff = 0;
     float playlistOffsetOld = 0;
     Map<ComputerData.ComputerPlaylist, Boolean> playlists = new LinkedHashMap<>();
-    public COMPMusicPlayerScreen(Text title) {
-        super(title);
+    public COMPMusicPlayerScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override
@@ -207,5 +207,10 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
             }
         }
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public String appName() {
+        return "music_player";
     }
 }

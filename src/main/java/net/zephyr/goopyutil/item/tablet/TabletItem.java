@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -27,9 +28,8 @@ import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.item.ItemWithDescription;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.GetNbtC2SPayload;
-import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
-import net.zephyr.goopyutil.networking.payloads.SetScreenS2CPayload;
 import net.zephyr.goopyutil.util.GoopyScreens;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -86,7 +86,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                 if (!(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(camsData.get(j))) instanceof CameraBlockEntity)) {
                     camsData.remove(j);
                     data.putLongArray("Cameras", camsData);
-                    ClientPlayNetworking.send(new GetNbtC2SPayload(data));
+                    ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
                 }
             }
         }
@@ -133,10 +133,11 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         }
         data.put("data", new NbtCompound());
         data.putLong("pos", 0);
+
         if (user instanceof ServerPlayerEntity p) {
             GoopyScreens.openScreenOnServer(p, "camera_tablet", data);
         } else {
-            ClientHook.openScreen(GoopyScreens.getScreens().get("camera_tablet"), data);
+            ClientHook.openScreen("camera_tablet", data, 0);
         }
     }
 
@@ -161,7 +162,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                                 camsData.remove(i);
 
                                 data.putLongArray("Cameras", camsData);
-                                ClientPlayNetworking.send(new GetNbtC2SPayload(data));
+                                ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
                                 return ActionResult.SUCCESS;
                             }
                         }
@@ -178,7 +179,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                             camsData.add(pos);
 
                             data.putLongArray("Cameras", camsData);
-                            ClientPlayNetworking.send(new GetNbtC2SPayload(data));
+                            ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
                             return ActionResult.SUCCESS;
                         }
                         else {
@@ -206,7 +207,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         }
         if(world.isClient()) {
             if (!data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt()))
-                ClientPlayNetworking.send(new GetNbtC2SPayload(data));
+                ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
         }
 
         this.closing = data.getBoolean("closing");
@@ -232,7 +233,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         }
 
         if(world.isClient() && !data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt())){
-            ClientPlayNetworking.send(new GetNbtC2SPayload(data));
+            ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
 
             if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen) {
                 transition = false;

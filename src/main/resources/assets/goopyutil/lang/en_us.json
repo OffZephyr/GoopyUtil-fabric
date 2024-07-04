@@ -42,6 +42,7 @@
   "goopyutil.creative": "GoopyUtil",
 
   "goopyutil.commands.money": "%s currently owns §a§lF$%d§r.",
+  "goopyutil.commands.money.set": "%s now owns §a§lF$%d§r.",
 
   "goopyutil.screens.camera_edit.tooltip": "Hold %s to show helpful tips and info.",
   "goopyutil.screens.camera_edit.renameAction": "Pick a name for your Action button.",
@@ -95,5 +96,11 @@
   "goopyutil.screens.camera_tablet.no_visual": "-CAMERA DISABLED-",
   "goopyutil.screens.camera_tablet.audio_only": "AUDIO ONLY",
   "goopyutil.screens.camera_tablet.no_cams": "-NO CONNECTION-",
-  "goopyutil.screens.camera_tablet.no_cams_desc": "PLEASE CONNECT AT LEAST ONE CAMERA"
+  "goopyutil.screens.camera_tablet.no_cams_desc": "PLEASE CONNECT AT LEAST ONE CAMERA",
+
+  "goopyutil.computer.behavior.attributes": "Set Attributes",
+  "goopyutil.computer.behavior.attributes.aggressive": "Should be aggressive",
+  "goopyutil.computer.behavior.attributes.roaming": "Should roam freely",
+
+  "goopyutil.computer.behavior.statue": "Statue mode"
 }

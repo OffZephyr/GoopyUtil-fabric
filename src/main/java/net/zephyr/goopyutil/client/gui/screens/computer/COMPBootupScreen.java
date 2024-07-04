@@ -3,35 +3,28 @@ package net.zephyr.goopyutil.client.gui.screens.computer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
-import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
 
 import java.util.Objects;
 
 public class COMPBootupScreen extends COMPBaseScreen {
-    public Identifier BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
-    int bootProgress = 0;
-    final int bootProgressLength = 40;
+    private Identifier BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
+    private int bootProgress = 0;
+    private final int bootProgressLength = 40;
 
-    public COMPBootupScreen(Text title) {
-        super(title);
+    public COMPBootupScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override
     public boolean shouldCloseOnEsc() {
         return false;
-    }
-
-    @Override
-    protected void init() {
-        bootProgress = 0;
-        BOOTUP_SCREEN = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/boot_0.png");
-        super.init();
     }
 
     @Override
@@ -73,18 +66,15 @@ public class COMPBootupScreen extends COMPBaseScreen {
 
     private void setCurrentScreen() {
         String window = this.getNbtData().getString("Window");
-        BlockEntityScreen screen = new COMPDesktopScreen(title);
 
         if(!Objects.equals(window, "default")) {
             for(ComputerApp app : ComputerData.getApps()){
                 if(Objects.equals(app.getName(), window)) {
-                    screen = app.getScreen();
+                    ClientHook.openScreen(app.getName(), getNbtData(), getBlockPos().asLong());
+                    return;
                 }
             }
         }
-
-        screen.putNbtData(this.getNbtData());
-        screen.putBlockPos(this.getBlockPos());
-        MinecraftClient.getInstance().setScreen(screen);
+        ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
     }
 }

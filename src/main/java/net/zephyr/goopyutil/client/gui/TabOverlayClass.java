@@ -22,7 +22,7 @@ public class TabOverlayClass implements HudRenderCallback {
         MinecraftClient client = MinecraftClient.getInstance();
 
         if(client.options.playerListKey.isPressed()) {
-            //ClientPlayNetworking.send(new MoneySyncDataC2SPayload(0));
+            ClientPlayNetworking.send(new MoneySyncDataC2SPayload(0, false));
 
             float moneyX = 0;
             float y = 0;

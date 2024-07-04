@@ -1,14 +1,15 @@
 package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBaseScreen;
 
 public class COMPBrowserScreen extends COMPBaseAppScreen {
-    public COMPBrowserScreen(Text title) {
-        super(title);
+    public COMPBrowserScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override
@@ -45,5 +46,9 @@ public class COMPBrowserScreen extends COMPBaseAppScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+    }
+    @Override
+    public String appName() {
+        return "browser";
     }
 }

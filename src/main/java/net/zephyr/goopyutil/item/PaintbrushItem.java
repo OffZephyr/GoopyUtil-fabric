@@ -53,7 +53,7 @@ public class PaintbrushItem extends Item {
                     NbtCompound data = entity.getCustomData();
                     data.putByte("editSide", direction);
 
-                    ClientHook.openScreen(GoopyScreens.getScreens().get("paintbrush"), context.getBlockPos(), data);
+                    ClientHook.openScreen("paintbrush", data, context.getBlockPos().asLong());
 
                     return ActionResult.SUCCESS;
                 }

@@ -15,6 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
 import net.zephyr.goopyutil.util.IEntityDataSaver;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -101,7 +102,7 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
         nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
         nbt.putInt("entityID", this.getId());
         for (ServerPlayerEntity p : PlayerLookup.tracking(this)) {
-            ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt));
+            ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
         }
     }
 

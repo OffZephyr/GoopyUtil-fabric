@@ -2,20 +2,23 @@ package net.zephyr.goopyutil.client.gui.screens.computer;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
+import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
+import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBaseAppScreen;
+import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
 import net.zephyr.goopyutil.util.GoopyScreens;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
 
 import java.util.Objects;
 
-public abstract class COMPBaseScreen extends BlockEntityScreen {
+public abstract class COMPBaseScreen extends GoopyScreen {
     public Identifier WALLPAPER = ComputerData.getWallpapers().get(0).getTexture();
-    public COMPBaseScreen(Text title) {
-        super(title);
+    public COMPBaseScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
     final int screenSizeBase = 256;
     public int screenSize = 256;
@@ -31,21 +34,18 @@ public abstract class COMPBaseScreen extends BlockEntityScreen {
     }
 
     public void updateIndex(String currentScreen){
-        for(ComputerApp app : ComputerData.getApps()){
-            if(Objects.equals(app.getName(), currentScreen)) {
-                this.getNbtData().putString("Window", currentScreen);
-                break;
-            }
-            else {
-                this.getNbtData().putString("Window", "default");
-            }
+        if(GoopyScreens.getScreens().containsKey(currentScreen)) {
+            this.getNbtData().putString("Window", currentScreen);
+        }
+        else {
+            this.getNbtData().putString("Window", "default");
         }
     }
 
     @Override
     public void tick() {
 
-        if(!(MinecraftClient.getInstance().world.getBlockEntity(getBlockPos()) instanceof ComputerBlockEntity)){
+        if(!(MinecraftClient.getInstance().world.getBlockState(getBlockPos()).isOf(BlockInit.COMPUTER))){
             close();
         }
 
@@ -77,13 +77,13 @@ public abstract class COMPBaseScreen extends BlockEntityScreen {
         return doubleClicking;
     }
 
-    public void saveData(){
-        for (ComputerApp app: ComputerData.getApps()) {
-            if(app.getScreen().getClass() == this.getClass()){
-                this.updateIndex(app.getName());
-                GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
-                return;
-            }
+    public void saveData() {
+        if(MinecraftClient.getInstance().currentScreen instanceof COMPBootupScreen) return;
+
+        if (MinecraftClient.getInstance().currentScreen instanceof COMPBaseAppScreen appScreen) {
+            this.updateIndex(appScreen.appName());
+            GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
+            return;
         }
 
         this.updateIndex("default");

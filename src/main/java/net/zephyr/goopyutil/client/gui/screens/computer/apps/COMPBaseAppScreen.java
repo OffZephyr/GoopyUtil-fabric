@@ -2,10 +2,13 @@ package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
+import net.zephyr.goopyutil.blocks.computer.ComputerData;
+import net.zephyr.goopyutil.client.ClientHook;
+import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBaseScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
 
@@ -13,8 +16,8 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
     public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
     public Identifier WINDOW_BASE = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/window_base.png");
     public Identifier BUTTONS = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/computer_buttons.png");
-    public COMPBaseAppScreen(Text title) {
-        super(title);
+    public COMPBaseAppScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
     boolean holding = false;
     boolean dragging = false;
@@ -68,10 +71,8 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
         float buttonSize = (16 / 256f) * screenSize;
         float buttonOffset = (2f / 256f) * screenSize;
         if(mouseX > this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize && mouseX < this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset && mouseY > this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset && mouseY < this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset + (int) buttonSize) {
-            BlockEntityScreen screen = new COMPDesktopScreen(title);
-            screen.putNbtData(this.getNbtData());
-            screen.putBlockPos(this.getBlockPos());
-            MinecraftClient.getInstance().setScreen(screen);
+
+            ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -124,5 +125,9 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
         }
 
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    public String appName() {
+        return "";
     }
 }

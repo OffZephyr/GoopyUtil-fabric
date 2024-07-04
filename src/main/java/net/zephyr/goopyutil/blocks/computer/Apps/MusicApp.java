@@ -1,12 +1,11 @@
 package net.zephyr.goopyutil.blocks.computer.Apps;
 
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
 
 public class MusicApp extends ComputerApp {
-    public MusicApp(BlockEntityScreen screen, String name, Identifier iconTexture) {
-        super(screen, name, iconTexture);
+    public MusicApp(String name, Identifier iconTexture) {
+        super(name, iconTexture);
     }
 
     @Override

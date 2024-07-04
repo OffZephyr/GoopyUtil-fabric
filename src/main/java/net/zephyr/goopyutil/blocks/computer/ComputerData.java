@@ -1,18 +1,22 @@
 package net.zephyr.goopyutil.blocks.computer;
 
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
+import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
 import net.zephyr.goopyutil.util.Computer.ComputerSong;
 
 import java.util.*;
 
 public class ComputerData {
-    private static List<Wallpaper> Wallpapers = new ArrayList<>();
-    private static List<ComputerApp> Apps = new ArrayList<>();
-    private static List<ComputerSong> Songs = new ArrayList<>();
-    private static List<ComputerPlaylist> Playlists = new ArrayList<>();
+    private static final List<Wallpaper> Wallpapers = new ArrayList<>();
+    private static final List<ComputerApp> Apps = new ArrayList<>();
+    private static final List<ComputerSong> Songs = new ArrayList<>();
+    private static final List<ComputerPlaylist> Playlists = new ArrayList<>();
+    private static final List<ComputerAI> AIBehaviors = new ArrayList<>();
 
+    public static void addAIBehavior(ComputerAI ai){
+        AIBehaviors.add(ai);
+    }
     public static void addWallpaper(String id, Identifier texture){
         Wallpapers.add(new Wallpaper(id, texture));
     }
@@ -50,6 +54,15 @@ public class ComputerData {
     }
     public static List<ComputerPlaylist> getPlaylists(){
         return Playlists;
+    }
+    public static List<ComputerAI> getAIBehaviors(){
+        return AIBehaviors;
+    }
+    public static ComputerAI getAIBehavior(String id){
+        for (ComputerAI ai: AIBehaviors) {
+            if(ai.getId().equals(id)) return ai;
+        }
+        return null;
     }
     public static ComputerPlaylist getPlaylists(String name){
         for(ComputerPlaylist list : Playlists){

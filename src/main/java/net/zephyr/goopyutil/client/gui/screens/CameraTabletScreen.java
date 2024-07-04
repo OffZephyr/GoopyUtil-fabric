@@ -57,9 +57,10 @@ public class CameraTabletScreen extends GoopyScreen {
     float sliderAlphaY = 100;
     private float doubleClick = 0;
 
-    public CameraTabletScreen(Text title) {
-        super(title);
+    public CameraTabletScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
+
     @Override
     protected void init() {
 

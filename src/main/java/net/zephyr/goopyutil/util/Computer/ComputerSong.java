@@ -2,7 +2,6 @@ package net.zephyr.goopyutil.util.Computer;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
 
 public class ComputerSong {
     String name;

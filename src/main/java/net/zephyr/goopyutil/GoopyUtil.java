@@ -21,7 +21,6 @@ public class GoopyUtil implements ModInitializer {
 		LayeredBlockLayersInit.init();
 		ItemInit.registerItems();
 		EntityInit.registerEntities();
-		BlockInit.registerBlocks();
 		BlockEntityInit.registerBlockEntities();
 		ItemGroupsInit.registerItemGroups();
 		SoundsInit.registerSounds();

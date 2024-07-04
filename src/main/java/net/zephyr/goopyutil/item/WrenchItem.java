@@ -25,9 +25,11 @@ public class WrenchItem extends Item {
             if (world.getBlockEntity(context.getBlockPos()) instanceof CameraBlockEntity entity) {
                 NbtCompound data = entity.getCustomData();
 
-                if (world.isClient()) {
-                    ClientHook.openScreen(GoopyScreens.getScreens().get("camera_edit"), context.getBlockPos(), data);
-                }
+                if (context.getPlayer() instanceof ServerPlayerEntity p) {
+                    GoopyScreens.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
+                }/* else {
+                ClientHook.openScreen(GoopyScreens.getScreens().get("camera_edit"), context.getBlockPos(), data);
+                }*/
                 return ActionResult.SUCCESS;
             }
         }

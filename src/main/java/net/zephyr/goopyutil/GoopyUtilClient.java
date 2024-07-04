@@ -7,8 +7,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntityRenderer;
@@ -31,7 +29,8 @@ public class GoopyUtilClient implements ClientModInitializer {
 		ItemInit.clientRegisterItem();
 		ComputerInit.init();
 		ScreensInit.init();
-		RegisterRenderers();
+		BlockInit.registerBlocksOnClient();
+		EntityInit.registerEntitiesOnClient();
 		try {
 			BlackWhitelistInit.Init();
 		} catch (IOException e) {
@@ -42,22 +41,5 @@ public class GoopyUtilClient implements ClientModInitializer {
 		PayloadDef.registerS2CPackets();
 		HudRenderCallback.EVENT.register(new TabOverlayClass());
 		LOGGER.info("Client Initialized.");
-	}
-
-	private void RegisterRenderers() {
-
-		EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_HEAD, CameraBlockRenderer::getTexturedModelData);
-		BlockEntityRendererFactories.register(BlockEntityInit.CAMERA, CameraBlockRenderer::new);
-
-		EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_MAP, CameraMappingEntityRenderer::getTexturedModelData);
-		EntityRendererRegistry.register(EntityInit.CAMERA_MAPPING, CameraMappingEntityRenderer::new);
-
-		EntityModelLayerRegistry.registerModelLayer(JavaModels.ZEPHYR, CameraMappingEntityRenderer::getTexturedModelData);
-
-		EntityRendererRegistry.register(EntityInit.ZEPHYR, ZephyrRenderer::new);
-
-
-
-		BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CAMERA, RenderLayer.getCutout());
 	}
 }

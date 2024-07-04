@@ -5,26 +5,22 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.util.IEntityDataSaver;
 
-public class MoneySyncDataC2SPayload implements CustomPayload {
-    public static final CustomPayload.Id<MoneySyncDataC2SPayload> ID = CustomPayload.id("goopyutil_c2s_money_sync");
-    public static final PacketCodec<PacketByteBuf, MoneySyncDataC2SPayload> CODEC = PacketCodec.of((value, buf) -> buf.writeInt(value.credits), buf -> new MoneySyncDataC2SPayload(buf.readInt()));
-    public static int credits = 0;
-
-    public MoneySyncDataC2SPayload(int money){
-        credits = money;
-    }
-
-    public static void receive(MoneySyncDataC2SPayload payload, ServerPlayNetworking.Context context){
-        for(ServerPlayerEntity p : PlayerLookup.all(context.player().server)) {
-            PacketByteBuf buf1 = PacketByteBufs.create();
-            buf1.writeInt(((IEntityDataSaver)p).getPersistentData().getInt("Credits"));
-            ServerPlayNetworking.send(p, new MoneySyncDataS2CPayload(credits));
-        }
-
+public record MoneySyncDataC2SPayload(int credits, boolean shouldUpdate) implements CustomPayload {
+    public static final CustomPayload.Id<MoneySyncDataC2SPayload> ID = new CustomPayload.Id<>(PayloadDef.C2SMoneyID);
+    public static final PacketCodec<PacketByteBuf, MoneySyncDataC2SPayload> CODEC = PacketCodec.tuple(
+            PacketCodecs.INTEGER, MoneySyncDataC2SPayload::credits,
+            PacketCodecs.BOOL, MoneySyncDataC2SPayload::shouldUpdate,
+            MoneySyncDataC2SPayload::new);
+    public static void receive(MoneySyncDataC2SPayload payload, ServerPlayNetworking.Context context) {
+        if(payload.shouldUpdate()) ((IEntityDataSaver)context.player()).getPersistentData().putInt("Credits", payload.credits());
+        int money = payload.shouldUpdate() ? payload.credits() : ((IEntityDataSaver)context.player()).getPersistentData().getInt("Credits");
+        ServerPlayNetworking.send(context.player(), new MoneySyncDataS2CPayload(money));
     }
 
     @Override

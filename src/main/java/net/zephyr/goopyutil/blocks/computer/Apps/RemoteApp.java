@@ -1,12 +1,12 @@
 package net.zephyr.goopyutil.blocks.computer.Apps;
 
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
+import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
 
 public class RemoteApp extends ComputerApp {
-    public RemoteApp(BlockEntityScreen screen, String name, Identifier iconTexture) {
-        super(screen, name, iconTexture);
+    public RemoteApp(String name, Identifier iconTexture) {
+        super(name, iconTexture);
     }
 
     @Override

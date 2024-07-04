@@ -6,53 +6,51 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.zephyr.goopyutil.client.ClientHook;
+import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.util.GoopyScreens;
 
-public class SetScreenS2CPayload implements CustomPayload {
-    public static final Id<SetScreenS2CPayload> ID = CustomPayload.id("goopyutil_s2c_screen_open");
-
-    public static NbtCompound nbt = new NbtCompound();
-    public static final PacketCodec<PacketByteBuf, SetScreenS2CPayload> CODEC = PacketCodec.of((value, buf) -> buf.writeNbt(value.nbt), buf -> new SetScreenS2CPayload(buf.readNbt()));
-
-    public SetScreenS2CPayload(NbtCompound data){
-        nbt = data;
-    }
+public record SetScreenS2CPayload(String index, NbtCompound data, byte type) implements CustomPayload {
+    public static final CustomPayload.Id<SetScreenS2CPayload> ID = new CustomPayload.Id<>(PayloadDef.ScreenPackedID);
+    public static final PacketCodec<RegistryByteBuf, SetScreenS2CPayload> CODEC = PacketCodec.tuple(
+            PacketCodecs.STRING, SetScreenS2CPayload::index,
+            PacketCodecs.NBT_COMPOUND, SetScreenS2CPayload::data,
+            PacketCodecs.BYTE, SetScreenS2CPayload::type,
+            SetScreenS2CPayload::new);
 
     public static void receive(SetScreenS2CPayload payload, ClientPlayNetworking.Context context) {
-        if(context.player() instanceof ClientPlayerEntity) {
-            String index = nbt.getString("index");
-            BlockPos pos = BlockPos.fromLong(nbt.getLong("pos"));
-            int id = nbt.getInt("entityID");
-            NbtCompound data = nbt.getCompound("data");
-            Screen screen;
-            if (GoopyScreens.getScreens().containsKey(index)) {
-                screen = GoopyScreens.getScreens().get(index);
+        context.client().execute(() -> {
+            if (context.player() instanceof ClientPlayerEntity) {
+                String index = payload.index();
+                byte type = payload.type();
+                NbtCompound nbt = payload.data();
+                NbtCompound data = nbt.getCompound("data");
 
-                if (nbt.getLong("pos") != 0) {
-                    context.client().execute(() -> {
-                        ClientHook.openScreen(screen, pos, data);
-                    });
-                } else if (nbt.getLong("entityID") != 0) {
-                    context.client().execute(() -> {
-                        ClientHook.openScreen(screen, id, data);
-                    });
-                } else if (!data.isEmpty()) {
-                    context.client().execute(() -> {
-                        ClientHook.openScreen(screen, data);
-                    });
-                } else {
-                    context.client().execute(() -> {
-                        ClientHook.openScreen(screen);
-                    });
+                if (GoopyScreens.getScreens().containsKey(index)) {
+
+                    switch (type) {
+                        case PayloadDef.BLOCK_DATA -> {
+                            long pos = nbt.getLong("pos");
+                            ClientHook.openScreen(index, data, pos);
+                        }
+                        case PayloadDef.ENTITY_DATA -> {
+                            int id = nbt.getInt("entityID");
+                            ClientHook.openScreen(index, data, id);
+                        }
+                        default -> ClientHook.openScreen(index, data, 0);
+                    }
                 }
             }
-        }
+        });
     }
 
     @Override

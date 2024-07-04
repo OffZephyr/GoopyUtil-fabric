@@ -3,18 +3,19 @@ package net.zephyr.goopyutil.client.gui.screens.computer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.client.gui.screens.BlockEntityScreen;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 
 public class COMPDesktopScreen extends COMPBaseScreen {
     public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
     public Identifier WALLPAPER_MENU = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/wallpapers_window.png");
-    public COMPDesktopScreen(Text title) {
-        super(title);
+    public COMPDesktopScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
     boolean holding = false;
     boolean dragging = false;
@@ -94,11 +95,7 @@ public class COMPDesktopScreen extends COMPBaseScreen {
 
             if(mouseX > x && mouseY > y && mouseX < x + (int) iconGridSize/iconGrid && mouseY < y + (int) iconGridSize/iconGrid){
                 if(isDoubleClicking()) {
-                    BlockEntityScreen screen = ComputerData.getApps().get(i).getScreen();
-
-                    screen.putNbtData(this.getNbtData());
-                    screen.putBlockPos(this.getBlockPos());
-                    MinecraftClient.getInstance().setScreen(screen);
+                    ClientHook.openScreen(ComputerData.getApps().get(i).getName(), getNbtData(), getBlockPos().asLong());
                 }
             }
         }

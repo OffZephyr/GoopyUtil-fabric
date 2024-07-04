@@ -37,13 +37,13 @@ public class MoneyCommand {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(amount);
             ServerPlayNetworking.send(p, new MoneySyncDataS2CPayload(amount));
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), amount), true);
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money.set", p.getName(), amount), true);
             return amount;
         }
         return 0;
     }
     public static int add(CommandContext<ServerCommandSource> context, int amount, PlayerEntity player) throws CommandSyntaxException {
-        if(player instanceof ServerPlayerEntity p) {
+        if( player instanceof ServerPlayerEntity p) {
 
             if(((IEntityDataSaver)p).getPersistentData().getInt("Credits") <= 0) set(context, amount, player);
 
@@ -52,7 +52,7 @@ public class MoneyCommand {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(money + amount);
             ServerPlayNetworking.send(p, new MoneySyncDataS2CPayload(amount));
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), money + amount), true);
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money.set", p.getName(), money + amount), true);
             return money + amount;
         }
         return 0;
@@ -62,7 +62,7 @@ public class MoneyCommand {
         if(player instanceof ServerPlayerEntity p) {
 
             int money = ((IEntityDataSaver)p).getPersistentData().getInt("Credits");
-            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getPlayerListName(), money), true);
+            context.getSource().sendFeedback(() -> Text.translatable("goopyutil.commands.money", p.getName(), money), true);
             return money;
         }
         return 0;

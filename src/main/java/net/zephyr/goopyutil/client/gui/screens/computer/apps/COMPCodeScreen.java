@@ -1,11 +1,12 @@
 package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 
 public class COMPCodeScreen extends COMPBaseAppScreen {
-    public COMPCodeScreen(Text title) {
-        super(title);
+    public COMPCodeScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override
@@ -42,5 +43,9 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+    }
+    @Override
+    public String appName() {
+        return "code";
     }
 }

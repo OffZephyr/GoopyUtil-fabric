@@ -23,7 +23,7 @@ import org.joml.Matrix4f;
 import java.awt.*;
 import java.util.Objects;
 
-public class PaintbrushScreen extends BlockEntityScreen {
+public class PaintbrushScreen extends GoopyScreen {
     Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/paintbrush.png");
     int cornerX, cornerY;
     int selectedLayer, direction;
@@ -38,8 +38,8 @@ public class PaintbrushScreen extends BlockEntityScreen {
     double[][] colorScrollX = new double[3][3];
     boolean[][] colorHoldingScroll = new boolean[3][3];
 
-    public PaintbrushScreen(Text title) {
-        super(title);
+    public PaintbrushScreen(Text title, NbtCompound nbt, long l) {
+        super(title, nbt, l);
     }
 
     @Override
