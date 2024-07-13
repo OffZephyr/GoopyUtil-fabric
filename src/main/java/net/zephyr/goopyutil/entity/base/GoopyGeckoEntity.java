@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -15,8 +16,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.IEntityDataSaver;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -25,7 +28,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
-public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEntity {
+public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEntity, GoopyEntity {
     private Map<String, Identifier[]> Reskins = new HashMap<>();
     private AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected static RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.dayidle");
@@ -34,9 +37,8 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
     protected static RawAnimation CRAWL_WALK_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.crawling");
 
     boolean crawling = false;
-    boolean canCrawl = false;
-    float crawlHeight = 1;
     int crawlingCooldown = 0;
+    public boolean menuTick = false;
 
     public GoopyGeckoEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
@@ -44,7 +46,8 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "Movement", 3, this::movementAnimController));
+        controllers.add(new AnimationController<>(this, "Movement", 3, this::movementAnimController)
+                .triggerableAnim(demoAnim().toString(), demoAnim()));
     }
 
     public <E extends GoopyGeckoEntity> PlayState movementAnimController(final AnimationState<E> event) {
@@ -66,7 +69,7 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
     @Override
     public void tick() {
         super.tick();
-        if(canCrawl){
+        if(canCrawl()){
             crawlTick();
         }
     }
@@ -114,15 +117,11 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
     public EntityDimensions getBaseDimensions(EntityPose pose) {
         EntityDimensions entityDimensions = super.getBaseDimensions(pose);
         if (this.getCrawling()) {
-            return EntityDimensions.fixed(entityDimensions.width(), crawlHeight).withEyeHeight(0.5f);
+            return EntityDimensions.fixed(entityDimensions.width(), crawlHeight()).withEyeHeight(0.5f);
         }
         return entityDimensions;
     }
 
-    public void canCrawl(boolean canCrawl, float crawlHeight){
-        this.canCrawl = canCrawl;
-        this.crawlHeight = crawlHeight;
-    }
     public void addReskin(String name, Identifier texture, Identifier obj, Identifier animations){
         Identifier[] skin = new Identifier[3];
         skin[0] = texture;
@@ -134,5 +133,20 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
 
     public Map<String, Identifier[]> getReskins(){
         return Reskins;
+    }
+    @Override
+    public double getTick(Object entity) {
+        if(this.menuTick)
+            return MinecraftClient.getInstance().world.getTime();
+        else
+            return ((Entity)entity).age;
+    }
+
+    public List<?> getDataList(String string){
+        return switch (string){
+            default -> null;
+            case "statue.animation" -> getStatueAnimations();
+            case "moving.idle_animation" -> getIdleAnimations();
+        };
     }
 }

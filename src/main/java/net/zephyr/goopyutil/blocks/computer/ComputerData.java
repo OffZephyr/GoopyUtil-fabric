@@ -1,49 +1,42 @@
 package net.zephyr.goopyutil.blocks.computer;
 
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
+import net.zephyr.goopyutil.util.Computer.ComputerPlaylist;
 import net.zephyr.goopyutil.util.Computer.ComputerSong;
 
 import java.util.*;
 
 public class ComputerData {
-    private static final List<Wallpaper> Wallpapers = new ArrayList<>();
+    protected static final List<Initializer> Initializers = new ArrayList<>();
+    private static final List<Initializer.Wallpaper> Wallpapers = new ArrayList<>();
     private static final List<ComputerApp> Apps = new ArrayList<>();
     private static final List<ComputerSong> Songs = new ArrayList<>();
     private static final List<ComputerPlaylist> Playlists = new ArrayList<>();
+    private static final List<Initializer.AnimatronicAI> AIAnimatronics = new ArrayList<>();
+    private static final List<Initializer.AnimatronicCategory<?>> AICategories = new ArrayList<>();
     private static final List<ComputerAI> AIBehaviors = new ArrayList<>();
 
-    public static void addAIBehavior(ComputerAI ai){
-        AIBehaviors.add(ai);
+    public static void addInitializer(Initializer init){
+        Initializers.add(init);
     }
-    public static void addWallpaper(String id, Identifier texture){
-        Wallpapers.add(new Wallpaper(id, texture));
-    }
-    public static void registerComputerApp(ComputerApp app){
-        Apps.add(app);
-    }
-    public static void registerComputerSong(ComputerSong song){
-        Songs.add(song);
-    }
-    public static void registerPlaylist(String name) {
-        Playlists.add(new ComputerPlaylist(name));
-    }
-    public static void addSongToPlaylist(String name, String songName){
 
-        ComputerSong music = null;
-        for(ComputerSong song : ComputerData.getSongs()){
-            if(Objects.equals(song.getName(), songName)) music = song;
-        }
-
-        if(music == null) return;
-
-        for(ComputerPlaylist list : Playlists){
-            if(Objects.equals(list.getName(), name)) list.addSong(music);
+    public static void runInitializers(){
+        for (Initializer init: Initializers) {
+            Wallpapers.addAll(init.getWallpapers());
+            Apps.addAll(init.getApps());
+            Songs.addAll(init.getSongs());
+            Playlists.addAll(init.getPlaylists());
+            AIAnimatronics.addAll(init.getAnimatronics());
+            AICategories.addAll(init.getAICategories());
+            AIBehaviors.addAll(init.getAIBehaviors());
         }
     }
-
-    public static List<Wallpaper> getWallpapers(){
+    public static List<Initializer.Wallpaper> getWallpapers(){
         return Wallpapers;
     }
     public static List<ComputerApp> getApps(){
@@ -52,8 +45,38 @@ public class ComputerData {
     public static List<ComputerSong> getSongs(){
         return Songs;
     }
+    public static ComputerSong getSong(String name) {
+        for(ComputerSong song : getSongs()){
+            if(Objects.equals(song.getName(), name)) return song;
+        }
+        return null;
+    }
     public static List<ComputerPlaylist> getPlaylists(){
         return Playlists;
+    }
+    public static ComputerPlaylist getPlaylist(String name){
+        for(ComputerPlaylist list : Playlists){
+            if(Objects.equals(list.getName(), name)) return list;
+        }
+        return null;
+    }
+    public static List<Initializer.AnimatronicAI> getAIAnimatronics(){
+        return AIAnimatronics;
+    }
+    public static Initializer.AnimatronicAI getAIAnimatronic(String id){
+        for (Initializer.AnimatronicAI ai: AIAnimatronics) {
+            if(ai.id().equals(id)) return ai;
+        }
+        return null;
+    }
+    public static List<Initializer.AnimatronicCategory<?>> getAICategories(){
+        return AICategories;
+    }
+    public static Initializer.AnimatronicCategory<?> getAICategory(String id){
+        for (Initializer.AnimatronicCategory<?> category: AICategories) {
+            if(category.id.equals(id)) return category;
+        }
+        return null;
     }
     public static List<ComputerAI> getAIBehaviors(){
         return AIBehaviors;
@@ -64,42 +87,49 @@ public class ComputerData {
         }
         return null;
     }
-    public static ComputerPlaylist getPlaylists(String name){
-        for(ComputerPlaylist list : Playlists){
-            if(Objects.equals(list.getName(), name)) return list;
-        }
-        return null;
-    }
 
-    public static class Wallpaper {
-        String id;
-        Identifier texture;
-        public Wallpaper(String id, Identifier texture){
-            this.id = id;
-            this.texture = texture;
-        }
-        public String getId(){
-            return this.id;
-        }
-        public Identifier getTexture(){
-            return this.texture;
-        }
-    }
 
-    public static class ComputerPlaylist {
-        String name;
-        List<ComputerSong> playlist = new ArrayList<>();
-        public ComputerPlaylist(String name){
-            this.name = name;
+    public interface Initializer {
+        default void register(){
+            ComputerData.addInitializer(this);
+        };
+        List<Wallpaper> getWallpapers();
+        List<ComputerApp> getApps();
+        List<ComputerSong> getSongs();
+        List<ComputerPlaylist> getPlaylists();
+        List<AnimatronicAI> getAnimatronics();
+        List<ComputerAI> getAIBehaviors();
+        List<AnimatronicCategory<?>> getAICategories();
+
+        record Wallpaper(String id, Identifier texture){
+            public String getId(){
+                return id();
+            }
+            public Identifier getTexture() {
+                return texture;
+            }
         }
-        public String getName(){
-            return this.name;
-        }
-        public void addSong(ComputerSong song){
-            playlist.add(song);
-        }
-        public List<ComputerSong> getList() {
-            return playlist;
+
+        record AnimatronicAI(Text subTitle, EntityType<? extends LivingEntity> entityType, String id) {}
+
+        public class AnimatronicCategory<E>{
+            public List<E> list;
+            public Identifier texture;
+            public Text text;
+            public String id;
+            boolean subCategory = false;
+            public AnimatronicCategory(List<E> list, Identifier texture, String id){
+                this.subCategory = false;
+                this.list = list;
+                this.texture = texture;
+                this.id = id;
+            }
+            public AnimatronicCategory(List<E> list, Text text, String id){
+                this.subCategory = true;
+                this.list = list;
+                this.text = text;
+                this.id = id;
+            }
         }
     }
 }

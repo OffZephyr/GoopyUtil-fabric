@@ -5,12 +5,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBaseAppScreen;
 import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.util.Computer.ComputerApp;
 import net.zephyr.goopyutil.util.GoopyScreens;
 
 import java.util.Objects;
@@ -66,7 +64,7 @@ public abstract class COMPBaseScreen extends GoopyScreen {
         getNbtData().putString("wallpaper", name);
         saveData();
 
-        for(ComputerData.Wallpaper wallpaper : ComputerData.getWallpapers()) {
+        for(ComputerData.Initializer.Wallpaper wallpaper : ComputerData.getWallpapers()) {
             if(Objects.equals(wallpaper.getId(), getNbtData().getString("wallpaper"))){
                 WALLPAPER = wallpaper.getTexture();
             }

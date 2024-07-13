@@ -29,6 +29,7 @@ import net.minecraft.world.WorldView;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
+import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.util.GoopyScreens;
 import org.jetbrains.annotations.Nullable;
 
@@ -123,12 +124,34 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
 
-        if(!world.isClient()) {
-            if (player instanceof ServerPlayerEntity p) {
-                GoopyScreens.openScreenOnServer(p, "computer_boot", pos, data);
+        if(player.isSneaking()){
+            return emptyDisk(data, world, pos, state);
+        }
+        if(player.getMainHandStack().isOf(ItemInit.FLOPPYDISK)){
+            emptyDisk(data, world, pos, state);
+            data.put("ai_data", player.getMainHandStack().encodeAllowEmpty(world.getRegistryManager()));
+            player.getMainHandStack().decrementUnlessCreative(1, player);
+            return ActionResult.SUCCESS;
+        }
+        else {
+            if (!world.isClient()) {
+                if (player instanceof ServerPlayerEntity p) {
+                    GoopyScreens.openScreenOnServer(p, "computer_boot", pos, data);
+                }
             }
         }
         return ActionResult.SUCCESS;
+    }
+
+    ActionResult emptyDisk(NbtCompound blockData, World world, BlockPos pos, BlockState state){
+        ItemStack disk = ItemStack.fromNbtOrEmpty(world.getRegistryManager(), blockData.getCompound("ai_data"));
+
+        if(disk != ItemStack.EMPTY) {
+            Block.dropStack(world, pos, state.get(FACING), disk);
+            blockData.put("ai_data", ItemStack.EMPTY.encodeAllowEmpty(world.getRegistryManager()));
+            return ActionResult.SUCCESS;
+        }
+        return ActionResult.PASS;
     }
 
 }

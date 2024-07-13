@@ -18,6 +18,11 @@ import net.zephyr.goopyutil.util.IEntityDataSaver;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.RawAnimation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ZephyrEntity extends GoopyGeckoEntity {
     public ZephyrEntity(EntityType<ZephyrEntity> type, World world) {
         super(type, world);
@@ -25,8 +30,6 @@ public class ZephyrEntity extends GoopyGeckoEntity {
         WALK_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.daywalk");
         CRAWL_IDLE_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.crawlidle");
         CRAWL_WALK_ANIM = RawAnimation.begin().thenLoop("animation.zephyr.crawling");
-
-        canCrawl(true, 0.65f);
 
         addReskin("neon",
                 Identifier.of(GoopyUtil.MOD_ID, "textures/entity/zephyr/zephyr_neon.png"),
@@ -56,5 +59,38 @@ public class ZephyrEntity extends GoopyGeckoEntity {
         this.goalSelector.add(2, new WanderAndCrawlGoal(this, 1));
         this.goalSelector.add(3, new LookAtEntityGoal(this, PlayerEntity.class, 6f));
         this.goalSelector.add(4, new LookAroundGoal(this));
+    }
+
+    @Override
+    public boolean canCrawl() {
+        return true;
+    }
+
+    @Override
+    public float crawlHeight() {
+        return 0.65f;
+    }
+
+    @Override
+    public RawAnimation demoAnim() {
+        return WALK_ANIM;
+    }
+
+    @Override
+    public List<String> getStatueAnimations() {
+        List<String> list = new ArrayList<>();
+        list.add("animation.zephyr.dayidle");
+        list.add("animation.zephyr.daywalk");
+        list.add("animation.zephyr.crawlidle");
+        list.add("animation.zephyr.crawling");
+        return list;
+    }
+
+    @Override
+    public List<String> getIdleAnimations() {
+        List<String> list = new ArrayList<>();
+        list.add("animation.zephyr.dayidle");
+        list.add("animation.zephyr.crawlidle");
+        return list;
     }
 }

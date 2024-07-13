@@ -61,18 +61,16 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
     }
 
 
+    public void closeButton(){
+        ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
+    }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         holding = false;
         dragging = false;
 
-
-        float appWindowSize = (248 / 256f) * screenSize;
-        float buttonSize = (16 / 256f) * screenSize;
-        float buttonOffset = (2f / 256f) * screenSize;
-        if(mouseX > this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize && mouseX < this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset && mouseY > this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset && mouseY < this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset + (int) buttonSize) {
-
-            ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
+        if (isOnButton(mouseX, mouseY, this.width / 2 + 248 / 2 - 2 - 16, this.height / 2 - 248 / 2 + 2, 16, 16)) {
+            closeButton();
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -109,22 +107,13 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
 
         context.drawTexture(WINDOW_BASE, this.width / 2 - (int)appWindowSize / 2, this.height / 2 - (int)appWindowSize / 2, 0, 0, (int)appWindowSize, (int)appWindowSize, (int)appWindowSize, (int)appWindowSize);
 
-        float buttonTextureSize = (128 / 256f) * screenSize;
-        float buttonSize = (16 / 256f) * screenSize;
-        float buttonOffset = (2f / 256f) * screenSize;
-        if(mouseX > this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize && mouseX < this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset && mouseY > this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset && mouseY < this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset + (int) buttonSize){
-            if(holding){
-                context.drawTexture(BUTTONS, this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize, this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset, buttonSize*2, 0, (int)buttonSize, (int)buttonSize, (int)buttonTextureSize, (int)buttonTextureSize);
-            }
-            else {
-                context.drawTexture(BUTTONS, this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize, this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset, buttonSize, 0, (int)buttonSize, (int)buttonSize, (int)buttonTextureSize, (int)buttonTextureSize);
-            }
-        }
-        else {
-            context.drawTexture(BUTTONS, this.width / 2 + (int)appWindowSize / 2 - (int)buttonOffset - (int) buttonSize, this.height / 2 - (int)appWindowSize / 2 + (int)buttonOffset, 0, 0, (int)buttonSize, (int)buttonSize, (int)buttonTextureSize, (int)buttonTextureSize);
-        }
+        renderCloseButton(context, mouseX, mouseY);
 
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    void renderCloseButton(DrawContext context, int mouseX, int mouseY){
+        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - 16, this.height / 2 - 248 / 2 + 2, 0, 0, 16, 0, 16*2, 0, 16, 16, 128, 128, mouseX, mouseY, getHolding());
     }
 
     public String appName() {

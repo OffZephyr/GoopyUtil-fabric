@@ -6,11 +6,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
+import net.zephyr.goopyutil.util.Computer.ComputerPlaylist;
 import net.zephyr.goopyutil.util.Computer.ComputerSong;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
     public Identifier SMALL_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/window_smallbar_20.png");
@@ -18,25 +17,22 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
     float playlistOffset = 0;
     float playlistOffsetDiff = 0;
     float playlistOffsetOld = 0;
-    Map<ComputerData.ComputerPlaylist, Boolean> playlists = new LinkedHashMap<>();
+    int playlistIndex = -1;
+    List<ComputerPlaylist> lists = new ArrayList<>();
+
+    ComputerPlaylist allTracks = new ComputerPlaylist("All Tracks");
     public COMPMusicPlayerScreen(Text title, NbtCompound nbt, long l) {
         super(title, nbt, l);
     }
 
     @Override
     protected void init() {
-        playlists = new HashMap<>();
-
-        ComputerData.ComputerPlaylist allTracks = new ComputerData.ComputerPlaylist("All Tracks");
-        for(ComputerSong song : ComputerData.getSongs()){
+        for(ComputerSong song : ComputerData.getSongs())
             allTracks.addSong(song);
-        }
 
-        playlists.put(allTracks, false);
+        lists.add(allTracks);
 
-        for(ComputerData.ComputerPlaylist list : ComputerData.getPlaylists()){
-            playlists.put(list, false);
-        }
+        lists.addAll(ComputerData.getPlaylists());
 
         playlistsScreen = false;
         super.init();
@@ -63,15 +59,16 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
             int spacingOffset = 12;
             int spacing = 0;
 
-            for (ComputerData.ComputerPlaylist play : playlists.keySet()) {
+            for (int i = 0; i < ComputerData.getPlaylists().size() + 1; i++) {
+                ComputerPlaylist play = i > 0 ? ComputerData.getPlaylists().get(i - 1) : this.allTracks;
                 float iconSize = 10;
                 int yPos = (int) topCornerY + (int) topBarPos + (int) textOffset + spacing + (int) playlistOffset;
 
                 if (mouseX > topCornerX && mouseX < topCornerX + appAvailableSizeX && mouseY > yPos - 2 && mouseY < yPos - 2 + spacingOffset && !dragging) {
-                    openClosePlaylist(play);
+                    openClosePlaylist(i);
                 }
 
-                if (playlists.get(play)) {
+                if (i == playlistIndex) {
                     for (int j = 0; j < play.getList().size(); j++) {
                         int songYPos = yPos - 2 + spacingOffset + spacingOffset * j;
                         if (mouseX > topCornerX && mouseX < topCornerX + appAvailableSizeX && mouseY > songYPos && mouseY < songYPos  + (int) iconSize + 2 && !dragging) {
@@ -102,12 +99,8 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
-    void openClosePlaylist(ComputerData.ComputerPlaylist setList){
-        for(ComputerData.ComputerPlaylist list : playlists.keySet()){
-            if(list != setList)
-                playlists.replace(list, false);
-        }
-        playlists.replace(setList, !playlists.get(setList));
+    void openClosePlaylist(int setList){
+        this.playlistIndex = this.playlistIndex == setList ? -1 : setList;
     }
 
     @Override
@@ -126,12 +119,12 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
 
             int spacingOffset = 12;
             int spacing = 0;
-            for (ComputerData.ComputerPlaylist play : playlists.keySet()) {
+            for (int i = 0; i < ComputerData.getPlaylists().size() + 1; i++) {
+                ComputerPlaylist play = i > 0 ? ComputerData.getPlaylists().get(i - 1) : this.allTracks;
                 float iconSize = 10;
                 int yPos = (int) topCornerY + (int) topBarPos + (int) textOffset + spacing + (int)playlistOffset;
 
-                String playlistName = play.getName();
-                if (!playlists.get(play)) playlistName = playlistName + "...";
+                String playlistName = i == 0 ? play.getName() + "..." : play.getName();
                 context.drawText(this.textRenderer, playlistName, this.width / 2 - (int) appAvailableSizeX / 2 + (int) iconSize, yPos, 0xFFFFFFFF, false);
 
                 if (mouseX > topCornerX && mouseX < topCornerX + appAvailableSizeX && mouseY > yPos - 2 && mouseY < yPos - 2 + spacingOffset && !dragging) {
@@ -142,7 +135,7 @@ public class COMPMusicPlayerScreen extends COMPBaseAppScreen {
                     }
                 }
 
-                if (playlists.get(play)) {
+                if (i == playlistIndex) {
                     for (int j = 0; j < play.getList().size(); j++) {
 
                         int songYPos = yPos - 2 + spacingOffset + spacingOffset * j;

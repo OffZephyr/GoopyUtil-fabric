@@ -1,24 +1,22 @@
 package net.zephyr.goopyutil.util.Computer;
 
+import net.minecraft.text.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class ComputerAI {
-    String id;
-    List<Option<?>> options = new ArrayList<>();
-
-    public ComputerAI(String id, Option<?>... options) {
-        this.id = id;
-        this.options.addAll(Arrays.asList(options));
-    }
+public record ComputerAI(String id, Option<?>... options) {
     public String getId() {
         return this.id;
     }
+    public Text getName(){
+        return Text.translatable("goopyutil.computer.behavior." + id);
+    }
 
     public List<Option<?>> getList() {
-        return options;
+        return new ArrayList<>(Arrays.asList(options));
     }
     public Option<?> getOption(String id){
         for(Option<?> op : this.options){
@@ -56,6 +54,9 @@ public class ComputerAI {
 
         public String getId() {
             return this.id;
+        }
+        public Text getName(){
+            return Text.translatable("goopyutil.computer.behavior.option." + id);
         }
 
         public E getDefaultValue() {

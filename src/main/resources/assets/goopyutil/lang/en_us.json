@@ -1,4 +1,5 @@
 {
+  "goopyutil.mod_name": "GoopyUtil",
   "goopyutil.symbol.wrench": "§c§l🔧",
   "goopyutil.symbol.paintbrush": "§a§l🖌",
   "goopyutil.symbol.tapemeasure": "§e§l📏",
@@ -38,6 +39,8 @@
   "item.goopyutil.wrench": "Wrench",
   "item.goopyutil.paintbrush": "Paint Brush",
   "item.goopyutil.tapemeasure": "Tape Measure",
+
+  "entity.goopyutil.zephyr": "Zephyr",
 
   "goopyutil.creative": "GoopyUtil",
 
@@ -98,9 +101,35 @@
   "goopyutil.screens.camera_tablet.no_cams": "-NO CONNECTION-",
   "goopyutil.screens.camera_tablet.no_cams_desc": "PLEASE CONNECT AT LEAST ONE CAMERA",
 
-  "goopyutil.computer.behavior.attributes": "Set Attributes",
-  "goopyutil.computer.behavior.attributes.aggressive": "Should be aggressive",
-  "goopyutil.computer.behavior.attributes.roaming": "Should roam freely",
+  "goopyutil.screens.computer_code.no_floppy_disk": "NO DISK FOUND",
+  "goopyutil.screens.computer_code.no_entity": "NO ENTITY SELECTED",
+  "goopyutil.screens.computer_code.no_behavior": "NO BEHAVIOR SELECTED",
+  "goopyutil.screens.computer_code.edit_number": "PLEASE TYPE A NUMBER.",
+  "goopyutil.screens.computer_code.edit_number.esc": "Press ESC to close WITHOUT SAVING.",
+  "goopyutil.screens.computer_code.edit_number.ent": "Press ENTER to SAVE and close.",
 
-  "goopyutil.computer.behavior.statue": "Statue mode"
+  "goopyutil.computer.demo_subcategory": "DEMO",
+
+  "goopyutil.computer.behavior.stage": "STAGE MODE",
+  "goopyutil.computer.behavior.statue": "STATUE",
+  "goopyutil.computer.behavior.moving": "MOVING",
+
+  "goopyutil.computer.behavior.option.animation": "Animation",
+  "goopyutil.computer.behavior.option.spawn_pos": "Use the entity's Spawn Position ?",
+  "goopyutil.computer.behavior.option.spawn_rot": "Use the entity's Spawn Rotation ?",
+  "goopyutil.computer.behavior.option.rotate_head": "Set a custom Head Rotation ?",
+  "goopyutil.computer.behavior.option.position": "Set World Position",
+  "goopyutil.computer.behavior.option.rotation": "Set Rotation",
+  "goopyutil.computer.behavior.option.head_yaw": "Set Head Yaw",
+  "goopyutil.computer.behavior.option.head_pitch": "Set Head Pitch",
+  "goopyutil.computer.behavior.option.aggressive": "Is Aggressive ?",
+  "goopyutil.computer.behavior.option.roaming": "Should roam freely ?",
+  "goopyutil.computer.behavior.option.weeping_angel": "Freeze when watched ?",
+  "goopyutil.computer.behavior.option.performing": "Perform ?",
+  "goopyutil.computer.behavior.option.deactivated": "Deactivated ?",
+  "goopyutil.computer.behavior.option.performing_idle": "Perform when Idle ?",
+  "goopyutil.computer.behavior.option.deactivated_idle": "Deactivated when Idle ?",
+  "goopyutil.computer.behavior.option.teleport": "Teleport to destination ?",
+  "goopyutil.computer.behavior.option.custom_idle_animation": "Use a custom Idle animation ?",
+  "goopyutil.computer.behavior.option.idle_animation": "Custom Idle animation"
 }

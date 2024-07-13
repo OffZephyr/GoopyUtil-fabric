@@ -15,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.util.GoopyScreens;
 import org.joml.Matrix4f;
 
@@ -62,6 +63,35 @@ public abstract class GoopyScreen extends Screen {
             context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
         }
     }
+    public void renderButton(Identifier texture, DrawContext context, int x, int y, int u, int v, int u2, int v2, int u3, int v3, int width, int height, int textureWidth, int textureHeight, int mouseX, int mouseY, boolean holding){
+        if(isOnButton(mouseX, mouseY, x, y, width, height)) {
+            if(holding){
+                context.drawTexture(texture, x, y, u3, v3, width, height, textureWidth, textureHeight);
+            }
+            else {
+                context.drawTexture(texture, x, y, u2, v2, width, height, textureWidth, textureHeight);
+            }
+        }
+        else {
+            context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
+        }
+    }
+    public void renderButton(Identifier texture, DrawContext context, int x, int y, int u, int v, int u2, int v2, int u3, int v3, int width, int height, int textureWidth, int textureHeight, int mouseX, int mouseY, boolean holding, boolean condition){
+        if(condition){
+            context.drawTexture(texture, x, y, u3, v3, width, height, textureWidth, textureHeight);
+        }
+        else if(isOnButton(mouseX, mouseY, x, y, width, height)) {
+            if(holding){
+                context.drawTexture(texture, x, y, u3, v3, width, height, textureWidth, textureHeight);
+            }
+            else {
+                context.drawTexture(texture, x, y, u2, v2, width, height, textureWidth, textureHeight);
+            }
+        }
+        else {
+            context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
+        }
+    }
 
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -90,7 +120,7 @@ public abstract class GoopyScreen extends Screen {
         RenderSystem.disableBlend();
     }
 
-    void drawResizableText(DrawContext context, TextRenderer textRenderer, Text text, float scale, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
+    public void drawResizableText(DrawContext context, TextRenderer textRenderer, Text text, float scale, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
 
         x = x / scale;
         y = y / scale;
@@ -102,6 +132,10 @@ public abstract class GoopyScreen extends Screen {
         matrices.push();
         matrices.scale(scale, scale, scale);
         textRenderer.draw(text, x, y, color, shadow, matrices.peek().getPositionMatrix(), verticies, TextRenderer.TextLayerType.NORMAL, backgroundColor, 0xF000F0);
-        matrices.scale(1 / scale, 1 / scale, 1 / scale);
+        matrices.pop();
+    }
+    public void drawAutoResizedText(DrawContext context, TextRenderer textRenderer, Text text, float baseScale, float maxTextWidth, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
+        float scale = (textRenderer.getWidth(text) * baseScale) > maxTextWidth ? (baseScale / textRenderer.getWidth(text)) * maxTextWidth : baseScale;
+        drawResizableText(context, textRenderer, text, scale, x, y + (1 / scale), color, backgroundColor, shadow, centered);
     }
 }

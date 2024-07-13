@@ -28,5 +28,11 @@
     "sounds": [
       "goopyutil:cameras/cam_nv_off"
     ]
+  },
+  "casual_bongos": {
+    "subtitle": "sounds.goopyutil.casual_bongos",
+    "sounds": [
+      "goopyutil:songs/casual_bongos"
+    ]
   }
 }
