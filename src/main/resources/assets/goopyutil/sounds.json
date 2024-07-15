@@ -29,6 +29,18 @@
       "goopyutil:cameras/cam_nv_off"
     ]
   },
+  "click_press": {
+    "subtitle": "sounds.goopyutil.click_press",
+    "sounds": [
+      "goopyutil:computer/click_press"
+    ]
+  },
+  "click_release": {
+    "subtitle": "sounds.goopyutil.click_release",
+    "sounds": [
+      "goopyutil:computer/click_release"
+    ]
+  },
   "casual_bongos": {
     "subtitle": "sounds.goopyutil.casual_bongos",
     "sounds": [

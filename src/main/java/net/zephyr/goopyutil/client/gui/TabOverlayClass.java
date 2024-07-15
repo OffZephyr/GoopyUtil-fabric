@@ -28,14 +28,12 @@ public class TabOverlayClass implements HudRenderCallback {
             float y = 0;
             float timeX = 0;
             final float scale = 2f;
-            if (client != null) {
-                int width = client.getWindow().getScaledWidth();
-                int height = client.getWindow().getScaledHeight();
+            int width = client.getWindow().getScaledWidth();
+            int height = client.getWindow().getScaledHeight();
 
-                moneyX = (width / scale) / 48;
-                timeX = ((width / scale) / 48) * 47;
-                y = (height / scale) / 24;
-            }
+            moneyX = (width / scale) / 48;
+            timeX = ((width / scale) / 48) * 47;
+            y = (height / scale) / 24;
             NbtCompound data = ((IEntityDataSaver) client.player).getPersistentData();
             int money = data.getInt("Credits");
 

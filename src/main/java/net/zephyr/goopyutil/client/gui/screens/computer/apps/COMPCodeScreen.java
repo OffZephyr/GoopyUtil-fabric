@@ -263,16 +263,17 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
 
             String add = switch (keyCode) {
                 default -> "";
-                case InputUtil.GLFW_KEY_0, InputUtil.GLFW_KEY_KP_0 -> "0";
-                case InputUtil.GLFW_KEY_1, InputUtil.GLFW_KEY_KP_1 -> "1";
-                case InputUtil.GLFW_KEY_2, InputUtil.GLFW_KEY_KP_2 -> "2";
-                case InputUtil.GLFW_KEY_3, InputUtil.GLFW_KEY_KP_3 -> "3";
-                case InputUtil.GLFW_KEY_4, InputUtil.GLFW_KEY_KP_4 -> "4";
-                case InputUtil.GLFW_KEY_5, InputUtil.GLFW_KEY_KP_5 -> "5";
-                case InputUtil.GLFW_KEY_6, InputUtil.GLFW_KEY_KP_6 -> "6";
-                case InputUtil.GLFW_KEY_7, InputUtil.GLFW_KEY_KP_7 -> "7";
-                case InputUtil.GLFW_KEY_8, InputUtil.GLFW_KEY_KP_8 -> "8";
-                case InputUtil.GLFW_KEY_9, InputUtil.GLFW_KEY_KP_9 -> "9";
+                case GLFW.GLFW_KEY_0, GLFW.GLFW_KEY_KP_0 -> "0";
+                case GLFW.GLFW_KEY_1, GLFW.GLFW_KEY_KP_1 -> "1";
+                case GLFW.GLFW_KEY_2, GLFW.GLFW_KEY_KP_2 -> "2";
+                case GLFW.GLFW_KEY_3, GLFW.GLFW_KEY_KP_3 -> "3";
+                case GLFW.GLFW_KEY_4, GLFW.GLFW_KEY_KP_4 -> "4";
+                case GLFW.GLFW_KEY_5, GLFW.GLFW_KEY_KP_5 -> "5";
+                case GLFW.GLFW_KEY_6, GLFW.GLFW_KEY_KP_6 -> "6";
+                case GLFW.GLFW_KEY_7, GLFW.GLFW_KEY_KP_7 -> "7";
+                case GLFW.GLFW_KEY_8, GLFW.GLFW_KEY_KP_8 -> "8";
+                case GLFW.GLFW_KEY_9, GLFW.GLFW_KEY_KP_9 -> "9";
+                case GLFW.GLFW_KEY_MINUS, GLFW.GLFW_KEY_KP_SUBTRACT -> "-";
             };
 
             int limit = editNumIndex == 2 ? 3 : 6;
@@ -301,6 +302,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
                 return true;
             }
             if (keyCode == GLFW.GLFW_KEY_ENTER) {
+                this.Dirty = true;
                 if(numEdit.isEmpty()) numEdit = "0";
                 int num = Integer.parseInt(numEdit);
 

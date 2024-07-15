@@ -125,31 +125,38 @@ public class DefaultComputerInit implements ComputerData.Initializer {
 
         AIs.add(new ComputerAI("stage",
                 new ComputerAI.Option<>("deactivated", false),
+                new ComputerAI.Option<>("aggressive", false, "deactivated", true),
                 new ComputerAI.Option<>("performing", false, "deactivated", true),
                 new ComputerAI.Option<>("spawn_pos", true),
                 new ComputerAI.Option<>("position", new BlockPos(0, 0, 0), "spawn_pos", true),
                 new ComputerAI.Option<>("teleport", false),
-                new ComputerAI.Option<>("aggressive", false)
+                new ComputerAI.Option<>("spawn_rot", true),
+                new ComputerAI.Option<>("rotation", 0, "spawn_rot", true)
         ));
 
         AIs.add(new ComputerAI("moving",
-                new ComputerAI.Option<>("weeping_angel", false),
+                //new ComputerAI.Option<>("weeping_angel", false),
                 new ComputerAI.Option<>("aggressive", false),
-                new ComputerAI.Option<>("performing_idle", false, "custom_animation", true),
-                new ComputerAI.Option<>("deactivated_idle", false, "custom_animation", true),
-                new ComputerAI.Option<>("custom_idle_animation", false),
-                new ComputerAI.Option<>("idle_animation", new ArrayList<RawAnimation>(), "custom_idle_animation")
+                new ComputerAI.Option<>("look_around", true),
+                new ComputerAI.Option<>("look_nearby_entities", true),
+                new ComputerAI.Option<>("custom_moving_animation", false),
+                new ComputerAI.Option<>("idle_animation", new ArrayList<String>(), "custom_moving_animation"),
+                new ComputerAI.Option<>("walking_animation", new ArrayList<String>(), "custom_moving_animation"),
+                new ComputerAI.Option<>("running_animation", new ArrayList<String>(), "custom_moving_animation")
         ));
 
+        AIs.add(new ComputerAI("custom_path",
+                new ComputerAI.Option<>("weeping_angel", false),
+                new ComputerAI.Option<>("aggressive", false)));
+
         AIs.add(new ComputerAI("statue",
-                new ComputerAI.Option<>("animation", new ArrayList<RawAnimation>()),
+                new ComputerAI.Option<>("animation", new ArrayList<String>()),
                 new ComputerAI.Option<>("spawn_pos", true),
                 new ComputerAI.Option<>("position", new BlockPos(0, 0, 0), "spawn_pos", true),
-                new ComputerAI.Option<>("teleport", false, "spawn_pos", true),
+                new ComputerAI.Option<>("teleport", false),
                 new ComputerAI.Option<>("spawn_rot", true),
                 new ComputerAI.Option<>("rotation", 0, "spawn_rot", true),
                 new ComputerAI.Option<>("rotate_head", false),
-                new ComputerAI.Option<>("head_yaw", 0, "rotate_head"),
                 new ComputerAI.Option<>("head_pitch", 0, "rotate_head")
         ));
 

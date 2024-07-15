@@ -12,6 +12,8 @@ public class SoundsInit {
     public static final SoundEvent CAM_SWITCH = registerSoundEvent("cam_switch");
     public static final SoundEvent CAM_NV_ON = registerSoundEvent("cam_nv_on");
     public static final SoundEvent CAM_NV_OFF = registerSoundEvent("cam_nv_off");
+    public static final SoundEvent CLICK_PRESS = registerSoundEvent("click_press");
+    public static final SoundEvent CLICK_RELEASE = registerSoundEvent("click_release");
     public static final SoundEvent CASUAL_BONGOS = registerSoundEvent("casual_bongos");
     public static SoundEvent registerSoundEvent(String name) {
         Identifier id = Identifier.of(GoopyUtil.MOD_ID, name);

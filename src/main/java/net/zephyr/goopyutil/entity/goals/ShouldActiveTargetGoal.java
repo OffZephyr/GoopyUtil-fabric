@@ -8,14 +8,15 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
+import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
-public class CrawlerActiveTargetGoal<T extends LivingEntity> extends ActiveTargetGoal<T> {
+public class ShouldActiveTargetGoal<T extends LivingEntity> extends ActiveTargetGoal<T> {
     protected final Class<T> targetClass;
     protected final int reciprocalChance;
-    public CrawlerActiveTargetGoal(MobEntity mob, Class<T> targetClass, boolean checkVisibility, boolean checkCanNavigate) {
+    public ShouldActiveTargetGoal(MobEntity mob, Class<T> targetClass, boolean checkVisibility, boolean checkCanNavigate) {
         super(mob, targetClass, checkVisibility, checkCanNavigate);
         this.targetClass = targetClass;
         this.reciprocalChance = ActiveTargetGoal.toGoalTicks(10);
@@ -26,11 +27,20 @@ public class CrawlerActiveTargetGoal<T extends LivingEntity> extends ActiveTarge
 
     @Override
     public boolean canStart() {
-        if (this.reciprocalChance > 0 && this.mob.getRandom().nextInt(this.reciprocalChance) != 0) {
-            return false;
+        if(mob instanceof GoopyGeckoEntity entity) {
+            boolean bl = entity.boolData(entity.getBehavior(), "aggressive", entity);
+            return super.canStart() && bl;
         }
-        this.findClosestTarget();
-        return this.targetEntity != null;
+        return false;
+    }
+
+    @Override
+    public boolean shouldContinue() {
+        if(mob instanceof GoopyGeckoEntity entity) {
+            boolean bl = entity.boolData(entity.getBehavior(), "aggressive", entity);
+            return super.shouldContinue() && bl;
+        }
+        return false;
     }
 
     protected Box getSearchBox(double distance) {

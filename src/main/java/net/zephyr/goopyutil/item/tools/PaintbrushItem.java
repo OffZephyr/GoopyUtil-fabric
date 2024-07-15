@@ -1,4 +1,4 @@
-package net.zephyr.goopyutil.item;
+package net.zephyr.goopyutil.item.tools;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -60,15 +60,5 @@ public class PaintbrushItem extends Item {
             }
         }
         return super.useOnBlock(context);
-    }
-
-    @Override
-    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        if(entity instanceof GoopyGeckoEntity){
-            String skin = ((IEntityDataSaver)entity).getPersistentData().getString("Reskin");
-            if (Objects.equals(skin, "neon")) ((IEntityDataSaver)entity).getPersistentData().putString("Reskin", "");
-            else ((IEntityDataSaver)entity).getPersistentData().putString("Reskin", "neon");
-        }
-        return super.useOnEntity(stack, user, entity, hand);
     }
 }

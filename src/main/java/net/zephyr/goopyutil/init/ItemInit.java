@@ -9,11 +9,13 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.item.DeathCoin;
 import net.zephyr.goopyutil.item.FloppyDiskItem;
-import net.zephyr.goopyutil.item.PaintbrushItem;
+import net.zephyr.goopyutil.item.ZephyrSpawn;
+import net.zephyr.goopyutil.item.tools.PaintbrushItem;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
-import net.zephyr.goopyutil.item.TapeMesurerItem;
-import net.zephyr.goopyutil.item.WrenchItem;
+import net.zephyr.goopyutil.item.tools.TapeMesurerItem;
+import net.zephyr.goopyutil.item.tools.WrenchItem;
 
 public class ItemInit {
 
@@ -29,6 +31,10 @@ public class ItemInit {
             new TabletItem(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
     public static final Item FLOPPYDISK = registerItem("floppy_disk",
             new FloppyDiskItem(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
+    public static final Item ZEPHYRSPAWN = registerItem("zephyr_spawn",
+            new ZephyrSpawn(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
+    public static final Item DEATHCOIN = registerItem("deathcoin",
+            new DeathCoin(new Item.Settings().maxCount(1).rarity(Rarity.EPIC)));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(GoopyUtil.MOD_ID, name), item);

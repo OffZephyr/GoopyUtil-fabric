@@ -9,6 +9,7 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBaseAppScreen;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.util.GoopyScreens;
 
 import java.util.Objects;
@@ -52,7 +53,15 @@ public abstract class COMPBaseScreen extends GoopyScreen {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        client.player.playSound(SoundsInit.CLICK_PRESS, 1, 1);
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        client.player.playSound(SoundsInit.CLICK_RELEASE, 1, 1);
+
         if(!doubleClicking) {
             doubleClickingTime = 10;
             doubleClicking = true;

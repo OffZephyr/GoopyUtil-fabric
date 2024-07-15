@@ -1,25 +1,25 @@
 package net.zephyr.goopyutil.entity.goals;
 
 import net.minecraft.entity.ai.FuzzyPositions;
-import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.NavigationConditions;
-import net.minecraft.entity.ai.NoPenaltyTargeting;
 import net.minecraft.entity.ai.goal.WanderAroundGoal;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class WanderAndCrawlGoal extends WanderAroundGoal {
+import java.util.Objects;
+
+public class ShouldWanderAndCrawlGoal extends WanderAroundGoal {
     public static final float CHANCE = 0.001f;
     protected final float probability;
 
-    public WanderAndCrawlGoal(PathAwareEntity pathAwareEntity, double d) {
+    public ShouldWanderAndCrawlGoal(PathAwareEntity pathAwareEntity, double d) {
         this(pathAwareEntity, d, 0.001f);
     }
 
-    public WanderAndCrawlGoal(PathAwareEntity mob, double speed, float probability) {
+    public ShouldWanderAndCrawlGoal(PathAwareEntity mob, double speed, float probability) {
         super(mob, speed);
         this.probability = probability;
     }
@@ -35,6 +35,24 @@ public class WanderAndCrawlGoal extends WanderAroundGoal {
             return find(this.mob, 10, 7);
         }
         return super.getWanderTarget();
+    }
+
+    @Override
+    public boolean canStart() {
+        if(mob instanceof GoopyGeckoEntity entity) {
+            boolean bl = Objects.equals(entity.getBehavior(), "moving");
+            return super.canStart() && bl;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean shouldContinue() {
+        if(mob instanceof GoopyGeckoEntity entity) {
+            boolean bl = Objects.equals(entity.getBehavior(), "moving");
+            return super.shouldContinue() && bl;
+        }
+        return false;
     }
 
     @Nullable

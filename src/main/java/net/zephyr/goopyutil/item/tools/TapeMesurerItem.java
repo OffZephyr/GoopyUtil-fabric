@@ -1,4 +1,4 @@
-package net.zephyr.goopyutil.item;
+package net.zephyr.goopyutil.item.tools;
 
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

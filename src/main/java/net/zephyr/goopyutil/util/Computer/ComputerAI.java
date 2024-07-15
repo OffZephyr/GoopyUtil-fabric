@@ -24,6 +24,12 @@ public record ComputerAI(String id, Option<?>... options) {
         }
         return null;
     }
+    public int getOptionIndex(String id){
+        for(Option<?> op : this.options){
+            if(Objects.equals(op.getId(), id)) return getList().indexOf(op);
+        }
+        return -1;
+    }
 
     public static class Option<E> {
         E defaultValue;

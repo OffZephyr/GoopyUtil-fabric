@@ -3,6 +3,9 @@
   "goopyutil.symbol.wrench": "§c§l🔧",
   "goopyutil.symbol.paintbrush": "§a§l🖌",
   "goopyutil.symbol.tapemeasure": "§e§l📏",
+  "goopyutil.symbol.coin": "§7§l●",
+  "goopyutil.symbol.floppy_disk": "§d§l💾",
+  "goopyutil.symbol.computer": "§6§l🖥",
 
   "block.goopyutil.computer": "Computer",
 
@@ -35,10 +38,26 @@
   "item.goopyutil.tablet.description.0.5": "§bof a line.",
 
   "item.goopyutil.floppy_disk": "Floppy Disk",
+  "item.goopyutil.floppy_disk.description.0.length": "3",
+  "item.goopyutil.floppy_disk.description.0.0": "§rThis item §bholds a custom entity's AI.",
+  "item.goopyutil.floppy_disk.description.0.1": "§b§lINSERT §rthis item into the §6§lCOMPUTER",
+  "item.goopyutil.floppy_disk.description.0.2": "to start §bcustomizing the AI stored on it.",
 
   "item.goopyutil.wrench": "Wrench",
   "item.goopyutil.paintbrush": "Paint Brush",
   "item.goopyutil.tapemeasure": "Tape Measure",
+
+  "item.goopyutil.deathcoin": "Death Coin",
+  "item.goopyutil.deathcoin.description.0.length": "4",
+  "item.goopyutil.deathcoin.description.0.0": "§b§lPUNCH §ran entity with this item",
+  "item.goopyutil.deathcoin.description.0.1": "to make it §c§lVANISH§r. This can only",
+  "item.goopyutil.deathcoin.description.0.2": "be done §bonce §ras the item will be",
+  "item.goopyutil.deathcoin.description.0.3": "deleted if you use it.",
+
+  "item.goopyutil.zephyr_spawn": "Pile of goo",
+  "item.goopyutil.zephyr_spawn.description.0.length": "2",
+  "item.goopyutil.zephyr_spawn.description.0.0": "§b§lClick §ron this entity with a",
+  "item.goopyutil.zephyr_spawn.description.0.1": "§d§lFloppy Disk §rto give it an AI.",
 
   "entity.goopyutil.zephyr": "Zephyr",
 
@@ -111,14 +130,17 @@
   "goopyutil.computer.demo_subcategory": "DEMO",
 
   "goopyutil.computer.behavior.stage": "STAGE MODE",
-  "goopyutil.computer.behavior.statue": "STATUE",
-  "goopyutil.computer.behavior.moving": "MOVING",
+  "goopyutil.computer.behavior.statue": "STATUE MODE",
+  "goopyutil.computer.behavior.moving": "WANDERING MODE",
+  "goopyutil.computer.behavior.custom_path": "CUSTOM PATH [WIP]",
 
   "goopyutil.computer.behavior.option.animation": "Animation",
   "goopyutil.computer.behavior.option.spawn_pos": "Use the entity's Spawn Position ?",
   "goopyutil.computer.behavior.option.spawn_rot": "Use the entity's Spawn Rotation ?",
   "goopyutil.computer.behavior.option.rotate_head": "Set a custom Head Rotation ?",
   "goopyutil.computer.behavior.option.position": "Set World Position",
+  "goopyutil.computer.behavior.option.position_offset_x": "Position Offset X [10 = 1 block]",
+  "goopyutil.computer.behavior.option.position_offset_z": "Position Offset Z [10 = 1 block]",
   "goopyutil.computer.behavior.option.rotation": "Set Rotation",
   "goopyutil.computer.behavior.option.head_yaw": "Set Head Yaw",
   "goopyutil.computer.behavior.option.head_pitch": "Set Head Pitch",
@@ -130,6 +152,9 @@
   "goopyutil.computer.behavior.option.performing_idle": "Perform when Idle ?",
   "goopyutil.computer.behavior.option.deactivated_idle": "Deactivated when Idle ?",
   "goopyutil.computer.behavior.option.teleport": "Teleport to destination ?",
-  "goopyutil.computer.behavior.option.custom_idle_animation": "Use a custom Idle animation ?",
-  "goopyutil.computer.behavior.option.idle_animation": "Custom Idle animation"
+  "goopyutil.computer.behavior.option.custom_moving_animation": "Use a custom animations ?",
+  "goopyutil.computer.behavior.option.idle_animation": "Custom Idle animation",
+  "goopyutil.computer.behavior.option.walking_animation": "Custom Walking animation ?",
+  "goopyutil.computer.behavior.option.look_around": "Should look around ?",
+  "goopyutil.computer.behavior.option.look_nearby_entity": "Should look at nearby entities ?"
 }

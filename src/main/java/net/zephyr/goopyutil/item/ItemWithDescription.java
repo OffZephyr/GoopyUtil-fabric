@@ -15,6 +15,9 @@ public class ItemWithDescription extends Item {
     public static final int WRENCH = 0;
     public static final int PAINT_BRUSH = 1;
     public static final int TAPE_MEASURE = 2;
+    public static final int COIN = 3;
+    public static final int FLOPPY_DISK = 4;
+    public static final int COMPUTER = 5;
     List<Text> tools;
     public ItemWithDescription(Settings settings, int... tools) {
         super(settings);
@@ -37,6 +40,15 @@ public class ItemWithDescription extends Item {
             }
             if(tool == ItemWithDescription.TAPE_MEASURE){
                 toolList.add(Text.translatable("goopyutil.symbol.tapemeasure"));
+            }
+            if(tool == ItemWithDescription.COIN){
+                toolList.add(Text.translatable("goopyutil.symbol.coin"));
+            }
+            if(tool == ItemWithDescription.FLOPPY_DISK){
+                toolList.add(Text.translatable("goopyutil.symbol.floppy_disk"));
+            }
+            if(tool == ItemWithDescription.COMPUTER){
+                toolList.add(Text.translatable("goopyutil.symbol.computer"));
             }
         }
         return toolList;
