@@ -50,9 +50,9 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     boolean transition = false;
     boolean closing = false;
-    boolean stopClosing = false;
+    boolean closed = false;
     private static final RawAnimation USE_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tablet.open");
-    private static final RawAnimation CLOSE_ANIM = RawAnimation.begin().thenPlay("animation.tablet.close").thenLoop("animation.tablet.idle");
+    private static final RawAnimation CLOSE_ANIM = RawAnimation.begin().thenPlay("animation.tablet.close");
     public TabletItem(Settings settings) {
         super(settings, ItemWithDescription.TAPE_MEASURE);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
@@ -61,14 +61,18 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (hand == user.preferredHand)
             if (user instanceof ServerPlayerEntity p) {
-                if(!transition && !closing) {
+                if(!transition) {
                     transition = true;
+                    closing = false;
+                    closed = false;
                 }
             }
         else {
                 if (!transition) {
                     user.playSound(SoundsInit.CAM_OPEN, 1, 1);
                     transition = true;
+                    closing = false;
+                    closed = false;
                 }
             }
         return super.use(world, user, hand);
@@ -211,23 +215,23 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                 ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
         }
 
-        this.closing = data.getBoolean("closing");
-
-        if (stopClosing) {
+        if(data.getBoolean("closing")) {
+            this.closing = true;
             data.putBoolean("closing", false);
-            closing = false;
-            stopClosing = false;
+            GoopyScreens.saveNbtFromScreen(data);
         }
 
         if(entity instanceof PlayerEntity player) {
             AnimationController<GeoAnimatable> state = cache.getManagerForId(GeoItem.getId(stack)).getAnimationControllers().get("Use");
             boolean bl = state.getAnimationState() == AnimationController.State.PAUSED;
-            if (transition && bl) {
-                openCams(world, player);
+            if(bl && transition){
                 transition = false;
-                state.stop();
                 MinecraftClient.getInstance().options.hudHidden = true;
+                openCams(world, player);
+                state.forceAnimationReset();
+                state.stop();
             }
+            closed = closing && (bl || state.getAnimationState() == AnimationController.State.STOPPED);
         }
 
         if(world.isClient() && !data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt())){
@@ -242,7 +246,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     }
 
     public boolean renderArms(){
-        return this.closing || this.transition;
+        return (this.closing && !this.closed) || this.transition;
     }
 
     @Override
@@ -268,17 +272,13 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "Use", 0, this::useController));
-        //controllers.add(new AnimationController<>(this, "Idle", 1, this::idleController));
     }
 
     private PlayState useController(AnimationState<TabletItem> event) {
         if(transition && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
-            event.getController().forceAnimationReset();
             return event.setAndContinue(USE_ANIM);
         }
-        else if(closing && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)){
-            event.getController().forceAnimationReset();
-            this.stopClosing = true;
+        else if(closing){
             return event.setAndContinue(CLOSE_ANIM);
         }
         return PlayState.CONTINUE;
