@@ -3,6 +3,8 @@ package net.zephyr.goopyutil.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,9 +20,9 @@ public class WorldRendererMixin {
                     target = "Lnet/minecraft/client/render/Camera;isThirdPerson()Z"
             )
     )
-    public boolean illusions$render$isThirdPerson(Camera camera) {
+    public boolean Goopy_player_isThirdPerson(Camera camera) {
         //return camera.isThirdPerson() || MirrorRenderer.isDrawing();
-        return camera.isThirdPerson() || MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen;
+        return camera.isThirdPerson()|| CameraRenderer.isDrawing() || MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen;
     }
 
 }

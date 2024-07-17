@@ -3,6 +3,8 @@ package net.zephyr.goopyutil;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.init.*;

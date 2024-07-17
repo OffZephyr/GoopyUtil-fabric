@@ -2,6 +2,7 @@ package net.zephyr.goopyutil.init;
 
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
@@ -11,6 +12,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntity;
 import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntityRenderer;
@@ -39,6 +42,7 @@ public class EntityInit {
         EntityModelLayerRegistry.registerModelLayer(JavaModels.ZEPHYR, CameraMappingEntityRenderer::getTexturedModelData);
         EntityRendererRegistry.register(EntityInit.ZEPHYR, ZephyrRenderer::new);
 
+        WorldRenderEvents.LAST.register(CameraRenderer::onRenderWorld);
         EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_MAP, CameraMappingEntityRenderer::getTexturedModelData);
         EntityRendererRegistry.register(EntityInit.CAMERA_MAPPING, CameraMappingEntityRenderer::new);
 

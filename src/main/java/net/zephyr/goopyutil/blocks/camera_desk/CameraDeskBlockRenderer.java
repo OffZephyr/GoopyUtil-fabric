@@ -1,8 +1,12 @@
 package net.zephyr.goopyutil.blocks.camera_desk;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.model.*;
+import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -14,19 +18,27 @@ import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.client.JavaModels;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
+import org.joml.Quaternionf;
 
 public class CameraDeskBlockRenderer  implements BlockEntityRenderer<CameraDeskBlockEntity> {
     MinecraftClient client;
     Framebuffer framebuffer;
-    RenderLayer renderLayer;
-    NativeImageBackedTexture texture;
-    ModelData modelData = new ModelData();
     private static final String SCREEN = "screen";
-    ModelPartData modelPartData = modelData.getRoot();
     private final ModelPart model;
+
+
+
+
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
@@ -45,28 +57,5 @@ public class CameraDeskBlockRenderer  implements BlockEntityRenderer<CameraDeskB
     @Override
     public void render(CameraDeskBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
-        this.texture = new NativeImageBackedTexture(128, 128, true);
-
-        NativeImage nativeImage = ScreenshotRecorder.takeScreenshot(framebuffer);
-        this.texture.setImage(nativeImage);
-
-        Identifier identifier = this.client.getTextureManager().registerDynamicTexture("MONITOR" +  entity.getPos().asLong(), this.texture);
-        this.renderLayer = RenderLayer.getText(identifier);
-
-        String id = "block/camera";
-        Identifier texture = Identifier.of(GoopyUtil.MOD_ID, id);
-        SpriteIdentifier spriteIdentifier = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture);
-        VertexConsumer vertices = spriteIdentifier.getVertexConsumer(vertexConsumers, RenderLayer::getEntityCutout);
-
-        //VertexConsumer vertices = vertexConsumers.getBuffer(renderLayer);
-        Matrix4f matrix = matrices.peek().getPositionMatrix();
-
-        matrices.push();
-        vertices.vertex(matrix, 0.0f, 128.0f, -0.01f).color(Colors.WHITE).texture(0.0f, 1.0f).light(light);
-        vertices.vertex(matrix, 128.0f, 128.0f, -0.01f).color(Colors.WHITE).texture(1.0f, 1.0f).light(light);
-        vertices.vertex(matrix, 128.0f, 0.0f, -0.01f).color(Colors.WHITE).texture(1.0f, 0.0f).light(light);
-        vertices.vertex(matrix, 0.0f, 0.0f, -0.01f).color(Colors.WHITE).texture(0.0f, 0.0f).light(light);
-        model.render(matrices, vertices, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay);
-        matrices.pop();
     }
 }
