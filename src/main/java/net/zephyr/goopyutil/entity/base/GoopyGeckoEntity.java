@@ -107,9 +107,9 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
 
             if (this.crawling) {
                 if (event.isMoving())
-                    return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingIdleAnim()));
-                else
                     return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingWalkingAnim()));
+                else
+                    return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingIdleAnim()));
             } else {
                 if (this.deactivated) {
                     if (event.isMoving())

@@ -4,11 +4,12 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"BlacklistMixin",
-		"ModEntityDataSaverMixin",
-		"GameRendererMixin",
 		"CameraMixin",
+		"GameRendererMixin",
+		"LightmapTextureManagerMixin",
+		"ModEntityDataSaverMixin",
 		"PlayerEntityRendererMixin",
-		"LightmapTextureManagerMixin"
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

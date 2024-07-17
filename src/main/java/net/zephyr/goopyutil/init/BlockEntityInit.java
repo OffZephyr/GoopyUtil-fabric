@@ -7,6 +7,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
 
@@ -14,6 +15,7 @@ public class BlockEntityInit {
     public static BlockEntityType<ComputerBlockEntity> COMPUTER;
     public static BlockEntityType<LayeredBlockEntity> LAYERED_BLOCK;
     public static BlockEntityType<CameraBlockEntity> CAMERA;
+    public static BlockEntityType<CameraDeskBlockEntity> CAMERA_DESK;
 
     public static void registerBlockEntities() {
         COMPUTER =
@@ -29,6 +31,11 @@ public class BlockEntityInit {
                 Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "camera"),
                         FabricBlockEntityTypeBuilder.create(CameraBlockEntity::new,
                                 BlockInit.CAMERA).build());
+
+        CAMERA_DESK =
+                Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "camera_desk"),
+                        FabricBlockEntityTypeBuilder.create(CameraDeskBlockEntity::new,
+                                BlockInit.CAMERA_DESK).build());
 
 
         GoopyUtil.LOGGER.info("Registering Block Entities for " + GoopyUtil.MOD_ID.toUpperCase());

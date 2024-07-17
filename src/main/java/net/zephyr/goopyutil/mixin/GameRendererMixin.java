@@ -29,11 +29,11 @@ public class GameRendererMixin implements IPostProcessorLoader {
 
     @Shadow
     float zoom;
-    @ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 1)
+    /*@ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 1)
     private Entity injected(Entity ent) {
         return this.client.getCameraEntity() == null || this.client.currentScreen instanceof CameraTabletScreen ? this.client.player : this.client.getCameraEntity();
-    }
-    @ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 2)
+    }*/
+    /*@ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 2)
     private boolean injected(boolean ent) {
         if (this.client.currentScreen instanceof CameraTabletScreen){
             return true;
@@ -41,7 +41,7 @@ public class GameRendererMixin implements IPostProcessorLoader {
         else {
             return !this.client.options.getPerspective().isFirstPerson();
         }
-    }
+    }*/
     @Inject(method = "getFov(Lnet/minecraft/client/render/Camera;FZ)D", at = @At("RETURN"), cancellable = true)
     public void getZoomLevel(CallbackInfoReturnable<Double> callbackInfo) {
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen) {

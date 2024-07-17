@@ -43,6 +43,12 @@ public record GetNbtC2SPayload(NbtCompound nbt, byte type) implements CustomPayl
                     ent.putCustomData(data.copy());
                     serverWorld.setBlockState(pos, serverWorld.getBlockState(pos), Block.NOTIFY_LISTENERS);
                 }
+
+                if(!context.player().getWorld().isClient()) {
+                    for (ServerPlayerEntity p : PlayerLookup.all(serverWorld.getServer())) {
+                        ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, type));
+                    }
+                }
                 break;
             }
             case PayloadDef.ENTITY_DATA: {
@@ -50,22 +56,27 @@ public record GetNbtC2SPayload(NbtCompound nbt, byte type) implements CustomPayl
                 if (serverWorld.getEntityById(id) != null) {
                     ((IEntityDataSaver) serverWorld.getEntityById(id)).getPersistentData().copyFrom(data);
                 }
+
+                if(!context.player().getWorld().isClient()) {
+                    for (ServerPlayerEntity p : PlayerLookup.all(serverWorld.getServer())) {
+                        ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, type));
+                    }
+                }
                 break;
             }
             case PayloadDef.ITEM_DATA: {
                 context.player().getMainHandStack().apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
                     currentNbt.copyFrom(nbt);
                 }));
+
+                if(!context.player().getWorld().isClient()) {
+                    ServerPlayNetworking.send(context.player(), new SetNbtS2CPayload(nbt, type));
+
+                }
                 break;
             }
             case PayloadDef.OTHER_DATA: {
                 break;
-            }
-        }
-
-        if(!context.player().getWorld().isClient()) {
-            for (ServerPlayerEntity p : PlayerLookup.all(serverWorld.getServer())) {
-                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, type));
             }
         }
     }

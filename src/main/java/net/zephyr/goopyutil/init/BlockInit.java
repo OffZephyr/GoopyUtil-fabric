@@ -17,6 +17,8 @@ import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera.CameraBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlock;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.client.JavaModels;
@@ -34,6 +36,8 @@ public class BlockInit {
     public static final Block CAMERA = registerBlock("camera",
             new CameraBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never).noCollision()),
             ItemWithDescription.WRENCH);
+    public static final Block CAMERA_DESK = registerBlock("camera_desk",
+            new CameraDeskBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never)));
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, Identifier.of(GoopyUtil.MOD_ID, name), block);
@@ -53,6 +57,9 @@ public class BlockInit {
     public static void registerBlocksOnClient() {
         EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_HEAD, CameraBlockRenderer::getTexturedModelData);
         BlockEntityRendererFactories.register(BlockEntityInit.CAMERA, CameraBlockRenderer::new);
+
+        EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_SCREEN, CameraDeskBlockRenderer::getTexturedModelData);
+        BlockEntityRendererFactories.register(BlockEntityInit.CAMERA_DESK, CameraDeskBlockRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.LAYERED_BLOCK_BASE, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CAMERA, RenderLayer.getCutout());

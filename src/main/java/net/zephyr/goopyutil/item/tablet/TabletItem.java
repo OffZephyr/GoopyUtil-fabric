@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
+import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.item.ItemWithDescription;
@@ -49,9 +50,9 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     boolean transition = false;
     boolean closing = false;
+    boolean stopClosing = false;
     private static final RawAnimation USE_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tablet.open");
-    private static final RawAnimation CLOSE_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tablet.close");
-    private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("animation.tablet.idle");
+    private static final RawAnimation CLOSE_ANIM = RawAnimation.begin().thenPlay("animation.tablet.close").thenLoop("animation.tablet.idle");
     public TabletItem(Settings settings) {
         super(settings, ItemWithDescription.TAPE_MEASURE);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
@@ -212,18 +213,15 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
 
         this.closing = data.getBoolean("closing");
 
+        if (stopClosing) {
+            data.putBoolean("closing", false);
+            closing = false;
+            stopClosing = false;
+        }
+
         if(entity instanceof PlayerEntity player) {
             AnimationController<GeoAnimatable> state = cache.getManagerForId(GeoItem.getId(stack)).getAnimationControllers().get("Use");
             boolean bl = state.getAnimationState() == AnimationController.State.PAUSED;
-            if(closing){
-                if((bl || state.getAnimationState() == AnimationController.State.STOPPED) && state.getCurrentRawAnimation() == CLOSE_ANIM) {
-                    data.putBoolean("closing", false);
-                    stack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> {
-                        currentNbt.copyFrom(data);
-                    }));
-                    state.stop();
-                }
-            }
             if (transition && bl) {
                 openCams(world, player);
                 transition = false;
@@ -270,22 +268,20 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "Use", 0, this::useController));
+        //controllers.add(new AnimationController<>(this, "Idle", 1, this::idleController));
     }
 
-    private PlayState useController(AnimationState<TabletItem> state) {
-        if(transition){
-            state.setAndContinue(USE_ANIM);
-            return PlayState.CONTINUE;
+    private PlayState useController(AnimationState<TabletItem> event) {
+        if(transition && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            event.getController().forceAnimationReset();
+            return event.setAndContinue(USE_ANIM);
         }
-        else if(closing){
-            state.setAndContinue(CLOSE_ANIM);
-            return PlayState.CONTINUE;
+        else if(closing && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)){
+            event.getController().forceAnimationReset();
+            this.stopClosing = true;
+            return event.setAndContinue(CLOSE_ANIM);
         }
-        state.setAndContinue(IDLE_ANIM);
-        if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen){
-            return PlayState.CONTINUE;
-        }
-        return PlayState.STOP;
+        return PlayState.CONTINUE;
     }
 
     @Override
