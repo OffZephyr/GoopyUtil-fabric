@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "goopyutil:block/camera_desk"
+    },
+    "facing=east": {
+      "model": "goopyutil:block/camera_desk",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "goopyutil:block/camera_desk",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "goopyutil:block/camera_desk",
+      "y": 270
+    }
+  }
+}
