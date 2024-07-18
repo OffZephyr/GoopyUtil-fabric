@@ -31,6 +31,8 @@ public class DeathCoin extends ItemWithDescription{
         else {
             target.remove(Entity.RemovalReason.DISCARDED);
         }
+
+        stack.decrementUnlessCreative(1, attacker);
         return super.postHit(stack, target, attacker);
     }
 }

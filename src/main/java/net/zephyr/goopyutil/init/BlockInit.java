@@ -28,7 +28,7 @@ import net.zephyr.goopyutil.item.BlockItemWithDescription;
 
 public class BlockInit {
     public static final Block COMPUTER = registerBlock("computer",
-            new ComputerBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().notSolid()));
+            new ComputerBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().notSolid().suffocates(Blocks::never).blockVision(Blocks::never)));
     public static final Block LAYERED_BLOCK_BASE = registerBlock("layered_block",
             new LayeredBlock(AbstractBlock.Settings.copy(Blocks.STONE).mapColor(MapColor.DIRT_BROWN)),
             ItemWithDescription.PAINT_BRUSH, ItemWithDescription.TAPE_MEASURE

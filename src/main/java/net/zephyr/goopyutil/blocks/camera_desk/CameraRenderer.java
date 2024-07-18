@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.util.compat.Iris;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
@@ -30,7 +31,7 @@ public class CameraRenderer {
         }
         public static boolean canDraw() {
             boolean fabulous = MinecraftClient.getInstance().options.getGraphicsMode().getValue() == GraphicsMode.FABULOUS;
-            return !fabulous && Deep < 4;
+            return !fabulous && !Iris.isInstalled() && Deep < 4;
         }
 
         @Nullable
