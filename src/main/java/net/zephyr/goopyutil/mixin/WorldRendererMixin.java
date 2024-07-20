@@ -21,7 +21,6 @@ public class WorldRendererMixin {
             )
     )
     public boolean Goopy_player_isThirdPerson(Camera camera) {
-        //return camera.isThirdPerson() || MirrorRenderer.isDrawing();
         return camera.isThirdPerson()|| CameraRenderer.isDrawing() || MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen;
     }
 

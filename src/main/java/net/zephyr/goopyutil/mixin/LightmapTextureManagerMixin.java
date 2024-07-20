@@ -2,6 +2,7 @@ package net.zephyr.goopyutil.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class LightmapTextureManagerMixin {
     @ModifyVariable(method = "update", at = @At("STORE"), ordinal = 6)
     float brightnessStrength(float x){
+        if (CameraRenderer.isDrawing() && CameraRenderer.illuminateScreen) {
+            return 2f;
+        }
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen screen) {
             if (screen.nightVision()) {
                 return 2f;

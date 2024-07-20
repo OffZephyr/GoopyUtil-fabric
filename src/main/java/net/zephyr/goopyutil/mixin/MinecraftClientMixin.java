@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MinecraftClientMixin {
 
 	@Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
-	public void illusions$getFramebuffer$HEAD(CallbackInfoReturnable<Framebuffer> cir) {
+	public void getFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
 		if (CameraRenderer.isDrawing()) {
 			var framebuffer = CameraRenderer.getFramebuffer();
 			if (framebuffer != null) {
