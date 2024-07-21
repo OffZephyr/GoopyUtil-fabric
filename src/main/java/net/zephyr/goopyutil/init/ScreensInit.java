@@ -2,6 +2,7 @@ package net.zephyr.goopyutil.init;
 
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.client.gui.screens.CameraEditScreen;
+import net.zephyr.goopyutil.client.gui.screens.MINTYTEA.ArcademachineScreen;
 import net.zephyr.goopyutil.client.gui.screens.PaintbrushScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBootupScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
@@ -22,5 +23,6 @@ public class ScreensInit {
         GoopyScreens.registerScreen("browser", COMPBrowserScreen::new);
         GoopyScreens.registerScreen("remote", COMPRemoteScreen::new);
         GoopyScreens.registerScreen("code", COMPCodeScreen::new);
+        GoopyScreens.registerScreen("arcade_machine", ArcademachineScreen::new);
     }
 }
