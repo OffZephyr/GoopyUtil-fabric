@@ -15,6 +15,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.arcademachine.ArcademachineBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlock;
@@ -38,6 +39,8 @@ public class BlockInit {
             ItemWithDescription.WRENCH);
     public static final Block CAMERA_DESK = registerBlock("camera_desk",
             new CameraDeskBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never)));
+    public static final Block ARCADE_MACHINE = registerBlock("arcade_machine",
+            new ArcademachineBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never)));
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, Identifier.of(GoopyUtil.MOD_ID, name), block);

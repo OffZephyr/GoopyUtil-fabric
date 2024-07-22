@@ -2,7 +2,7 @@ package net.zephyr.goopyutil.init;
 
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.client.gui.screens.CameraEditScreen;
-import net.zephyr.goopyutil.client.gui.screens.MINTYTEA.ArcademachineScreen;
+import net.zephyr.goopyutil.client.gui.screens.arcademachine.ArcademachineScreen;
 import net.zephyr.goopyutil.client.gui.screens.PaintbrushScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBootupScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;

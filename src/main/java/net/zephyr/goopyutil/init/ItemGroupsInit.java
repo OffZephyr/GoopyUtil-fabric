@@ -28,6 +28,7 @@ public class ItemGroupsInit {
                         entries.add(BlockInit.LAYERED_BLOCK_BASE);
                         entries.add(BlockInit.CAMERA);
                         entries.add(ItemInit.TABLET);
+                        entries.add(BlockInit.ARCADE_MACHINE);
                         entries.add(ItemInit.WRENCH);
                         entries.add(ItemInit.PAINTBRUSH);
                         entries.add(ItemInit.TAPEMEASURE);
