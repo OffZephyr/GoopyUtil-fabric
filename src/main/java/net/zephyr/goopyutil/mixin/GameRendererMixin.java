@@ -1,10 +1,16 @@
 package net.zephyr.goopyutil.mixin;
 
+import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.PostEffectProcessor;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.Entity;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
@@ -17,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.IOException;
+
 @Mixin(GameRenderer.class)
 public class GameRendererMixin implements IPostProcessorLoader {
 
@@ -24,27 +32,24 @@ public class GameRendererMixin implements IPostProcessorLoader {
     MinecraftClient client;
     @Shadow
     PostEffectProcessor postProcessor;
+    PostEffectProcessor monitorPostProcessor;
+    private boolean monitorPostProcessorEnabled;
+    @Shadow
+    ResourceManager resourceManager;
+    private Framebuffer monitorBuffer;
 
     @Shadow
     private void loadPostProcessor(Identifier id) {
 
     }
 
-    @Shadow
-    float zoom;
-    /*@ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 1)
-    private Entity injected(Entity ent) {
-        return this.client.getCameraEntity() == null || this.client.currentScreen instanceof CameraTabletScreen ? this.client.player : this.client.getCameraEntity();
-    }*/
-    /*@ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"), index = 2)
-    private boolean injected(boolean ent) {
-        if (this.client.currentScreen instanceof CameraTabletScreen){
-            return true;
+    @Inject(method = "render", at = @At(value = "HEAD"))
+    public void renderMonitorPostProcessor(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+        if(!client.skipGameRender) {
+            renderMonitor(tickCounter.getLastDuration(), CameraRenderer.isDrawing());
         }
-        else {
-            return !this.client.options.getPerspective().isFirstPerson();
-        }
-    }*/
+    }
+
     @Inject(method = "getFov(Lnet/minecraft/client/render/Camera;FZ)D", at = @At("RETURN"), cancellable = true)
     public void getZoomLevel(CallbackInfoReturnable<Double> callbackInfo) {
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen) {
@@ -54,6 +59,9 @@ public class GameRendererMixin implements IPostProcessorLoader {
     }
     @Inject(method = "onResized", at = @At(value = "HEAD"))
     private void illusions$onResized$HEAD(int width, int height, CallbackInfo ci) {
+        if (this.monitorPostProcessor != null) {
+            this.monitorPostProcessor.setupDimensions(width, height);
+        }
         CameraRenderer.onResize(width, height);
     }
 
@@ -63,9 +71,56 @@ public class GameRendererMixin implements IPostProcessorLoader {
     }
 
     @Override
+    public void render(float delta) {
+        if(postProcessor != null){
+            postProcessor.render(delta);
+        }
+    }
+    @Override
+    public void setMonitorPostProcessor(Identifier id, Framebuffer framebuffer) {
+        this.monitorBuffer = framebuffer;
+        loadMonitorPostProcessor(id, framebuffer);
+    }
+    @Override
+    public void renderMonitor(float delta, boolean bool) {
+        if(bool && monitorPostProcessor != null){
+            RenderSystem.disableBlend();
+            RenderSystem.disableDepthTest();
+            RenderSystem.resetTextureMatrix();
+            monitorPostProcessor.render(delta);
+        }
+    }
+
+    @Override
+    public Framebuffer getActiveMonitorBuffer() {
+        return this.monitorBuffer;
+    }
+
+    @Override
     public void clearPostProcessor() {
         if (this.postProcessor != null) {
             this.postProcessor.close();
+        }
+    }
+    @Override
+    public PostEffectProcessor getMonitorPostProcessor() {
+        return this.monitorPostProcessor;
+    }
+
+    void loadMonitorPostProcessor(Identifier id, Framebuffer framebuffer){
+        if (this.monitorPostProcessor != null) {
+            this.monitorPostProcessor.close();
+        }
+        try {
+            this.monitorPostProcessor = new PostEffectProcessor(this.client.getTextureManager(), this.resourceManager, framebuffer, id);
+            this.monitorPostProcessor.setupDimensions(this.client.getWindow().getFramebufferWidth(), this.client.getWindow().getFramebufferHeight());
+            this.monitorPostProcessorEnabled = true;
+        } catch (IOException iOException) {
+            GoopyUtil.LOGGER.warn("Failed to load shader: {}", (Object)id, (Object)iOException);
+            this.monitorPostProcessorEnabled = false;
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            GoopyUtil.LOGGER.warn("Failed to parse shader: {}", (Object)id, (Object)jsonSyntaxException);
+            this.monitorPostProcessorEnabled = false;
         }
     }
 }

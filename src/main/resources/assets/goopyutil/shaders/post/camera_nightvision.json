@@ -4,7 +4,7 @@
     ],
     "passes": [
         {
-            "name": "color_convolve",
+            "name": "warp",
             "intarget": "minecraft:main",
             "outtarget": "swap",
             "uniforms": [
@@ -23,6 +23,10 @@
                 {
                     "name": "BlueMatrix",
                     "values": [ 0.65, 0.65, 0.65 ]
+                },
+                {
+                    "name": "BulgeIntensity",
+                    "values": [ 0.25 ]
                 }
             ]
         },

@@ -22,7 +22,7 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
     public static List<BlockPos> posList= new ArrayList<>();
     private float animatedCounter = 0;
     private int curCamIndex = 0;
-    private long currentCam = 0;
+    public long currentCam = 0;
     boolean enableNightVision = false;
     private List<Long> cams = new ArrayList<>();
     NbtCompound camData = new NbtCompound();
@@ -85,11 +85,13 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
         camData = getCustomData().getCompound("cam_data");
         cams = new ArrayList<>();
         long[] camsData = camData.getLongArray("Cameras");
-        for (long cam : camsData) {
-            cams.add(cam);
+        if(camsData.length > 0) {
+            for (long cam : camsData) {
+                cams.add(cam);
+            }
+            curCamIndex = !cams.isEmpty() && curCamIndex + 1 < cams.size() ? curCamIndex + 1 : 0;
+            currentCam = cams.get(curCamIndex);
         }
-        curCamIndex = !cams.isEmpty() && curCamIndex + 1 < cams.size() ? curCamIndex + 1 : 0;
-        currentCam = cams.get(curCamIndex);
     }
 
     public NbtCompound currentCamNbt(World world){

@@ -27,6 +27,8 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockEntity;
+import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayers;
@@ -56,6 +58,11 @@ public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntit
     @Override
     public void render(CameraBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
+        for (BlockPos pos : CameraDeskBlockEntity.posList) {
+            if (entity.getWorld().getBlockEntity(pos) instanceof CameraDeskBlockEntity mirror) {
+                if(CameraRenderer.isDrawing() && BlockPos.fromLong(mirror.currentCam).equals(entity.getPos())) return;
+            }
+        }
 
         BlockPos pos = entity.getPos();
 

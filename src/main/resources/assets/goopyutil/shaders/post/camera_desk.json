@@ -10,7 +10,7 @@
             "uniforms": [
                 {
                     "name": "Saturation",
-                    "values": [ 0.2 ]
+                    "values": [ 0.25 ]
                 },
                 {
                     "name": "RedMatrix",
@@ -23,10 +23,6 @@
                 {
                     "name": "BlueMatrix",
                     "values": [ 0.0, 0.0, 1.0 ]
-                },
-                {
-                    "name": "BulgeIntensity",
-                    "values": [ 0.25 ]
                 }
             ]
         },

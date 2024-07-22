@@ -53,6 +53,8 @@ public class CameraDeskBlock extends GoopyBlockWithEntity {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof CameraDeskBlockEntity ent) {
             CameraDeskBlockEntity.updateViewport(ent);
+            CameraRenderer.dirty = true;
+
 
             if(player.getMainHandStack().getItem() instanceof TabletItem){
                 ent.getCustomData().put("cam_data", ItemNbtUtil.getNbt(player.getMainHandStack()));

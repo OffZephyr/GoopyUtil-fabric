@@ -1,19 +1,23 @@
 package net.zephyr.goopyutil.blocks.camera_desk;
 
+import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.PostEffectProcessor;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.option.GraphicsMode;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.type.FireworkExplosionComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Vec3d;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.util.IPostProcessorLoader;
 import net.zephyr.goopyutil.util.compat.Iris;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -21,14 +25,20 @@ import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.ladysnake.satin.api.managed.ManagedCoreShader;
 import org.ladysnake.satin.api.managed.ShaderEffectManager;
+
+import java.io.IOException;
+
 public class CameraRenderer {
-    private static final Identifier normalShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera.json");
-    private static final Identifier nvShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera_nightvision.json");
-    public static final ManagedCoreShader SHADER = ShaderEffectManager.getInstance().manageCoreShader(Identifier.of(GoopyUtil.MOD_ID, "warp"), VertexFormats.POSITION_TEXTURE);
+
+    PostEffectProcessor monitorPostProcessor;
+    private boolean monitorPostProcessorEnabled;
+    private static final Identifier normalShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera_desk.json");
+    private static final Identifier nvShader = Identifier.of(GoopyUtil.MOD_ID, "shaders/post/camera_desk_nightvision.json");
     private static final Framebuffer[] framebuffers = new Framebuffer[3];
     private static int Deep;
     public static boolean nightVision;
     public static boolean illuminateScreen;
+    public static boolean dirty;
 
     public static boolean isDrawing() {
         return Deep > 0;
@@ -36,7 +46,7 @@ public class CameraRenderer {
 
     public static boolean canDraw() {
         boolean fabulous = MinecraftClient.getInstance().options.getGraphicsMode().getValue() == GraphicsMode.FABULOUS;
-        return !fabulous && !Iris.isInstalled() && Deep < 4;
+        return !Iris.isInstalled() && Deep < 4;
     }
 
     @Nullable
@@ -46,6 +56,8 @@ public class CameraRenderer {
     }
 
     public static void onResize(int width, int height) {
+        CameraRenderer.dirty = true;
+
         for (int i = 0; i < framebuffers.length; i++) {
             framebuffers[i] = new SimpleFramebuffer(width, height, true, false);
         }
@@ -74,21 +86,16 @@ public class CameraRenderer {
 
     private static void renderMirror(CameraDeskBlockEntity entity, MatrixStack matrices, float tickDelta) {
         int tex = renderWorld(entity, tickDelta);
+        int tex2 = MinecraftClient.getInstance().getTextureManager().getTexture(entity.staticTexture(tickDelta)).getGlId();
+        int tex3 = MinecraftClient.getInstance().getTextureManager().getTexture(Identifier.of(GoopyUtil.MOD_ID, "textures/block/white.png")).getGlId();
 
         if (tex == -1) {
-            tex = MinecraftClient.getInstance().getTextureManager().getTexture(entity.staticTexture(tickDelta)).getGlId();
+            tex = tex2;
         }
 
 
-        RenderSystem.setShader(SHADER::getProgram);
-        RenderSystem.getShader().getUniform("time").set((float) MinecraftClient.getInstance().world.getTime() + tickDelta);
-        RenderSystem.getShader().getUniform("scanLineIntensity").set(0.05f);
-        RenderSystem.getShader().getUniform("ColorFilter").set(entity.nightVisionColorFilter());
-        RenderSystem.getShader().getUniform("Saturation").set(entity.screenSaturation());
-        RenderSystem.getShader().getUniform("nightVision").set(nightVision ? 1 : 0);
-        RenderSystem.setShaderTexture(0, tex);
+        RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-
 
         var camera = MinecraftClient.getInstance().gameRenderer.getCamera();
         var entityPos = entity.getPos().toCenterPos();
@@ -102,13 +109,33 @@ public class CameraRenderer {
 
         matrices.translate(0, 0.5, 0);
 
-
-        var buffer = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
         float tWidth = 0.4f;
         float tHeight = 0.4f;
         float vWidth = 0.5f;
         float vHeight = 0.5f;
+
+        float spacing = 0.001f;
+
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+
+        var buffer = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+        Vec3d vec3d = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().gameRenderer.getCamera().getPos(), tickDelta);
+        float f = (float)vec3d.x;
+        float g = (float)vec3d.y;
+        float h = (float)vec3d.z;
+        RenderSystem.setShaderTexture(0, tex3);
+        RenderSystem.setShaderColor(f, g, h, 1.0f);
+        buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, -vHeight).texture(0.5f - tWidth, 0.5f + tHeight);
+        buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, vHeight).texture(0.5f - tWidth, 0.5f - tHeight);
+        buffer.vertex(matrices.peek().getPositionMatrix(), vWidth, 0.0f, vHeight).texture(0.5f + tWidth, 0.5f - tHeight);
+        buffer.vertex(matrices.peek().getPositionMatrix(), vWidth, 0.0f, -vHeight).texture(0.5f + tWidth, 0.5f + tHeight);
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.setShaderTexture(0, tex);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        matrices.translate(0, spacing, 0);
+        buffer = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, -vHeight).texture(0.5f - tWidth, 0.5f + tHeight);
         buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, vHeight).texture(0.5f - tWidth, 0.5f - tHeight);
@@ -118,8 +145,13 @@ public class CameraRenderer {
         BufferRenderer.drawWithGlobalProgram(buffer.end());
 
         matrices.pop();
-    }
 
+        RenderSystem.disablePolygonOffset();
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.depthMask(true);
+    }
     private static int renderWorld(CameraDeskBlockEntity entity, float tickDelta) {
         if (!canDraw() || !entity.hasFootage()) return -1;
 
@@ -130,6 +162,8 @@ public class CameraRenderer {
         var position = entity.getFeedPos();
 
         try {
+            //Identifier shader = nightVision ? nvShader : normalShader;
+            Identifier shader = normalShader;
 
             var oldModelViewStack = RenderSystem.getModelViewStack();
             var oldModelViewMat = new Matrix4f(RenderSystem.getModelViewMatrix());
@@ -141,18 +175,17 @@ public class CameraRenderer {
             int oldFboWidth = client.getWindow().getFramebufferWidth();
             int oldFboHeight = client.getWindow().getFramebufferHeight();
 
-            // TODO angle is not correct
-
-            // Set camera position and rotation
             camera.pos = new Vec3d(position.toVector3f());
 
             camera.setRotation(entity.getFeedYaw(), entity.getFeedPitch());
 
             var cameraRotation = camera.getRotation();
 
+
+
             // Set up frustum
             var rotMat = new Matrix4f().rotate(cameraRotation.conjugate(new Quaternionf()));
-            var projMat = client.gameRenderer.getBasicProjectionMatrix(45f);
+            var projMat = client.gameRenderer.getBasicProjectionMatrix(70f);
             client.worldRenderer.setupFrustum(camera.getPos(), rotMat, projMat);
             RenderSystem.viewport(0, 0, MinecraftClient.getInstance().getFramebuffer().textureWidth, MinecraftClient.getInstance().getFramebuffer().textureHeight);
 
@@ -164,6 +197,12 @@ public class CameraRenderer {
                 return -1;
             }
             framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
+
+                if (isDirty(shader, framebuffer)) {
+                    ((IPostProcessorLoader) client.gameRenderer).setMonitorPostProcessor(shader, framebuffer);
+                }
+
+            ((IPostProcessorLoader)client.gameRenderer).renderMonitor(tickDelta, CameraRenderer.isDrawing());
 
             framebuffer.beginWrite(true);
             client.getWindow().setFramebufferWidth(framebuffer.textureWidth);
@@ -196,6 +235,12 @@ public class CameraRenderer {
             ex.printStackTrace();
             return -1;
         }
+    }
+
+    public static boolean isDirty(Identifier shader, Framebuffer framebuffer) {
+        boolean val = dirty;
+        dirty = false;
+        return val || ((IPostProcessorLoader) MinecraftClient.getInstance().gameRenderer).getMonitorPostProcessor() == null || !((IPostProcessorLoader) MinecraftClient.getInstance().gameRenderer).getMonitorPostProcessor().getName().equals(shader.toString());
     }
 }
 
