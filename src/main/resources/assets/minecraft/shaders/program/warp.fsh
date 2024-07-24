@@ -13,6 +13,9 @@ uniform vec3 Offset;
 uniform vec3 ColorScale;
 uniform float Saturation;
 uniform float BulgeIntensity;
+uniform float NoiseIntensity;
+uniform float scanLineIntensity;
+uniform float Time;
 
 out vec4 fragColor;
 
@@ -54,8 +57,8 @@ void main() {
     OutColor = (Chroma * Saturation) + Luma;
 
     // Apply SSTV effect
-    float scanLine = sin(texCoord.y * 800.0 * 10.0) * 0.05;
-    float noise = (fract(sin(dot(texCoord, vec2(12.9898, 78.233)) * 43758.5453)) - 0.5) * 0.1;
+    float scanLine = sin(texCoord.y * 600.0 + Time * 10.0) * scanLineIntensity;
+    float noise = (fract(sin(dot(texCoord, vec2(12.9898, 78.233)) * (43758.5453 + Time))) - 0.5) * NoiseIntensity;
 
     OutColor.rgb += scanLine + noise;
 

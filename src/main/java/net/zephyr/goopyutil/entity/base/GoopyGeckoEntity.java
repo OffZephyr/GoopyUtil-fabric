@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;

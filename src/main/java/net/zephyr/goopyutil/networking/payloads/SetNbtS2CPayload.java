@@ -2,23 +2,18 @@ package net.zephyr.goopyutil.networking.payloads;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
-import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public record SetNbtS2CPayload(NbtCompound nbt, byte type) implements CustomPayload {
     public static final CustomPayload.Id<SetNbtS2CPayload> ID = new CustomPayload.Id<>(PayloadDef.S2CSetNbtID);

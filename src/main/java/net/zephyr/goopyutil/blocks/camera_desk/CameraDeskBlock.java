@@ -6,6 +6,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -21,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
+import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
@@ -53,7 +56,7 @@ public class CameraDeskBlock extends GoopyBlockWithEntity {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof CameraDeskBlockEntity ent) {
             CameraDeskBlockEntity.updateViewport(ent);
-            CameraRenderer.dirty = true;
+            CameraRenderer.setDirty(pos, true);
 
 
             if(player.getMainHandStack().getItem() instanceof TabletItem){
@@ -104,5 +107,12 @@ public class CameraDeskBlock extends GoopyBlockWithEntity {
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new CameraDeskBlockEntity(pos, state);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return validateTicker(type, BlockEntityInit.CAMERA_DESK,
+                (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity));
+
     }
 }

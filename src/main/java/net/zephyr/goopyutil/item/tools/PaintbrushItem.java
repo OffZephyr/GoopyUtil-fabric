@@ -1,30 +1,17 @@
 package net.zephyr.goopyutil.item.tools;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockModel;
 import net.zephyr.goopyutil.client.ClientHook;
-import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.util.GoopyScreens;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
-
-import java.util.List;
-import java.util.Objects;
 
 public class PaintbrushItem extends Item {
     public PaintbrushItem(Settings settings) {

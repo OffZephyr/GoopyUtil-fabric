@@ -1,15 +1,12 @@
 package net.zephyr.goopyutil.networking.payloads;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public record MoneySyncDataC2SPayload(int credits, boolean shouldUpdate) implements CustomPayload {
     public static final CustomPayload.Id<MoneySyncDataC2SPayload> ID = new CustomPayload.Id<>(PayloadDef.C2SMoneyID);

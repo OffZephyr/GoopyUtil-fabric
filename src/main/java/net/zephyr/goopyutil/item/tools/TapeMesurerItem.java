@@ -29,7 +29,6 @@ import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockModel;
 import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntity;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.EntityInit;
@@ -37,7 +36,7 @@ import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class TapeMesurerItem extends Item {
     private CameraMappingEntity map = null;

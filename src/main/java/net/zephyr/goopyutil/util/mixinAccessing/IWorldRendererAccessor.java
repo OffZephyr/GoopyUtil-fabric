@@ -1,4 +1,4 @@
-package net.zephyr.goopyutil.util;
+package net.zephyr.goopyutil.util.mixinAccessing;
 
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.VertexConsumer;

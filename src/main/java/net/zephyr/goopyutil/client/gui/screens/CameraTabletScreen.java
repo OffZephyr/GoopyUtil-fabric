@@ -1,11 +1,8 @@
 package net.zephyr.goopyutil.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -25,8 +22,7 @@ import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.util.GoopyScreens;
-import net.zephyr.goopyutil.util.IPostProcessorLoader;
-import org.joml.Matrix4f;
+import net.zephyr.goopyutil.util.mixinAccessing.IPostProcessorLoader;
 
 import java.util.ArrayList;
 import java.util.List;

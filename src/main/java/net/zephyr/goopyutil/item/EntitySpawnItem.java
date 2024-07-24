@@ -5,7 +5,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public abstract class EntitySpawnItem extends ItemWithDescription {
     public EntitySpawnItem(Settings settings, int... tools) {

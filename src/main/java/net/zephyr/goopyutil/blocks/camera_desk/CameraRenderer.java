@@ -1,7 +1,5 @@
 package net.zephyr.goopyutil.blocks.camera_desk;
 
-import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
@@ -11,22 +9,19 @@ import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.type.FireworkExplosionComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Vec3d;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.util.IPostProcessorLoader;
+import net.zephyr.goopyutil.util.mixinAccessing.IPostProcessorLoader;
 import net.zephyr.goopyutil.util.compat.Iris;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
-import org.ladysnake.satin.api.managed.ManagedCoreShader;
-import org.ladysnake.satin.api.managed.ShaderEffectManager;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CameraRenderer {
 
@@ -38,7 +33,8 @@ public class CameraRenderer {
     private static int Deep;
     public static boolean nightVision;
     public static boolean illuminateScreen;
-    public static boolean dirty;
+    public static Map<BlockPos, Boolean> dirty = new HashMap<>();
+    public static Map<Framebuffer, Float> noiseIntensity = new HashMap<>();
 
     public static boolean isDrawing() {
         return Deep > 0;
@@ -46,20 +42,20 @@ public class CameraRenderer {
 
     public static boolean canDraw() {
         boolean fabulous = MinecraftClient.getInstance().options.getGraphicsMode().getValue() == GraphicsMode.FABULOUS;
-        return !Iris.isInstalled() && Deep < 4;
+        return !fabulous && !Iris.isInstalled() && Deep < 3;
     }
 
     @Nullable
     public static Framebuffer getFramebuffer() {
-        if (!canDraw()) return null;
+        if (!canDraw() || !isDrawing()) return null;
         return framebuffers[Deep - 1];
     }
 
     public static void onResize(int width, int height) {
-        CameraRenderer.dirty = true;
-
         for (int i = 0; i < framebuffers.length; i++) {
             framebuffers[i] = new SimpleFramebuffer(width, height, true, false);
+            dirty.replaceAll((p, v) -> true);
+            ((IPostProcessorLoader) MinecraftClient.getInstance().gameRenderer).resizePostProcessor(framebuffers[i], width, height);
         }
     }
 
@@ -87,12 +83,10 @@ public class CameraRenderer {
     private static void renderMirror(CameraDeskBlockEntity entity, MatrixStack matrices, float tickDelta) {
         int tex = renderWorld(entity, tickDelta);
         int tex2 = MinecraftClient.getInstance().getTextureManager().getTexture(entity.staticTexture(tickDelta)).getGlId();
-        int tex3 = MinecraftClient.getInstance().getTextureManager().getTexture(Identifier.of(GoopyUtil.MOD_ID, "textures/block/white.png")).getGlId();
 
         if (tex == -1) {
             tex = tex2;
         }
-
 
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
@@ -114,28 +108,11 @@ public class CameraRenderer {
         float vWidth = 0.5f;
         float vHeight = 0.5f;
 
-        float spacing = 0.001f;
-
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 
         var buffer = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
-        Vec3d vec3d = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().gameRenderer.getCamera().getPos(), tickDelta);
-        float f = (float)vec3d.x;
-        float g = (float)vec3d.y;
-        float h = (float)vec3d.z;
-        RenderSystem.setShaderTexture(0, tex3);
-        RenderSystem.setShaderColor(f, g, h, 1.0f);
-        buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, -vHeight).texture(0.5f - tWidth, 0.5f + tHeight);
-        buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, vHeight).texture(0.5f - tWidth, 0.5f - tHeight);
-        buffer.vertex(matrices.peek().getPositionMatrix(), vWidth, 0.0f, vHeight).texture(0.5f + tWidth, 0.5f - tHeight);
-        buffer.vertex(matrices.peek().getPositionMatrix(), vWidth, 0.0f, -vHeight).texture(0.5f + tWidth, 0.5f + tHeight);
-
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
         RenderSystem.setShaderTexture(0, tex);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        matrices.translate(0, spacing, 0);
-        buffer = RenderSystem.renderThreadTesselator().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, -vHeight).texture(0.5f - tWidth, 0.5f + tHeight);
         buffer.vertex(matrices.peek().getPositionMatrix(), -vWidth, 0.0f, vHeight).texture(0.5f - tWidth, 0.5f - tHeight);
@@ -162,9 +139,6 @@ public class CameraRenderer {
         var position = entity.getFeedPos();
 
         try {
-            //Identifier shader = nightVision ? nvShader : normalShader;
-            Identifier shader = normalShader;
-
             var oldModelViewStack = RenderSystem.getModelViewStack();
             var oldModelViewMat = new Matrix4f(RenderSystem.getModelViewMatrix());
             var prevProjMat = new Matrix4f(RenderSystem.getProjectionMatrix());
@@ -198,11 +172,20 @@ public class CameraRenderer {
             }
             framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
 
-                if (isDirty(shader, framebuffer)) {
-                    ((IPostProcessorLoader) client.gameRenderer).setMonitorPostProcessor(shader, framebuffer);
-                }
+            if (isDirty(entity.getPos())) {
+                ((IPostProcessorLoader) client.gameRenderer).setMonitorPostProcessor(normalShader, framebuffer);
+            }
+            Vec3d red = entity.getScreenColor()[0];
+            Vec3d green = entity.getScreenColor()[1];
+            Vec3d blue = entity.getScreenColor()[2];
+            float sat = entity.getScreenSaturation();
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "RedMatrix", (float)red.getX(), (float)red.getY(), (float)red.getX());
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "GreenMatrix", (float)green.getX(), (float)green.getY(), (float)green.getX());
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "BlueMatrix", (float)blue.getX(), (float)blue.getY(), (float)blue.getX());
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "Saturation", sat);
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "Time", tickDelta);
+            ((IPostProcessorLoader) client.gameRenderer).setMonitorUniform(framebuffer, "NoiseIntensity", tickDelta);
 
-            ((IPostProcessorLoader)client.gameRenderer).renderMonitor(tickDelta, CameraRenderer.isDrawing());
 
             framebuffer.beginWrite(true);
             client.getWindow().setFramebufferWidth(framebuffer.textureWidth);
@@ -216,6 +199,8 @@ public class CameraRenderer {
             illuminateScreen = false;
             client.gameRenderer.getLightmapTextureManager().tick();
             client.gameRenderer.getLightmapTextureManager().update(tickDelta);
+
+            ((IPostProcessorLoader)client.gameRenderer).renderMonitor(tickDelta, CameraRenderer.isDrawing(), framebuffer);
             Deep--;
 
             // Restore original values
@@ -237,10 +222,14 @@ public class CameraRenderer {
         }
     }
 
-    public static boolean isDirty(Identifier shader, Framebuffer framebuffer) {
-        boolean val = dirty;
-        dirty = false;
-        return val || ((IPostProcessorLoader) MinecraftClient.getInstance().gameRenderer).getMonitorPostProcessor() == null || !((IPostProcessorLoader) MinecraftClient.getInstance().gameRenderer).getMonitorPostProcessor().getName().equals(shader.toString());
+    public static boolean isDirty(BlockPos pos) {
+        boolean val = dirty.get(pos);
+        setDirty(pos, false);
+        return val;
+    }
+
+    public static void setDirty(BlockPos pos, boolean value){
+        dirty.put(pos, value);
     }
 }
 

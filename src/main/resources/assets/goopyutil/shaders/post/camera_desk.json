@@ -10,7 +10,7 @@
             "uniforms": [
                 {
                     "name": "Saturation",
-                    "values": [ 0.25 ]
+                    "values": [ 0.2 ]
                 },
                 {
                     "name": "RedMatrix",

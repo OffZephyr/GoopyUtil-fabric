@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.GoopyScreens;
-import net.zephyr.goopyutil.util.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
 
 import java.util.ArrayList;

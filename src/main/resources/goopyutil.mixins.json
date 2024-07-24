@@ -1,18 +1,19 @@
 {
-	"required": true,
-	"package": "net.zephyr.goopyutil.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"BlacklistMixin",
-		"CameraMixin",
-		"GameRendererMixin",
-		"MinecraftClientMixin",
-		"LightmapTextureManagerMixin",
-		"ModEntityDataSaverMixin",
-		"PlayerEntityRendererMixin",
-		"WorldRendererMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "net.zephyr.goopyutil.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlacklistMixin",
+    "CameraMixin",
+    "GameRendererMixin",
+    "LightmapTextureManagerMixin",
+    "MinecraftClientMixin",
+    "ModEntityDataSaverMixin",
+    "PlayerEntityRendererMixin",
+    "PostEffectProcessorMixin",
+    "WorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

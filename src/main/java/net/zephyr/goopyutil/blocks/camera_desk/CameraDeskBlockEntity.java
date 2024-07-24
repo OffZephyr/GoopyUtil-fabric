@@ -40,6 +40,8 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
     public static void updateViewport(CameraDeskBlockEntity blockEntity) {
         if (!posList.contains(blockEntity.getPos())) {
             posList.add(blockEntity.getPos());
+            CameraRenderer.setDirty(blockEntity.getPos(), true);
+            blockEntity.updateCams();
             System.out.println("CameraDeskBlockEntity added at " + blockEntity.getPos());
         }
     }
@@ -109,13 +111,15 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
     public boolean isNightVision(){
         return hasFootage() && currentCamNbt(getWorld()).getByte("NightVision") == 1 || (currentCamNbt(getWorld()).getByte("NightVision") == 2 && this.enableNightVision);
     }
-    public Matrix3f nightVisionColorFilter(){
-        return new Matrix3f(0.5f, 0.5f, 0.5f, 0.75f, 0.75f, 0.75f, 0.65f, 0.65f, 0.65f);
+    public Vec3d[] getScreenColor(){
+        Vec3d[] list = new Vec3d[3];
+        list[0] = isNightVision() ? new Vec3d(0.5f, 0.5f, 0.5f) : new Vec3d(1.0f, 0.0f, 0.0f);
+        list[1] = isNightVision() ? new Vec3d(0.75f, 0.75f, 0.75f) : new Vec3d(0.0f, 1.0f, 0.0f);
+        list[2] = isNightVision() ? new Vec3d(0.65f, 0.65f, 0.65f) : new Vec3d(0.0f, 0.0f, 1.0f);
+        return list;
     }
-    public float screenSaturation(){
-        float normal = 0.2f;
-        float nv = 1.1f;
-        return isNightVision() ? nv : normal;
+    public float getScreenSaturation(){
+        return isNightVision() ? 1.1f : 0.25f;
     }
 
     Identifier staticTexture(float deltaTick){
