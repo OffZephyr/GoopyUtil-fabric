@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.*;
 import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
@@ -30,6 +31,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.ModelLoading;
+import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -141,10 +143,10 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                         }
                         LayeredBlockLayer thisLayer = Layers[i][directionId];
 
-                        int comparator = thisLayer.hasStaticLayer() || thisLayer.getRgbCount() <= 0 ? 1 : thisLayer.getRgbCount();
+                        int comparator = thisLayer.cantRecolorLayer() || thisLayer.getRgbCount() <= 0 ? 1 : thisLayer.getRgbCount();
                         for(int k = 0; k < comparator; k++) {
 
-                            Identifier texture = thisLayer.hasStaticLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
+                            Identifier texture = thisLayer.cantRecolorLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
                             Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture).getSprite();
                             if(k == 0 && directionId == 0) particleSprite = sprite;
                             if(particleSprite == null) particleSprite = baseSprite;
@@ -153,7 +155,7 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                             float r = ColorHelper.Argb.getRed(colorValue);
                             float g = ColorHelper.Argb.getGreen(colorValue);
                             float b = ColorHelper.Argb.getBlue(colorValue);
-                            int color = thisLayer.hasStaticLayer() ? 0xFFFFFFFF : ColorHelper.Argb.getArgb(255, (int) r, (int) g, (int) b);
+                            int color = thisLayer.cantRecolorLayer() ? 0xFFFFFFFF : ColorHelper.Argb.getArgb(255, (int) r, (int) g, (int) b);
 
                             emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
                             emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
@@ -196,10 +198,10 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                     }
                     LayeredBlockLayer thisLayer = Layers[i][directionId];
 
-                    int comparator = thisLayer.hasStaticLayer() || thisLayer.getRgbCount() <= 0 ? 1 : thisLayer.getRgbCount();
+                    int comparator = thisLayer.cantRecolorLayer() || thisLayer.getRgbCount() <= 0 ? 1 : thisLayer.getRgbCount();
                     for (int k = 0; k < comparator; k++) {
 
-                        Identifier texture = thisLayer.hasStaticLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
+                        Identifier texture = thisLayer.cantRecolorLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
                         Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture).getSprite();
                         if (k == 0 && directionId == 0) particleSprite = sprite;
                         if (particleSprite == null) particleSprite = baseSprite;
@@ -208,7 +210,7 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                         float r = ColorHelper.Argb.getRed(colorValue);
                         float g = ColorHelper.Argb.getGreen(colorValue);
                         float b = ColorHelper.Argb.getBlue(colorValue);
-                        int color = thisLayer.hasStaticLayer() ? 0xFFFFFFFF : ColorHelper.Argb.getArgb(255, (int) r, (int) g, (int) b);
+                        int color = thisLayer.cantRecolorLayer() ? 0xFFFFFFFF : ColorHelper.Argb.getArgb(255, (int) r, (int) g, (int) b);
 
                         emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
                         emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
@@ -250,8 +252,8 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
             for (int i = 0; i < 6; i++) {
 
                 array[j][i] = Objects.equals(layerData.getString("" + i), "") || layerData.isEmpty() ?
-                        new LayeredBlockLayer("", 0, false, 16) :
-                        LayeredBlockLayers.getLayer(layerData.getString("" + i));
+                        new LayeredBlockLayer("", false, Identifier.of("")) :
+                        ((IGetClientManagers) MinecraftClient.getInstance()).getLayerManager().getLayer(layerData.getString("" + i));
             }
 
         }

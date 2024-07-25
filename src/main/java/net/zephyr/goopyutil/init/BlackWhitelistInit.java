@@ -23,7 +23,7 @@ public class BlackWhitelistInit {
             HttpEntity entity = response.getEntity();
 
             String result = EntityUtils.toString(entity);
-            JsonObject obj = new JsonParser().parse(result).getAsJsonObject();
+        JsonObject obj = new JsonParser().parse(result).getAsJsonObject();
         JsonArray blacklist = obj.get("Blacklist").getAsJsonArray();
         JsonArray whitelist = obj.get("Whitelist").getAsJsonArray();
         for(JsonElement user : blacklist){

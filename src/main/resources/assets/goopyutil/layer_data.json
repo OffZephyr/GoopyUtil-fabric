@@ -1,0 +1,45 @@
+{
+  "goopyutil_demo_checker": {
+    "can_recolor": true,
+    "textures": [
+      "block/layers/goopyutil_demo_checker_rgb0",
+      "block/layers/goopyutil_demo_checker_rgb1"
+    ]
+  },
+  "goopyutil_demo_walltiles": {
+    "can_recolor": true,
+    "textures": [
+      "block/layers/goopyutil_demo_walltiles_rgb0",
+      "block/layers/goopyutil_demo_walltiles_rgb1",
+      "block/layers/goopyutil_demo_walltiles_rgb2"
+    ]
+  },
+  "goopyutil_demo_walltiles_top": {
+    "can_recolor": true,
+    "textures": [
+      "block/layers/goopyutil_demo_walltiles_top_rgb0",
+      "block/layers/goopyutil_demo_walltiles_top_rgb1",
+      "block/layers/goopyutil_demo_walltiles_top_rgb2"
+    ]
+  },
+  "goopyutil_demo_walltiles_bottom": {
+    "can_recolor": true,
+    "textures": [
+      "block/layers/goopyutil_demo_walltiles_bottom_rgb0",
+      "block/layers/goopyutil_demo_walltiles_bottom_rgb1",
+      "block/layers/goopyutil_demo_walltiles_bottom_rgb2"
+    ]
+  },
+  "goopyutil_demo_wall0": {
+    "can_recolor": false,
+    "textures": [
+      "block/layers/goopyutil_demo_wall0"
+    ]
+  },
+  "goopyutil_demo_wall1": {
+    "can_recolor": false,
+    "textures": [
+      "block/layers/goopyutil_demo_wall1"
+    ]
+  }
+}

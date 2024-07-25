@@ -5,18 +5,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayers;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockModel;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class ModelLoading implements ModelLoadingPlugin {

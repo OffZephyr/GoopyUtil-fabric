@@ -18,7 +18,6 @@ public class GoopyUtil implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LayeredBlockLayersInit.init();
 		ItemInit.registerItems();
 		EntityInit.registerEntities();
 		BlockEntityInit.registerBlockEntities();

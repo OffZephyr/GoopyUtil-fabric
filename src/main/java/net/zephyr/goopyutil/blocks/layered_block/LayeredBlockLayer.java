@@ -1,40 +1,37 @@
 package net.zephyr.goopyutil.blocks.layered_block;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.Identifier;
-import net.zephyr.goopyutil.GoopyUtil;
 
+@Environment(EnvType.CLIENT)
 public class LayeredBlockLayer {
-    private String name;
-    private Byte rgbLayers;
-    private Boolean hasStaticLayer;
-    private int textureSize;
+    String name;
+    boolean canRecolor;
+    Identifier[] textures;
 
-    public LayeredBlockLayer(String textureName, int rgbLayerAmount, boolean hasStaticLayer, int textureSize) {
-        this.name = textureName;
-        this.rgbLayers = rgbLayerAmount > 3 ? 3 : (byte)rgbLayerAmount;
-        this.hasStaticLayer = hasStaticLayer;
-        this.textureSize = textureSize;
+    public LayeredBlockLayer(String name, boolean can_recolor, Identifier... textures) {
+        this.name = name;
+        this.canRecolor = can_recolor;
+        this.textures = textures;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public Boolean hasStaticLayer(){
-        return this.hasStaticLayer;
+    public Boolean cantRecolorLayer(){
+        return !this.canRecolor;
     }
 
     public Identifier getTexture() {
-        return Identifier.of(GoopyUtil.MOD_ID, "block/layers/" + this.name);
-    }
-    public int getTextureSize() {
-        return this.textureSize;
+        return getRgbTexture(0);
     }
 
     public Identifier getRgbTexture(Integer index) {
-        return Identifier.of(GoopyUtil.MOD_ID, "block/layers/" + this.name + "_rgb" + index.toString());
+        return textures[index];
     }
-    public byte getRgbCount(){
-        return rgbLayers;
+    public int getRgbCount(){
+        return cantRecolorLayer() ? 0 : Math.min(3, textures.length);
     }
 }

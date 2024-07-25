@@ -1,23 +1,16 @@
 package net.zephyr.goopyutil.blocks.camera;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.ChestType;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -26,17 +19,11 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockEntity;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayers;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.init.ItemInit;
-
-import java.util.Objects;
 
 public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntity> {
     private final ModelPart model;

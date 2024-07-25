@@ -14,8 +14,9 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayers;
+import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockManager;
 import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -24,6 +25,7 @@ import java.awt.*;
 import java.util.Objects;
 
 public class PaintbrushScreen extends GoopyScreen {
+    private final LayeredBlockManager layerManager;
     Identifier texture = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/paintbrush.png");
     int cornerX, cornerY;
     int selectedLayer, direction;
@@ -40,6 +42,7 @@ public class PaintbrushScreen extends GoopyScreen {
 
     public PaintbrushScreen(Text title, NbtCompound nbt, long l) {
         super(title, nbt, l);
+        layerManager = ((IGetClientManagers)MinecraftClient.getInstance()).getLayerManager();
     }
 
     @Override
@@ -56,8 +59,8 @@ public class PaintbrushScreen extends GoopyScreen {
         cornerX = this.width / 2 - 118 / 2;
         cornerY = this.height / 2 - 176 / 2;
 
-        if (LayeredBlockLayers.getLayers().size() > 28)
-            layerRows = ((LayeredBlockLayers.getLayers().size() + 3) / 4) - 7;
+        if (layerManager.getLayers().size() > 28)
+            layerRows = ((layerManager.getLayers().size() + 3) / 4) - 7;
     }
 
     @Override
@@ -84,9 +87,9 @@ public class PaintbrushScreen extends GoopyScreen {
                 int multiplier = k / 4;
                 int iconXPos = (20 * k) - (multiplier * 80);
                 int iconYPos = 20 * multiplier;
-                if (k + (4 * selectedRow) < LayeredBlockLayers.getLayers().size() && mouseX > xCorner + 5 + iconXPos && (mouseX < xCorner + 25 + iconXPos && mouseY > yCorner + 5 + iconYPos && mouseY < yCorner + 25 + iconYPos)) {
+                if (k + (4 * selectedRow) < layerManager.getLayers().size() && mouseX > xCorner + 5 + iconXPos && (mouseX < xCorner + 25 + iconXPos && mouseY > yCorner + 5 + iconYPos && mouseY < yCorner + 25 + iconYPos)) {
                     String comp = getNbtData().getCompound("layer" + (selectedLayer - 1)).getString("" + direction);
-                    LayeredBlockLayer checkingLayer = LayeredBlockLayers.getLayers().get(k + (4 * selectedRow));
+                    LayeredBlockLayer checkingLayer = layerManager.getLayers().get(k + (4 * selectedRow));
 
                     float pitch = Objects.equals(checkingLayer.getName(), comp) ? 0.85f : 1f;
                     MinecraftClient.getInstance().player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, pitch);
@@ -99,15 +102,15 @@ public class PaintbrushScreen extends GoopyScreen {
                             getNbtData().put("layer" + (selectedLayer - 1), layer);
                         } else if (Objects.equals(getNbtData().getCompound("layer" + (selectedLayer - 1)).getString("" + direction), "")){
                             NbtCompound layer = getNbtData().getCompound("layer" + (selectedLayer - 1));
-                            for (int i = 0; i < LayeredBlockLayers.getLayers().get(k).getRgbCount(); i++) {
+                            for (int i = 0; i < layerManager.getLayers().get(k).getRgbCount(); i++) {
                                 float grayMultiplier = (1f / 3) * i;
                                 float gray = Math.lerp(255, 76f, grayMultiplier);
                                 int color = ColorHelper.Argb.getArgb(255, (int)gray, (int)gray, (int)gray);
                                 layer.putInt(direction + "_" + i + "_color", color);
                             }
-                            layer.putString("" + direction, LayeredBlockLayers.getLayers().get(k + (4 * selectedRow)).getName());
+                            layer.putString("" + direction, layerManager.getLayers().get(k + (4 * selectedRow)).getName());
                         } else {
-                            getNbtData().getCompound("layer" + (selectedLayer - 1)).putString("" + direction, LayeredBlockLayers.getLayers().get(k + (4 * selectedRow)).getName());
+                            getNbtData().getCompound("layer" + (selectedLayer - 1)).putString("" + direction, layerManager.getLayers().get(k + (4 * selectedRow)).getName());
                         }
                     }
                     updateColorScroll();
@@ -207,8 +210,8 @@ public class PaintbrushScreen extends GoopyScreen {
     @NotNull
     private NbtCompound grayScale(int k) {
         NbtCompound layer = new NbtCompound();
-        layer.putString("" + direction, LayeredBlockLayers.getLayers().get(k).getName());
-        for (int i = 0; i < LayeredBlockLayers.getLayers().get(k).getRgbCount(); i++) {
+        layer.putString("" + direction, layerManager.getLayers().get(k).getName());
+        for (int i = 0; i < layerManager.getLayers().get(k).getRgbCount(); i++) {
             float grayMultiplier = (1f / 3) * i;
             float gray = Math.lerp(255, 76f, grayMultiplier);
             int color = ColorHelper.Argb.getArgb(255, (int)gray, (int)gray, (int)gray);
@@ -264,13 +267,13 @@ public class PaintbrushScreen extends GoopyScreen {
             if (transOff < 1) transOff = 0;
         }
 
-        if (selectedLayer > 0 && LayeredBlockLayers.getLayers().get(selectedLayer - 1).getRgbCount() > 0) {
+        if (selectedLayer > 0 && layerManager.getLayers().get(selectedLayer - 1).getRgbCount() > 0) {
             for (int i = 0; i < 3; i++) {
                 String comp = getNbtData().getCompound("layer" + (selectedLayer - 1)).getString("" + direction);
-                LayeredBlockLayer layer = LayeredBlockLayers.getLayer(comp);
+                LayeredBlockLayer layer = layerManager.getLayer(comp);
                 if (layer != null) {
                     if (Objects.equals(layer.getName(), comp)) {
-                        if (i < LayeredBlockLayers.getLayer(comp).getRgbCount()) {
+                        if (i < layerManager.getLayer(comp).getRgbCount()) {
                             if (transColor[i] < 55) transColor[i] += (55 - transColor[i]) / timeMultiplier;
                             if (transColor[i] > 54) transColor[i] = 55;
                         } else {
@@ -362,10 +365,10 @@ public class PaintbrushScreen extends GoopyScreen {
                 int iconXPos = (20 * k) - (multiplier * 80);
                 int iconYPos = 20 * multiplier;
 
-                if (k + (4 * selectedRow) < LayeredBlockLayers.getLayers().size()) {
+                if (k + (4 * selectedRow) < layerManager.getLayers().size()) {
 
                     String comp = getNbtData().getCompound("layer" + (selectedLayer - 1)).getString("" + direction);
-                    if (Objects.equals(LayeredBlockLayers.getLayers().get(k + (4 * selectedRow)).getName(), comp)) {
+                    if (Objects.equals(layerManager.getLayers().get(k + (4 * selectedRow)).getName(), comp)) {
                         context.drawTexture(texture, xCorner + 5 + iconXPos, yCorner + 5 + iconYPos, 0, 196, 20, 20, 256, 256);
                     } else {
                         if (mouseX > xCorner + 5 + iconXPos && mouseX < xCorner + 25 + iconXPos && mouseY > yCorner + 5 + iconYPos && mouseY < yCorner + 25 + iconYPos) {
@@ -374,7 +377,7 @@ public class PaintbrushScreen extends GoopyScreen {
                             context.drawTexture(texture, xCorner + 5 + iconXPos, yCorner + 5 + iconYPos, 0, 176, 20, 20, 256, 256);
                         }
                     }
-                    LayeredBlockLayer currentLayer = LayeredBlockLayers.getLayers().get(k + (4 * selectedRow));
+                    LayeredBlockLayer currentLayer = layerManager.getLayers().get(k + (4 * selectedRow));
                     boolean hasRgb = currentLayer.getRgbCount() > 0;
 
                     if (hasRgb) {
@@ -386,7 +389,7 @@ public class PaintbrushScreen extends GoopyScreen {
                             context.drawSprite(xCorner + 7 + iconXPos, yCorner + 7 + iconYPos, 1, 16, 16, sprite, color, color, color, 1);
                         }
                     }
-                    if (!hasRgb | currentLayer.hasStaticLayer()) {
+                    if (!hasRgb || currentLayer.cantRecolorLayer()) {
                         Identifier texture = currentLayer.getTexture();
                         Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
                         context.drawSprite(xCorner + 7 + iconXPos, yCorner + 7 + iconYPos, 1, 16, 16, sprite);
@@ -409,7 +412,7 @@ public class PaintbrushScreen extends GoopyScreen {
             NbtCompound layerData = getNbtData().getCompound("layer" + i);
             if (!layerData.isEmpty() && !Objects.equals(layerData.getString("" + direction), "")) {
                 String layerName = layerData.getString("" + direction);
-                LayeredBlockLayer layer = LayeredBlockLayers.getLayer(layerName);
+                LayeredBlockLayer layer = layerManager.getLayer(layerName);
                 boolean hasRgb = layer.getRgbCount() > 0;
                 if (hasRgb) {
                     for (int j = 0; j < layer.getRgbCount(); j++) {
@@ -424,7 +427,7 @@ public class PaintbrushScreen extends GoopyScreen {
                         context.drawSprite(cornerX + 8, cornerY + 61, 3, 102, 102, sprite, r, g, b, 1);
                     }
                 }
-                if (!hasRgb || layer.hasStaticLayer()) {
+                if (!hasRgb || layer.cantRecolorLayer()) {
                     Identifier texture = layer.getTexture();
                     Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
                     context.drawSprite(cornerX + 8 + i * (36), cornerY + 25, 3, 30, 30, sprite, 1, 1, 1, 1);
