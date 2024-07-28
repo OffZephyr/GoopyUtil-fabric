@@ -27,7 +27,9 @@ public class CameraMappingEntity extends Entity {
         if(!getWorld().isClient()){
             boolean delete = true;
             for(ServerPlayerEntity p : PlayerLookup.tracking(this)){
-                if(p.getMainHandStack().isOf(ItemInit.TAPEMEASURE) && p.getMainHandStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt().getInt("mapEntityID") == getId()){
+                boolean mapItem = p.getMainHandStack().isOf(ItemInit.TAPEMEASURE) || p.getMainHandStack().isOf(ItemInit.PAINTBRUSH);
+
+                if(mapItem && p.getMainHandStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt().getInt("mapEntityID") == getId()){
                     delete = false;
                     if(!this.getBoundingBox().contract(5).contains(p.getPos().getX(), p.getPos().getY(), p.getPos().getZ())){
                         this.updatePosition(p.getBlockPos().getX() + 0.5f,p.getBlockPos().getY() - 20, p.getBlockPos().getZ() + 0.5f);

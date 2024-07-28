@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockManager;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
@@ -144,7 +144,7 @@ public class PaintbrushScreen extends GoopyScreen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
     void saveData(){
-        GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
+        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
         close();
     }
 

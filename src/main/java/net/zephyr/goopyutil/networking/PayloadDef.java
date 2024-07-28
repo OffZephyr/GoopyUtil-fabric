@@ -3,6 +3,7 @@ package net.zephyr.goopyutil.networking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.networking.payloads.*;
@@ -25,7 +26,6 @@ public class PayloadDef {
         PayloadTypeRegistry.playC2S().register(MoneySyncDataC2SPayload.ID, MoneySyncDataC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MoneySyncDataS2CPayload.ID, MoneySyncDataS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SetScreenS2CPayload.ID, SetScreenS2CPayload.CODEC);
-
         ServerPlayNetworking.registerGlobalReceiver(GetNbtC2SPayload.ID, GetNbtC2SPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(MoneySyncDataC2SPayload.ID, MoneySyncDataC2SPayload::receive);
     }

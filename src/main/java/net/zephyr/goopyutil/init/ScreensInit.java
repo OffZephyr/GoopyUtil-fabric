@@ -10,19 +10,19 @@ import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBrowserScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPCodeScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPMusicPlayerScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 
 public class ScreensInit {
     public static void init(){
-        GoopyScreens.registerScreen("computer_boot", COMPBootupScreen::new);
-        GoopyScreens.registerScreen("paintbrush", PaintbrushScreen::new);
-        GoopyScreens.registerScreen("camera_edit", CameraEditScreen::new);
-        GoopyScreens.registerScreen("camera_tablet", CameraTabletScreen::new);
-        GoopyScreens.registerScreen("desktop", COMPDesktopScreen::new);
-        GoopyScreens.registerScreen("music_player", COMPMusicPlayerScreen::new);
-        GoopyScreens.registerScreen("browser", COMPBrowserScreen::new);
-        GoopyScreens.registerScreen("remote", COMPRemoteScreen::new);
-        GoopyScreens.registerScreen("code", COMPCodeScreen::new);
-        GoopyScreens.registerScreen("arcade_machine", ArcademachineScreen::new);
+        ScreenUtils.registerScreen("computer_boot", COMPBootupScreen::new);
+        ScreenUtils.registerScreen("paintbrush", PaintbrushScreen::new);
+        ScreenUtils.registerScreen("camera_edit", CameraEditScreen::new);
+        ScreenUtils.registerScreen("camera_tablet", CameraTabletScreen::new);
+        ScreenUtils.registerScreen("desktop", COMPDesktopScreen::new);
+        ScreenUtils.registerScreen("music_player", COMPMusicPlayerScreen::new);
+        ScreenUtils.registerScreen("browser", COMPBrowserScreen::new);
+        ScreenUtils.registerScreen("remote", COMPRemoteScreen::new);
+        ScreenUtils.registerScreen("code", COMPCodeScreen::new);
+        ScreenUtils.registerScreen("arcade_machine", ArcademachineScreen::new);
     }
 }

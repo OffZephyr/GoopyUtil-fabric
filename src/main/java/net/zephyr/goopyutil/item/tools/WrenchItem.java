@@ -1,23 +1,14 @@
 package net.zephyr.goopyutil.item.tools;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
-import net.zephyr.goopyutil.client.ClientHook;
-import net.zephyr.goopyutil.entity.base.GoopyEntity;
 import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 
 public class WrenchItem extends Item {
     public WrenchItem(Settings settings) {
@@ -33,7 +24,7 @@ public class WrenchItem extends Item {
                 NbtCompound data = entity.getCustomData();
 
                 if (context.getPlayer() instanceof ServerPlayerEntity p) {
-                    GoopyScreens.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
+                    ScreenUtils.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
                 }/* else {
                 ClientHook.openScreen(GoopyScreens.getScreens().get("camera_edit"), context.getBlockPos(), data);
                 }*/

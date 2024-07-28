@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
 
@@ -75,7 +75,7 @@ public interface GoopyEntity {
     default void putFloppyDisk(PathAwareEntity entity, ItemStack disk, World world){
         ((IEntityDataSaver)entity).getPersistentData().put("floppy_disk", disk.encodeAllowEmpty(world.getRegistryManager()));
         if(world.isClient()){
-            GoopyScreens.saveNbtFromScreen(((IEntityDataSaver)entity).getPersistentData(), entity.getId());
+            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)entity).getPersistentData(), entity.getId());
         }
     }
     default ItemStack getDisk(PathAwareEntity entity, World world){

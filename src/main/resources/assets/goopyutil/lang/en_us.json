@@ -45,7 +45,15 @@
 
   "item.goopyutil.wrench": "Wrench",
   "item.goopyutil.paintbrush": "Paint Brush",
+  "item.goopyutil.paintbrush.map_cam.line1": "Camera Map Coloring...",
+  "item.goopyutil.paintbrush.map_cam.line2": "§b§lClick on a line §bto change its color.",
+
   "item.goopyutil.tapemeasure": "Tape Measure",
+  "goopyutil.tapemeasure.reset": "§cLayer data cleared.",
+  "item.goopyutil.tapemeasure.map_cam.line1": "Camera Mapping...",
+  "item.goopyutil.tapemeasure.map_cam.line2": "§b§lClick on a block §bto start drawing a line, §b§lClick again §rto confirm.",
+  "item.goopyutil.tapemeasure.map_cam.line3": "§3§o(Click again while sneaking to cancel it...)",
+  "item.goopyutil.tapemeasure.map_cam.line4": "§6§lClick on a line while sneaking §6to remove it.",
 
   "item.goopyutil.deathcoin": "Death Coin",
   "item.goopyutil.deathcoin.description.0.length": "4",

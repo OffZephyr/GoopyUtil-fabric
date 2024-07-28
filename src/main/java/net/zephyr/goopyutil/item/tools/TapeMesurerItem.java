@@ -115,7 +115,8 @@ public class TapeMesurerItem extends Item {
 
                     long[] line = new long[]{
                             data.getLong("setupCorner1"),
-                            data.getLong("setupCorner2")
+                            data.getLong("setupCorner2"),
+                            0xFFFFFFFFL
                     };
                     NbtLongArray lineNbt = new NbtLongArray(line);
                     mapNbt.add(lineNbt);

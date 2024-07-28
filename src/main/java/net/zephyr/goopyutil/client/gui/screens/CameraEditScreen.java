@@ -3,7 +3,6 @@ package net.zephyr.goopyutil.client.gui.screens;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvents;
@@ -11,10 +10,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class CameraEditScreen extends GoopyScreen {
@@ -137,7 +135,7 @@ public class CameraEditScreen extends GoopyScreen {
         nbt.putBoolean("Action", this.action);
         nbt.putByte("NightVision", this.nightvision);
 
-        GoopyScreens.saveNbtFromScreen(nbt, getBlockPos());
+        ScreenUtils.saveNbtFromScreen(nbt, getBlockPos());
     }
 
     @Override

@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Entity.class)
 public abstract class ModEntityDataSaverMixin implements IEntityDataSaver {
     private NbtCompound persistentData;
-
     @Override
     public NbtCompound getPersistentData() {
         if (this.persistentData == null) {

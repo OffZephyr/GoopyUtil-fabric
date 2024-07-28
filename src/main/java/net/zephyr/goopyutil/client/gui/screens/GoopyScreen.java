@@ -1,11 +1,6 @@
 package net.zephyr.goopyutil.client.gui.screens;
 
-import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.types.Type;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,11 +10,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.zephyr.goopyutil.client.ClientHook;
-import net.zephyr.goopyutil.util.GoopyScreens;
 import org.joml.Matrix4f;
-
-import java.util.Set;
 
 public abstract class GoopyScreen extends Screen {
     BlockPos blockPos;
@@ -51,7 +42,7 @@ public abstract class GoopyScreen extends Screen {
         this.entityID = l < Integer.MAX_VALUE ? (int) l : Integer.MAX_VALUE;
     }
 
-    public boolean isOnButton(double mouseX, double mouseY, int x, int y, int width, int height) {
+    public static boolean isOnButton(double mouseX, double mouseY, int x, int y, int width, int height) {
         return (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height);
     }
 

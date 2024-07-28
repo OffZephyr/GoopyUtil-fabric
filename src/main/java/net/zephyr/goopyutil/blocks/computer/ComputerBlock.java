@@ -20,7 +20,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
@@ -30,7 +29,7 @@ import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -136,7 +135,7 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
         else {
             if (!world.isClient()) {
                 if (player instanceof ServerPlayerEntity p) {
-                    GoopyScreens.openScreenOnServer(p, "computer_boot", pos, data);
+                    ScreenUtils.openScreenOnServer(p, "computer_boot", pos, data);
                 }
             }
         }

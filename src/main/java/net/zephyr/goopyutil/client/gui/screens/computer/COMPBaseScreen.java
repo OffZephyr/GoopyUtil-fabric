@@ -10,7 +10,7 @@ import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBaseAppScreen;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.SoundsInit;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public abstract class COMPBaseScreen extends GoopyScreen {
     }
 
     public void updateIndex(String currentScreen){
-        if(GoopyScreens.getScreens().containsKey(currentScreen)) {
+        if(ScreenUtils.getScreens().containsKey(currentScreen)) {
             this.getNbtData().putString("Window", currentScreen);
         }
         else {
@@ -89,12 +89,12 @@ public abstract class COMPBaseScreen extends GoopyScreen {
 
         if (MinecraftClient.getInstance().currentScreen instanceof COMPBaseAppScreen appScreen) {
             this.updateIndex(appScreen.appName());
-            GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
+            ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
             return;
         }
 
         this.updateIndex("default");
-        GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
+        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
     }
 
     @Override

@@ -3,7 +3,6 @@ package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EntityType;
@@ -19,7 +18,7 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -626,6 +625,6 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
         }));
         getNbtData().put("ai_data", stack.encodeAllowEmpty(world.getRegistryManager()));
         this.floppy_disk = stack.copy();
-        GoopyScreens.saveNbtFromScreen(getNbtData(), getBlockPos());
+        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
     }
 }

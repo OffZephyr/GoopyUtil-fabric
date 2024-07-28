@@ -67,7 +67,6 @@ public record GetNbtC2SPayload(NbtCompound nbt, byte type) implements CustomPayl
 
                 if(!context.player().getWorld().isClient()) {
                     ServerPlayNetworking.send(context.player(), new SetNbtS2CPayload(nbt, type));
-
                 }
                 break;
             }

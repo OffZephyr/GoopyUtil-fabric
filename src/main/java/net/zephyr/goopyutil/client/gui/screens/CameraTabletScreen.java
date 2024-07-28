@@ -21,7 +21,8 @@ import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.init.SoundsInit;
-import net.zephyr.goopyutil.util.GoopyScreens;
+import net.zephyr.goopyutil.util.CameraMapUiDrawer;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.mixinAccessing.IPostProcessorLoader;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class CameraTabletScreen extends GoopyScreen {
     float sliderAlphaY = 100;
     private float doubleClick = 0;
 
+    CameraMapUiDrawer mapDrawer;
     public CameraTabletScreen(Text title, NbtCompound nbt, long l) {
         super(title, nbt, l);
     }
@@ -60,6 +62,7 @@ public class CameraTabletScreen extends GoopyScreen {
     @Override
     protected void init() {
 
+        mapDrawer = new CameraMapUiDrawer();
         this.closing = false;
         NbtCompound data = getNbtData();
         holding = false;
@@ -116,7 +119,12 @@ public class CameraTabletScreen extends GoopyScreen {
             drawActionButton(context, mouseX, mouseY);
         }
         if(bl){
-            drawMap(context, mouseX, mouseY, delta * 48);
+            mapDrawer.drawMap(context, mouseX, mouseY, delta * 48, getNbtData(), mapEndPosX, mapEndPosY, mapCornerPosX, mapCornerPosY, mapAlpha, true, allowNightVision && enableNightVision, currentCam);
+            mapWidth = mapDrawer.mapWidth;
+            mapHeight = mapDrawer.mapHeight;
+            mapMultiplier = mapDrawer.mapMultiplier;
+            mapAlpha = mapDrawer.mapAlpha;
+            //drawMap(context, mouseX, mouseY, delta * 48);
         }
 
         if(hasNoSignal) {
@@ -209,7 +217,7 @@ public class CameraTabletScreen extends GoopyScreen {
                     double newYaw = yaw + ((((nbt.getByte("yawSpeed") + 1) / 2f) * side) * delta);
                     nbt.putDouble("yaw", newYaw);
                     if (!nbt.isEmpty()) {
-                        GoopyScreens.saveNbtFromScreen(nbt, ent.getPos());
+                        ScreenUtils.saveNbtFromScreen(nbt, ent.getPos());
                     }
                 }
                 if(hoverY && width < height){
@@ -219,7 +227,7 @@ public class CameraTabletScreen extends GoopyScreen {
                     double newPitch = pitch + ((((nbt.getByte("pitchSpeed") + 1)/2f) * side) * delta);
                     nbt.putDouble("pitch", newPitch);
                     if (!nbt.isEmpty()) {
-                        GoopyScreens.saveNbtFromScreen(nbt, ent.getPos());
+                        ScreenUtils.saveNbtFromScreen(nbt, ent.getPos());
                     }
                 }
             } else if(f || b || l || r){
@@ -232,7 +240,7 @@ public class CameraTabletScreen extends GoopyScreen {
                 if(newYaw > -maxYaw && newYaw < -minYaw && nbt.getByte("ModeX") == 2) nbt.putDouble("yaw", newYaw);
                 if(newPitch > -maxPitch && newPitch < -minPitch && nbt.getByte("ModeY") == 2) nbt.putDouble("pitch", newPitch);
                 if (!nbt.isEmpty()) {
-                    GoopyScreens.saveNbtFromScreen(nbt, ent.getPos());
+                    ScreenUtils.saveNbtFromScreen(nbt, ent.getPos());
 
                 }
             }
@@ -503,19 +511,19 @@ public class CameraTabletScreen extends GoopyScreen {
                 if (nbt.getBoolean("Action") && nbt.getBoolean("Active")) {
                     if (nbt.getBoolean("Powered") != power) {
                         nbt.putBoolean("Powered", power);
-                        GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
+                        ScreenUtils.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
                     }
                 } else {
                     if (nbt.getBoolean("Powered")) {
                         nbt.putBoolean("Powered", false);
-                        GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
+                        ScreenUtils.saveNbtFromScreen(nbt, BlockPos.fromLong(currentCam));
                     }
                 }
             }
         }
     }
     private void compileData(NbtCompound nbt){
-        GoopyScreens.saveNbtFromScreen(nbt);
+        ScreenUtils.saveNbtFromScreen(nbt);
     }
 
     void setLight(long pos, boolean value){
@@ -524,12 +532,12 @@ public class CameraTabletScreen extends GoopyScreen {
             if (nbt.getBoolean("Flashlight")) {
                 if (nbt.getBoolean("Lit") != value) {
                     nbt.putBoolean("Lit", value);
-                    GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
+                    ScreenUtils.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
                 }
             } else {
                 if (nbt.getBoolean("Lit")) {
                     nbt.putBoolean("Lit", false);
-                    GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
+                    ScreenUtils.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
                 }
             }
         }
@@ -539,7 +547,7 @@ public class CameraTabletScreen extends GoopyScreen {
             NbtCompound nbt = ent.getCustomData().copy();
             if (nbt.getBoolean("isUsed") != value) {
                 nbt.putBoolean("isUsed", value);
-                GoopyScreens.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
+                ScreenUtils.saveNbtFromScreen(nbt, BlockPos.fromLong(pos));
             }
         }
     }

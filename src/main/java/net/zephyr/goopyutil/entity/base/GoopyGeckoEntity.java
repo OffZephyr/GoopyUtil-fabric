@@ -197,15 +197,16 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
         } else {
             if(!getWorld().isClient()) {
                 boolean teleport = boolData(behavior, "teleport", this);
+                boolean aggressive = boolData(behavior, "aggressive", this);
 
-                if (getNavigation().getCurrentPath() == null || getNavigation().getCurrentPath().getLastNode() == null || getNavigation().getCurrentPath().getLastNode().getBlockPos() != goalPos) {
-                    if (teleport) {
+                if ((getNavigation().getCurrentPath() == null || getNavigation().getCurrentPath().getLastNode() == null || getNavigation().getCurrentPath().getLastNode().getBlockPos() != goalPos) && getTarget() == null) {
+                    if (teleport && !aggressive) {
                         setPosition(goalPos.getX() + 0.5f + offsetX, getY(), goalPos.getZ() + 0.5f + offsetX);
                         getNavigation().stop();
                     } else {
                         getNavigation().startMovingTo(goalPos.getX() + 0.5f, goalPos.getY(), goalPos.getZ() + 0.5f, getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 5);
                     }
-                } if (getNavigation().getCurrentPath() != null && (getNavigation().getCurrentPath().isFinished() || getNavigation().isIdle())) {
+                } if (getNavigation().getCurrentPath() != null && (getNavigation().getCurrentPath().isFinished() || getNavigation().isIdle()) && getTarget() == null) {
                     setPosition(goalPos.getX() + 0.5f + offsetX, getY(), goalPos.getZ() + 0.5f + offsetZ);
                     getNavigation().stop();
                 }
