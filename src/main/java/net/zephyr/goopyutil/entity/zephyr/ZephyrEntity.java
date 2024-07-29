@@ -144,4 +144,9 @@ public class ZephyrEntity extends GoopyGeckoEntity {
     public int deathLength() {
         return 60;
     }
+
+    @Override
+    public boolean isPersistent() {
+        return true;
+    }
 }

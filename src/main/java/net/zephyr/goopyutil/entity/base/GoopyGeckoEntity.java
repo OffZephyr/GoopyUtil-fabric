@@ -10,6 +10,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -21,8 +22,10 @@ import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.init.ItemInit;
+import net.zephyr.goopyutil.item.EntitySpawnItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -76,7 +79,9 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
 
     public <E extends GoopyGeckoEntity> PlayState movementAnimController(final AnimationState<E> event) {
         if(event.getAnimatable().isDead()){
-            return event.setAndContinue(RawAnimation.begin().thenPlay(dyingAnim()));
+            event.getController().setAnimationSpeed(1.1);
+            event.getController().transitionLength(0);
+            return event.setAndContinue(RawAnimation.begin().thenPlayAndHold(dyingAnim()));
         }
         else {
             event.getController().transitionLength(3);
@@ -363,7 +368,27 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
 
     @Override
     public void onDeath(DamageSource damageSource) {
+        ItemStack disk = getDisk(this, getWorld());
+        if (!disk.isEmpty()) {
+            dropStack(disk);
+            putFloppyDisk(this, ItemStack.EMPTY, getWorld());
+        }
+        ItemStack spawnItem = getPickBlockStack();
+
+        dropStack(spawnItem);
         super.onDeath(damageSource);
+    }
+
+    @Nullable
+    @Override
+    public ItemStack getPickBlockStack() {
+        EntitySpawnItem spawnItem = EntitySpawnItem.forEntity(this.getType());
+        if (spawnItem == null) {
+            return super.getPickBlockStack();
+        }
+        ItemStack stack = new ItemStack(spawnItem);
+        ItemNbtUtil.setNbt(stack, ((IEntityDataSaver)this).getPersistentData());
+        return stack;
     }
 
     @Override
