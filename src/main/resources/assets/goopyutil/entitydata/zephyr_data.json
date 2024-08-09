@@ -1,0 +1,20 @@
+{
+  "can_crawl": true,
+  "crawl_height": 0.65,
+  "skins": [
+    {
+      "name": "default",
+      "texture": "goopyutil:textures/entity/zephyr/zephyr.png",
+      "glow_texture": "goopyutil:textures/entity/zephyr/zephyr_glow.png",
+      "geo": "goopyutil:geo/entity/zephyr/zephyr.geo.json",
+      "animations": "goopyutil:animations/entity/zephyr/zephyr.animation.json"
+    },
+    {
+      "name": "neon",
+      "texture": "goopyutil:textures/entity/zephyr/zephyr_neon.png",
+      "glow_texture": "goopyutil:textures/entity/zephyr/zephyr_glow.png",
+      "geo": "goopyutil:geo/entity/zephyr/zephyr.geo.json",
+      "animations": "goopyutil:animations/entity/zephyr/zephyr.animation.json"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ScreenUtils;
@@ -136,7 +136,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
                             }
                         } else if (option.getDefaultValue() instanceof List<?>) {
                             if (!bl && isOnButton(mouseX, mouseY, (int) topCornerX + 3, 22 + 3 + (int) topCornerY + (i * 18), 12, 12)) {
-                                if (this.entity instanceof GoopyGeckoEntity ent) {
+                                if (this.entity instanceof GoopyUtilEntity ent) {
                                     subListNum = i;
                                     openSubList((int) mouseX, (int) mouseY, ent.getDataList(ai.getId() + "." + option.getId()));
                                 }
@@ -370,7 +370,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
                         super.renderButton(BASE, context, (int) topCornerX + 3, 22 + 3 + (int) topCornerY + (i * 18), 118, 168, 118, 168, 130, 168, 12, 12, 256, 256, mouseX, mouseY, false, bl2);
                         drawAutoResizedText(context, textRenderer, option.getName(), 0.8f, availableSpace, (int) topCornerX + 18, 22 + 5 + (int) topCornerY + (i * 18), 0xFF000000, 0x00000000, false, false);
                     } else if (option.getDefaultValue() instanceof List<?>) {
-                        boolean bl2 = this.entity instanceof GoopyGeckoEntity;
+                        boolean bl2 = this.entity instanceof GoopyUtilEntity;
                         context.drawTexture(BASE, (int) topCornerX, 22 + (int) topCornerY + i * 18, 118, 180, 126, 18);
                         drawAutoResizedText(context, textRenderer, option.getName(), 0.5f, availableSpace, (int) topCornerX + 18, 22 + 2 + (int) topCornerY + (i * 18), 0xFF000000, 0x00000000, false, false);
                         String st = hourCompound.getString("" + i);
@@ -553,7 +553,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
 
     protected void updateEntity(EntityType<? extends LivingEntity> entityType) {
         this.entity = entityType.create(this.client.world);
-        if(this.entity instanceof GoopyGeckoEntity ent){
+        if(this.entity instanceof GoopyUtilEntity ent){
             ent.menuTick = true;
             String anim = ent.demoAnim().toString();
             ent.triggerAnim("Movement", anim);
@@ -607,7 +607,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
             hourCompound.putLong("" + index, val.asLong());
         }
         else if(option.getDefaultValue() instanceof List<?>){
-            if(this.entity instanceof GoopyGeckoEntity ent) {
+            if(this.entity instanceof GoopyUtilEntity ent) {
                 List<?> val = ent.getDataList(ai.getId() + "." + option.getId());
                 if (val.getFirst() instanceof String st) {
                     hourCompound.putString("" + index, st);

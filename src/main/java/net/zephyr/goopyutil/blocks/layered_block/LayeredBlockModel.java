@@ -31,6 +31,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.ModelLoading;
+import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockLayer;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
 

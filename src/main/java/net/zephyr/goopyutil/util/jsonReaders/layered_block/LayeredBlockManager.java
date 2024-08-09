@@ -1,4 +1,4 @@
-package net.zephyr.goopyutil.blocks.layered_block;
+package net.zephyr.goopyutil.util.jsonReaders.layered_block;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -11,8 +11,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.profiler.Profiler;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntry;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockLayer;
 
 import java.io.BufferedReader;
 import java.io.IOException;

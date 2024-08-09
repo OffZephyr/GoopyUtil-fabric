@@ -8,7 +8,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
-import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
@@ -27,7 +27,7 @@ public class ShouldActiveTargetGoal<T extends LivingEntity> extends ActiveTarget
 
     @Override
     public boolean canStart() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "aggressive", entity);
             return super.canStart() && bl;
         }
@@ -36,7 +36,7 @@ public class ShouldActiveTargetGoal<T extends LivingEntity> extends ActiveTarget
 
     @Override
     public boolean shouldContinue() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "aggressive", entity);
             return super.shouldContinue() && bl;
         }

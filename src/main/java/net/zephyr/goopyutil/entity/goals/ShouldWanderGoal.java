@@ -6,20 +6,20 @@ import net.minecraft.entity.ai.goal.WanderAroundGoal;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class ShouldWanderAndCrawlGoal extends WanderAroundGoal {
+public class ShouldWanderGoal extends WanderAroundGoal {
     public static final float CHANCE = 0.001f;
     protected final float probability;
 
-    public ShouldWanderAndCrawlGoal(PathAwareEntity pathAwareEntity, double d) {
+    public ShouldWanderGoal(PathAwareEntity pathAwareEntity, double d) {
         this(pathAwareEntity, d, 0.001f);
     }
 
-    public ShouldWanderAndCrawlGoal(PathAwareEntity mob, double speed, float probability) {
+    public ShouldWanderGoal(PathAwareEntity mob, double speed, float probability) {
         super(mob, speed);
         this.probability = probability;
     }
@@ -39,7 +39,7 @@ public class ShouldWanderAndCrawlGoal extends WanderAroundGoal {
 
     @Override
     public boolean canStart() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = Objects.equals(entity.getBehavior(), "moving");
             return super.canStart() && bl;
         }
@@ -48,7 +48,7 @@ public class ShouldWanderAndCrawlGoal extends WanderAroundGoal {
 
     @Override
     public boolean shouldContinue() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = Objects.equals(entity.getBehavior(), "moving");
             return super.shouldContinue() && bl;
         }

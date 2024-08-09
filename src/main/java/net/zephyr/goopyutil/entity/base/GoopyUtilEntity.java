@@ -10,23 +10,28 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.EntitySpawnItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
+import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -36,8 +41,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
-public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEntity, GoopyEntity {
-    private Map<String, Identifier[]> Reskins = new HashMap<>();
+public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEntity {
     private AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     boolean running = false;
     int runningCooldown = 0;
@@ -47,7 +51,7 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
     public boolean menuTick = false;
     private String behavior;
 
-    public GoopyGeckoEntity(EntityType<? extends PathAwareEntity> type, World world) {
+    public GoopyUtilEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
     }
 
@@ -68,7 +72,7 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
         controllers.add(new AnimationController<>(this, "Attack", 1, this::attackAnimController));
     }
 
-    private <E extends GoopyGeckoEntity> PlayState attackAnimController(AnimationState<E> event) {
+    private <E extends GoopyUtilEntity> PlayState attackAnimController(AnimationState<E> event) {
         if(this.handSwinging && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
             event.getController().forceAnimationReset();
             this.handSwinging = false;
@@ -77,7 +81,7 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
         return PlayState.CONTINUE;
     }
 
-    public <E extends GoopyGeckoEntity> PlayState movementAnimController(final AnimationState<E> event) {
+    public <E extends GoopyUtilEntity> PlayState movementAnimController(final AnimationState<E> event) {
         if(event.getAnimatable().isDead()){
             event.getController().setAnimationSpeed(1.1);
             event.getController().transitionLength(0);
@@ -230,16 +234,23 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
         calculateDimensions();
         calculateBoundingBox();
 
-        crawlingCooldown = Math.max(0, crawlingCooldown - 1);
         if(!this.getWorld().isClient()) {
-            BlockPos frontBlock = this.getBlockPos().offset(this.getMovementDirection());
+            BlockPos frontBlock = this.getBlockPos().offset(Direction.fromRotation(this.getHeadYaw()));
             BlockState frontState = this.getWorld().getBlockState(frontBlock);
             BlockState frontUpState = this.getWorld().getBlockState(frontBlock.up());
             BlockState upState = this.getWorld().getBlockState(this.getBlockPos().up());
-            boolean shouldCrawl = (this.getNavigation().getCurrentPath() != null && (frontState.isAir() && !frontUpState.isAir())) || !upState.isAir();
-            if (crawlingCooldown == 0 && (!crawling && shouldCrawl || crawling && !shouldCrawl)) {
-                setCrawling(shouldCrawl);
-                crawlingCooldown = 30;
+            boolean shouldCrawl = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
+
+            boolean canSwitch = !crawling && shouldCrawl || crawling && !shouldCrawl;
+            if(canSwitch){
+                crawlingCooldown = Math.max(0, crawlingCooldown - 1);
+
+                if (crawlingCooldown == 0) {
+                    setCrawling(shouldCrawl);
+                }
+            }
+            else if(crawling) {
+                crawlingCooldown = 20;
             }
         }
     }
@@ -303,19 +314,6 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
             return EntityDimensions.fixed(entityDimensions.width(), crawlHeight()).withEyeHeight(0.5f);
         }
         return entityDimensions;
-    }
-
-    public void addReskin(String name, Identifier texture, Identifier obj, Identifier animations){
-        Identifier[] skin = new Identifier[3];
-        skin[0] = texture;
-        skin[1] = obj;
-        skin[2] = animations;
-
-        Reskins.put(name, skin);
-    }
-
-    public Map<String, Identifier[]> getReskins(){
-        return Reskins;
     }
     @Override
     public double getTick(Object entity) {
@@ -399,4 +397,143 @@ public abstract class GoopyGeckoEntity extends PathAwareEntity implements GeoEnt
             this.remove(Entity.RemovalReason.KILLED);
         }
     }
+
+    void putFloppyDisk(PathAwareEntity entity, ItemStack disk, World world){
+        ((IEntityDataSaver)entity).getPersistentData().put("floppy_disk", disk.encodeAllowEmpty(world.getRegistryManager()));
+        if(world.isClient()){
+            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)entity).getPersistentData(), entity.getId());
+        }
+    }
+    ItemStack getDisk(PathAwareEntity entity, World world){
+        return ItemStack.fromNbtOrEmpty(world.getRegistryManager(), ((IEntityDataSaver)entity).getPersistentData().getCompound("floppy_disk"));
+    }
+    String getAIMode(PathAwareEntity entity, World world){
+        NbtCompound diskData = ItemNbtUtil.getNbt(getDisk(entity, world));
+        if(diskData.isEmpty()) return "";
+
+        NbtCompound data = diskData.getCompound("" + getAIHour(world));
+        if(data.isEmpty()){
+            int i = getAIHour(world);
+            while(diskData.getCompound("" + i).getString("Behavior").isEmpty()){
+                i--;
+            }
+            return diskData.getCompound("" + i).getString("Behavior");
+        }
+        else {
+            return data.getString("Behavior");
+        }
+    }
+    public int getAIHour(World world){
+        long time = world.getTimeOfDay() * 4;
+
+        long hour = (time / 1000) - ((96000 * (time / 96000)) / 1000);
+        int realHour = (int)hour + 24;
+        realHour = realHour >= 96 ? realHour - 96 : realHour;
+        return realHour;
+    }
+    public NbtCompound getAIData(PathAwareEntity entity, World world){
+        NbtCompound diskData = ItemNbtUtil.getNbt(getDisk(entity, world));
+        if(diskData.isEmpty()) return new NbtCompound();
+        NbtCompound data = diskData.getCompound("" + getAIHour(world));
+        if(data.isEmpty()){
+            int i = getAIHour(world);
+            while(diskData.getCompound("" + i).getString("Behavior").isEmpty()){
+                i--;
+            }
+            return diskData.getCompound("" + i);
+        }
+        else {
+            return data;
+        }
+    }
+    public boolean boolData(String behavior, String option, PathAwareEntity entity) {
+        int index = getIndex(behavior, option);
+        return getAIData(entity, entity.getWorld()).getBoolean("" + index);
+    }
+    public int intData(String behavior, String option, PathAwareEntity entity) {
+        int index = getIndex(behavior, option);
+        return getAIData(entity, entity.getWorld()).getInt("" + index);
+    }
+    public BlockPos blockPosData(String behavior, String option, PathAwareEntity entity) {
+        int index = getIndex(behavior, option);
+        return BlockPos.fromLong(getAIData(entity, entity.getWorld()).getLong("" + index));
+    }
+    public String stringData(String behavior, String option, PathAwareEntity entity) {
+        int index = getIndex(behavior, option);
+        return getAIData(entity, entity.getWorld()).getString("" + index);
+    }
+    private int getIndex(String behavior, String option){
+        if(ComputerData.getAIBehavior(behavior) instanceof ComputerAI ai) {
+            return ai.getOptionIndex(option);
+        }
+        return -1;
+    }
+
+    float crawlHeight(){
+        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
+        return manager.getEntityData(getType()).crawl_height();
+    }
+    boolean canCrawl(){
+        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
+        return manager.getEntityData(getType()).can_crawl();
+
+    }
+
+    List<String> getStatueAnimations(){
+        List<String> list = new ArrayList<>();
+        list.add(defaultIdleAnim());
+        list.add(defaultWalkingAnim());
+        list.add(defaultRunningAnim());
+        list.add(performingAnim());
+        list.add(deactivatedAnim());
+        list.add(aggressiveIdleAnim());
+        list.add(aggressiveWalkingAnim());
+        list.add(aggressiveRunningAnim());
+        list.add(crawlingIdleAnim());
+        list.add(crawlingWalkingAnim());
+        list.add(attackAnim());
+        return list;
+    }
+    List<String> getIdleAnimations(){
+        List<String> list = new ArrayList<>();
+        list.add(defaultIdleAnim());
+        list.add(aggressiveIdleAnim());
+        list.add(crawlingIdleAnim());
+        list.add(deactivatedAnim());
+        list.add(performingAnim());
+        return list;
+    };
+    List<String> getWalkingAnimations(){
+        List<String> list = new ArrayList<>();
+        list.add(defaultWalkingAnim());
+        list.add(aggressiveWalkingAnim());
+        list.add(crawlingWalkingAnim());
+        return list;
+    }
+    List<String> getRunningAnimations(){
+        List<String> list = new ArrayList<>();
+        list.add(defaultRunningAnim());
+        list.add(aggressiveRunningAnim());
+        return list;
+    }
+
+    public String demoAnim() {
+        return defaultIdleAnim();
+    }
+    protected abstract String defaultIdleAnim();
+    protected abstract String defaultWalkingAnim();
+    protected abstract String defaultRunningAnim();
+    protected abstract String performingAnim();
+    protected abstract String deactivatingAnim();
+    protected abstract String deactivatedAnim();
+    protected abstract String activatingAnim();
+    protected abstract String aggressiveIdleAnim();
+    protected abstract String aggressiveWalkingAnim();
+    protected abstract String aggressiveRunningAnim();
+    protected abstract String crawlingIdleAnim();
+    protected abstract String crawlingWalkingAnim();
+    protected abstract String JumpScareAnim();
+    protected abstract String attackAnim();
+    protected abstract String dyingAnim();
+    protected abstract int deathLength();
 }

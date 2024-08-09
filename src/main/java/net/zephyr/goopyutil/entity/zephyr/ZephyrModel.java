@@ -1,43 +1,46 @@
 package net.zephyr.goopyutil.entity.zephyr;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.model.data.EntityModelData;
 
-import java.util.Objects;
-
 public class ZephyrModel extends GeoModel<ZephyrEntity> {
     @Override
     public Identifier getModelResource(ZephyrEntity animatable) {
-        String skin = ((IEntityDataSaver)animatable).getPersistentData().getString("Reskin");
-        if(!animatable.getReskins().containsKey(skin)){
-            return Identifier.of(GoopyUtil.MOD_ID, "geo/entity/zephyr/zephyr.geo.json");
-        }
-        return animatable.getReskins().get(skin)[1];
+        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
+        String skin = ((IEntityDataSaver) animatable).getPersistentData().getString("Reskin");
+
+        if(manager.getSkin(animatable.getType(), "default") == null) return Identifier.of("");
+
+        return manager.getSkin(animatable.getType(), skin).getGeo();
     }
 
     @Override
     public Identifier getTextureResource(ZephyrEntity animatable) {
+        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
         String skin = ((IEntityDataSaver) animatable).getPersistentData().getString("Reskin");
-        if (!animatable.getReskins().containsKey(skin) || Objects.equals(skin, "")) {
-            return Identifier.of(GoopyUtil.MOD_ID, "textures/entity/zephyr/zephyr.png");
-        }
-        return animatable.getReskins().get(skin)[0];
+
+        if(manager.getSkin(animatable.getType(), "default") == null) return Identifier.of("");
+
+        return manager.getSkin(animatable.getType(), skin).getTexture();
     }
 
     @Override
     public Identifier getAnimationResource(ZephyrEntity animatable) {
+        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
         String skin = ((IEntityDataSaver) animatable).getPersistentData().getString("Reskin");
-        if (!animatable.getReskins().containsKey(skin)) {
-            return Identifier.of(GoopyUtil.MOD_ID, "animations/entity/zephyr/zephyr.animation.json");
-        }
-        return animatable.getReskins().get(skin)[2];
+
+        if(manager.getSkin(animatable.getType(), "default") == null) return Identifier.of("");
+
+        return manager.getSkin(animatable.getType(), skin).getAnimations();
     }
 
     @Override

@@ -4,7 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
-import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockManager;
+import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
+import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,6 +30,7 @@ public class MinecraftClientMixin implements IGetClientManagers {
 	}
 
 	private LayeredBlockManager layerManager = new LayeredBlockManager();
+	private EntityDataManager entityDataManager = new EntityDataManager();
 
 	@Inject(method = "getFramebuffer", at = @At("HEAD"), cancellable = true)
 	public void getFramebuffer(CallbackInfoReturnable<Framebuffer> cir) {
@@ -44,11 +46,17 @@ public class MinecraftClientMixin implements IGetClientManagers {
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void reloaders(CallbackInfo ci) {
 		this.resourceManager.registerReloader(this.layerManager);
-		reloadResources(); //WE NEED THIS GOOONNNEEEEE
+		this.resourceManager.registerReloader(this.entityDataManager);
+		reloadResources(); //TODO WE NEED THIS GOOONNNEEEEE
 	}
 
 	@Override
 	public LayeredBlockManager getLayerManager() {
 		return this.layerManager;
+	}
+
+	@Override
+	public EntityDataManager getEntityDataManager() {
+		return this.entityDataManager;
 	}
 }

@@ -2,9 +2,7 @@ package net.zephyr.goopyutil.entity.goals;
 
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.mob.MobEntity;
-import net.zephyr.goopyutil.entity.base.GoopyGeckoEntity;
-
-import java.util.Objects;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 
 public class ShouldLookAroundGoal extends LookAroundGoal {
     private final MobEntity mob;
@@ -17,7 +15,7 @@ public class ShouldLookAroundGoal extends LookAroundGoal {
 
     @Override
     public boolean canStart() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "look_around", entity);
             return super.canStart() && bl;
         }
@@ -26,7 +24,7 @@ public class ShouldLookAroundGoal extends LookAroundGoal {
 
     @Override
     public boolean shouldContinue() {
-        if(mob instanceof GoopyGeckoEntity entity) {
+        if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "look_around", entity);
             return super.shouldContinue() && bl;
         }
