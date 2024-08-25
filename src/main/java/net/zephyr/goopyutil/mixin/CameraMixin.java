@@ -4,15 +4,25 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.entity.zephyr.ZephyrModel;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 @Mixin(Camera.class)
 public class CameraMixin {
@@ -24,6 +34,7 @@ public class CameraMixin {
     @Shadow float lastCameraY;
     @Shadow float pitch;
     @Shadow float yaw;
+    float roll = 0;
     @Shadow float lastTickDelta;
 
     @Shadow
@@ -49,6 +60,24 @@ public class CameraMixin {
     @Shadow
     private final Vector3f diagonalPlane = new Vector3f(1.0f, 0.0f, 0.0f);
 
+    @Shadow
+    private final Quaternionf rotation = new Quaternionf();
+    @Shadow
+    private static final Vector3f HORIZONTAL = new Vector3f(0.0f, 0.0f, -1.0f);
+    @Shadow
+    private static final Vector3f VERTICAL = new Vector3f(0.0f, 1.0f, 0.0f);
+    @Shadow
+    private static final Vector3f DIAGONAL = new Vector3f(-1.0f, 0.0f, 0.0f);
+
+    protected void setRotation(float yaw, float pitch, float roll) {
+        this.pitch = pitch;
+        this.yaw = yaw;
+        this.roll = roll;
+        this.rotation.rotationYXZ((float)Math.PI - yaw * ((float)Math.PI / 180), -pitch * ((float)Math.PI / 180), -roll * ((float)Math.PI / 180));
+        HORIZONTAL.rotate(this.rotation, this.horizontalPlane);
+        VERTICAL.rotate(this.rotation, this.verticalPlane);
+        DIAGONAL.rotate(this.rotation, this.diagonalPlane);
+    }
     /**
      * @author zephyr
      * @reason FCK U
@@ -60,6 +89,12 @@ public class CameraMixin {
         this.focusedEntity = focusedEntity;
         this.thirdPerson = thirdPerson;
         this.lastTickDelta = tickDelta;
+
+        World world = MinecraftClient.getInstance().world;
+        PlayerEntity player = MinecraftClient.getInstance().player;
+
+        int ID = ((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().getInt("JumpscareID");
+
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen screen){
             Vec3d pos = screen.camPos();
             float yaw = screen.getYaw();
@@ -67,6 +102,24 @@ public class CameraMixin {
             this.setPos(pos.x, pos.y, pos.z);
             this.setRotation(yaw, pitch);
             this.moveBy(this.clipToSpace(0.55f), 0.0f, 0.0f);
+        }
+        else if(player != null &&
+                player.isDead() &&
+                player.getRecentDamageSource() != null &&
+                player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
+                world.getEntityById(ID) instanceof GoopyUtilEntity entity &&
+                entity.hasJumpScare()
+        ) {
+            long[] camPos = ((IEntityDataSaver)entity).getPersistentData().getLongArray("JumpScarePos");
+            Vector3d JumpscareCamPos = new Vector3d(camPos[0] / 10000000d, camPos[1] / 10000000d, camPos[2] / 10000000d);
+            Vector3d JumpscareCamRot = new Vector3d(camPos[3] / 10000000d, camPos[4] / 10000000d, camPos[5] / 10000000d);
+            System.out.println(entity.getPos());
+            System.out.println(camPos[0] / 10000000d);
+            System.out.println(camPos[1] / 10000000d);
+            System.out.println(camPos[2] / 10000000d);
+
+            this.setRotation(-(float)JumpscareCamRot.y + (entity.getBodyYaw() + 180), (float)JumpscareCamRot.x, (float)JumpscareCamRot.z);
+            this.setPos((float)JumpscareCamPos.x, (float)JumpscareCamPos.y, (float)JumpscareCamPos.z);
         }
         else {
             this.setRotation(focusedEntity.getYaw(tickDelta), focusedEntity.getPitch(tickDelta));

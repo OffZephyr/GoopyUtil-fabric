@@ -5,6 +5,7 @@
   "mixins": [
     "BlacklistMixin",
     "CameraMixin",
+    "ClientPlayerEntityMixin",
     "GameRendererMixin",
     "LightmapTextureManagerMixin",
     "MinecraftClientMixin",

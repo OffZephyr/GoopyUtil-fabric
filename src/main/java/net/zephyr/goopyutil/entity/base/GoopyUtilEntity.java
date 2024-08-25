@@ -4,6 +4,9 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -12,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -26,6 +30,7 @@ import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.EntitySpawnItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.networking.payloads.SetScreenS2CPayload;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.ScreenUtils;
@@ -33,6 +38,8 @@ import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
@@ -44,12 +51,15 @@ import java.util.*;
 public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEntity {
     private AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     boolean running = false;
+    int freezeTime = 0;
     int runningCooldown = 0;
     boolean crawling = false;
     int crawlingCooldown = 0;
     boolean deactivated = false;
     public boolean menuTick = false;
     private String behavior;
+    public Vector3d JumpscareCamPos = new Vector3d(0, 0, 0);
+    public Vec3d JumpscareCamRot = new Vec3d(0, 0, 0);
 
     public GoopyUtilEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
@@ -73,21 +83,42 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     }
 
     private <E extends GoopyUtilEntity> PlayState attackAnimController(AnimationState<E> event) {
-        if(this.handSwinging && event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+        event.getController().setAnimationSpeed(1.5);
+        if (getWorld().isClient()) {
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            if (hasJumpScare() &&
+                    player != null &&
+                    player.isDead() &&
+                    player.getRecentDamageSource() != null &&
+                    player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
+                    ((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID") == this.getId()
+            ) {
+                this.freezeTime = JumpScareLength();
+                return event.setAndContinue(RawAnimation.begin().thenPlay(JumpScareAnim()));
+            }
+        }
+
+        if(this.handSwinging) {
             event.getController().forceAnimationReset();
             this.handSwinging = false;
-            return event.setAndContinue(RawAnimation.begin().thenPlay(attackAnim()));
+
+            if (event.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+                    this.freezeTime = attackLength();
+                    return event.setAndContinue(RawAnimation.begin().thenPlay(attackAnim()));
+            }
         }
         return PlayState.CONTINUE;
     }
 
     public <E extends GoopyUtilEntity> PlayState movementAnimController(final AnimationState<E> event) {
+        event.getController().setAnimationSpeed(1.5);
+
         if(event.getAnimatable().isDead()){
-            event.getController().setAnimationSpeed(1.1);
             event.getController().transitionLength(0);
             return event.setAndContinue(RawAnimation.begin().thenPlayAndHold(dyingAnim()));
         }
         else {
+
             event.getController().transitionLength(3);
             String idle = defaultIdleAnim();
             String walking = defaultWalkingAnim();
@@ -161,6 +192,28 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     }
 
     @Override
+    public boolean tryAttack(Entity target) {
+        if(target instanceof ServerPlayerEntity player) {
+            ((IEntityDataSaver)player).getPersistentData().putInt("JumpscareID", getId());
+            NbtCompound data = ((IEntityDataSaver)player).getPersistentData().copy();
+            NbtCompound nbt = new NbtCompound();
+            nbt.put("data", data);
+            nbt.putInt("entityID", player.getId());
+            ServerPlayNetworking.send(player, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+        }
+        return super.tryAttack(target);
+    }
+
+    @Override
+    public boolean onKilledOther(ServerWorld world, LivingEntity other) {
+        this.freezeTime = JumpScareLength();
+        if(other instanceof PlayerEntity p) {
+            p.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, getEyePos());
+        }
+        return super.onKilledOther(world, other);
+    }
+
+    @Override
     public void tick() {
         super.tick();
         syncFromServer(getWorld());
@@ -173,6 +226,13 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         }
         if(behavior.equals("statue") || behavior.equals("stage")){
             goalPosTick();
+        }
+
+         if(freezeTime > 0) {
+            freezeTime--;
+            setVelocity(0, 0, 0);
+            setJumping(false);
+            getNavigation().stop();
         }
     }
 
@@ -360,6 +420,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         return super.interactAt(player, hitPos, hand);
     }
 
+
     public String getBehavior() {
         return this.behavior;
     }
@@ -532,8 +593,11 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     protected abstract String aggressiveRunningAnim();
     protected abstract String crawlingIdleAnim();
     protected abstract String crawlingWalkingAnim();
+    public abstract boolean hasJumpScare();
     protected abstract String JumpScareAnim();
+    public abstract int JumpScareLength();
     protected abstract String attackAnim();
+    protected abstract int attackLength();
     protected abstract String dyingAnim();
     protected abstract int deathLength();
 }

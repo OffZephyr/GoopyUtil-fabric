@@ -97,12 +97,25 @@ public class ZephyrEntity extends GoopyUtilEntity {
         return "animation.zephyr.crawling";
     }
 
+    @Override
+    public boolean hasJumpScare() {
+        return true;
+    }
+
     public String JumpScareAnim() {
         return "animation.zephyr.jumpscare";
     }
 
+    public int JumpScareLength() {
+        return 150; //90
+    }
+
     public String attackAnim() {
         return "animation.zephyr.attack";
+    }
+
+    public int attackLength() {
+        return 10;
     }
 
     public String dyingAnim() {

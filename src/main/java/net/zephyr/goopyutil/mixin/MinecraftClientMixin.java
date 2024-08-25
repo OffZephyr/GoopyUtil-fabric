@@ -2,10 +2,14 @@ package net.zephyr.goopyutil.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
+import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockManager;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,6 +43,19 @@ public class MinecraftClientMixin implements IGetClientManagers {
 			if (framebuffer != null) {
 				cir.setReturnValue(framebuffer);
 			}
+		}
+	}
+	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+	public void setScreen(CallbackInfo cir) {
+		World world = MinecraftClient.getInstance().world;
+		PlayerEntity player = ((MinecraftClient)(Object)this).player;
+
+		if (player != null &&
+				player.getRecentDamageSource() != null &&
+				player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
+				player.getWorld().getEntityById(((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID")) instanceof GoopyUtilEntity entity &&
+				entity.hasJumpScare()) {
+			cir.cancel();
 		}
 	}
 
