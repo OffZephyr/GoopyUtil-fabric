@@ -7,9 +7,11 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,14 +26,15 @@ public class ClientPlayerEntityMixin{
     @Inject(method = "updatePostDeath", at = @At("HEAD"), cancellable = true)
     public void updatePostDeath(CallbackInfo info) {
         LivingEntity player = ((LivingEntity) (Object) this);
+        GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
 
         if (player.getRecentDamageSource() != null &&
                 player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                player.getWorld().getEntityById(((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID")) instanceof GoopyUtilEntity entity &&
+                entity != null &&
                 entity.hasJumpScare()) {
             ++player.deathTime;
-            if (player.deathTime == entity.JumpScareLength()) {
-                ((IEntityDataSaver) player).getPersistentData().putInt("JumpscareID", 0);
+
+            if (player.deathTime >= entity.JumpScareLength()) {
                 player.remove(Entity.RemovalReason.KILLED);
             }
             info.cancel();

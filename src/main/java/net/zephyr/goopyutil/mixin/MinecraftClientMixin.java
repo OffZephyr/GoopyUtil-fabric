@@ -2,11 +2,20 @@ package net.zephyr.goopyutil.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
+import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
+import net.zephyr.goopyutil.client.ClientHook;
+import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
@@ -27,6 +36,8 @@ import java.util.concurrent.CompletableFuture;
 public class MinecraftClientMixin implements IGetClientManagers {
 	@Shadow
 	ReloadableResourceManagerImpl resourceManager;
+	@Shadow
+	public Screen currentScreen;
 
 	@Shadow
 	CompletableFuture<Void> reloadResources() {
@@ -46,25 +57,28 @@ public class MinecraftClientMixin implements IGetClientManagers {
 		}
 	}
 	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-	public void setScreen(CallbackInfo cir) {
-		World world = MinecraftClient.getInstance().world;
-		PlayerEntity player = ((MinecraftClient)(Object)this).player;
+	public void setScreen(Screen screen, CallbackInfo cir) {
+		MinecraftClient client = ((MinecraftClient) (Object) this);
 
-		if (player != null &&
-				player.getRecentDamageSource() != null &&
-				player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-				player.getWorld().getEntityById(((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID")) instanceof GoopyUtilEntity entity &&
-				entity.hasJumpScare()) {
-			cir.cancel();
+		ClientPlayerEntity player = client.player;
+		GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
+
+
+		if(player != null &&
+				entity != null &&
+				entity.hasJumpScare() )
+		{
+			if(MinecraftClient.getInstance().currentScreen instanceof GoopyScreen && screen != null){
+				cir.cancel();
+			}
 		}
-	}
 
-	// TODO Change location of inject to not need ro reload the resources on launch.
-	@Inject(method = "<init>", at = @At("TAIL"))
+    }
+
+	@Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/resource/ResourcePackManager;scanPacks()V"))
 	public void reloaders(CallbackInfo ci) {
 		this.resourceManager.registerReloader(this.layerManager);
 		this.resourceManager.registerReloader(this.entityDataManager);
-		reloadResources(); //TODO WE NEED THIS GOOONNNEEEEE
 	}
 
 	@Override

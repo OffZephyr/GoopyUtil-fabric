@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
@@ -18,10 +17,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -31,6 +31,7 @@ import net.zephyr.goopyutil.item.EntitySpawnItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
 import net.zephyr.goopyutil.networking.payloads.SetScreenS2CPayload;
+import net.zephyr.goopyutil.networking.payloads.UpdateJumpscareDataS2CPayload;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.ScreenUtils;
@@ -38,8 +39,6 @@ import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
@@ -49,7 +48,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEntity {
+    GoopyUtilEntityModel<? extends GoopyUtilEntity> model = null;
     private AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public static GoopyUtilEntity jumpscareEntity = null;
+    public long[] JumpscareCamPos = new long[6];
+    public String killScreenID;
     boolean running = false;
     int freezeTime = 0;
     int runningCooldown = 0;
@@ -58,8 +61,6 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     boolean deactivated = false;
     public boolean menuTick = false;
     private String behavior;
-    public Vector3d JumpscareCamPos = new Vector3d(0, 0, 0);
-    public Vec3d JumpscareCamRot = new Vec3d(0, 0, 0);
 
     public GoopyUtilEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
@@ -91,7 +92,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                     player.isDead() &&
                     player.getRecentDamageSource() != null &&
                     player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                    ((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID") == this.getId()
+                    jumpscareEntity.getId() == this.getId()
             ) {
                 this.freezeTime = JumpScareLength();
                 return event.setAndContinue(RawAnimation.begin().thenPlay(JumpScareAnim()));
@@ -111,14 +112,16 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     }
 
     public <E extends GoopyUtilEntity> PlayState movementAnimController(final AnimationState<E> event) {
-        event.getController().setAnimationSpeed(1.5);
-
+        if(menuTick) {
+            return event.setAndContinue(RawAnimation.begin().thenLoop(demoAnim()));
+        }
         if(event.getAnimatable().isDead()){
             event.getController().transitionLength(0);
             return event.setAndContinue(RawAnimation.begin().thenPlayAndHold(dyingAnim()));
         }
         else {
 
+            event.setControllerSpeed(1);
             event.getController().transitionLength(3);
             String idle = defaultIdleAnim();
             String walking = defaultWalkingAnim();
@@ -146,14 +149,18 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
 
             if (this.crawling) {
-                if (event.isMoving())
+                if (event.isMoving()) {
+                    event.setControllerSpeed(walkAnimationSpeed());
                     return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingWalkingAnim()));
+                }
                 else
                     return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingIdleAnim()));
             } else {
                 if (this.deactivated) {
-                    if (event.isMoving())
+                    if (event.isMoving()) {
+                        event.setControllerSpeed(walkAnimationSpeed());
                         return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                    }
                     else {
                         event.getController().transitionLength(0);
                         return event.setAndContinue(fallAsleep);
@@ -162,25 +169,34 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                     event.getController().transitionLength(0);
                     return event.setAndContinue(wakeUp);
                 } else if (Objects.equals(behavior, "statue")) {
-                    if (event.isMoving())
+                    if (event.isMoving()) {
+                        event.setControllerSpeed(walkAnimationSpeed());
                         return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                    }
                     else {
                         String anim = stringData(behavior, "animation", this);
                         return event.setAndContinue(RawAnimation.begin().thenLoop(anim));
                     }
                 } else if (Objects.equals(behavior, "stage")) {
                     if (event.isMoving()) {
-                        return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                        {
+                            event.setControllerSpeed(walkAnimationSpeed());
+                            return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                        }
                     } else {
                         return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
                     }
 
                 } else if (Objects.equals(behavior, "moving")) {
                     if (event.isMoving()) {
-                        if (this.running)
+                        if (this.running) {
+                            event.setControllerSpeed(runAnimationSpeed());
                             return event.setAndContinue(RawAnimation.begin().thenLoop(running));
-                        else
+                        }
+                        else {
+                            event.setControllerSpeed(walkAnimationSpeed());
                             return event.setAndContinue(RawAnimation.begin().thenLoop(walking));
+                        }
                     } else
                         return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
                 } else {
@@ -193,13 +209,9 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
     @Override
     public boolean tryAttack(Entity target) {
-        if(target instanceof ServerPlayerEntity player) {
-            ((IEntityDataSaver)player).getPersistentData().putInt("JumpscareID", getId());
-            NbtCompound data = ((IEntityDataSaver)player).getPersistentData().copy();
-            NbtCompound nbt = new NbtCompound();
-            nbt.put("data", data);
-            nbt.putInt("entityID", player.getId());
-            ServerPlayNetworking.send(player, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+        if(target instanceof ServerPlayerEntity p && !p.isDead()) {
+            jumpscareEntity = this;
+            ServerPlayNetworking.send(p, new UpdateJumpscareDataS2CPayload(getId()));
         }
         return super.tryAttack(target);
     }
@@ -207,7 +219,9 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     @Override
     public boolean onKilledOther(ServerWorld world, LivingEntity other) {
         this.freezeTime = JumpScareLength();
-        if(other instanceof PlayerEntity p) {
+        if(other instanceof ServerPlayerEntity p) {
+            jumpscareEntity = this;
+            ServerPlayNetworking.send(p, new UpdateJumpscareDataS2CPayload(getId()));
             p.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, getEyePos());
         }
         return super.onKilledOther(world, other);
@@ -216,9 +230,17 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     @Override
     public void tick() {
         super.tick();
+        if(model != null) {
+            model.updateCamPos(this);
+        }
+
         syncFromServer(getWorld());
         this.behavior = getAIMode(this, getWorld());
-        this.deactivated = behavior.isEmpty() || boolData(behavior, "deactivated", this) || ((IEntityDataSaver)this).getPersistentData().getBoolean("Deactivated");
+        boolean shouldDeactivate = behavior.isEmpty() || boolData(behavior, "deactivated", this) || ((IEntityDataSaver)this).getPersistentData().getBoolean("Deactivated");
+        if(shouldDeactivate != this.deactivated) {
+            this.freezeTime = shouldDeactivate ? deactivatingLength() : activatingLength();
+        }
+        this.deactivated = shouldDeactivate;
 
         runTick();
         if(canCrawl()){
@@ -230,10 +252,15 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
          if(freezeTime > 0) {
             freezeTime--;
+            setHeadYaw(getBodyYaw());
             setVelocity(0, 0, 0);
             setJumping(false);
             getNavigation().stop();
         }
+    }
+
+    public void setModel(GoopyUtilEntityModel<? extends GoopyUtilEntity> model) {
+        this.model = model;
     }
 
     void syncFromServer(World world){
@@ -295,11 +322,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         calculateBoundingBox();
 
         if(!this.getWorld().isClient()) {
-            BlockPos frontBlock = this.getBlockPos().offset(Direction.fromRotation(this.getHeadYaw()));
-            BlockState frontState = this.getWorld().getBlockState(frontBlock);
-            BlockState frontUpState = this.getWorld().getBlockState(frontBlock.up());
-            BlockState upState = this.getWorld().getBlockState(this.getBlockPos().up());
-            boolean shouldCrawl = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
+            boolean shouldCrawl = shouldCrawl();
 
             boolean canSwitch = !crawling && shouldCrawl || crawling && !shouldCrawl;
             if(canSwitch){
@@ -313,6 +336,42 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                 crawlingCooldown = 20;
             }
         }
+    }
+
+    public boolean shouldCrawl(){
+        BlockPos frontBlock = this.getBlockPos().offset(Direction.fromRotation(this.getHeadYaw()));
+        BlockPos frontUpBlock = frontBlock.up();
+        BlockPos frontUpUpBlock = frontUpBlock.up();
+        BlockPos upBlock = this.getBlockPos().up();
+
+        boolean continueCrawl = containsHitbox(upBlock);
+
+        boolean crawlCondition1 = containsHitbox(frontUpBlock) && !containsHitbox(frontBlock);
+        boolean crawlCondition2 = containsHitbox(frontBlock) && !containsHitbox(frontUpBlock) && containsHitbox(frontUpUpBlock);
+
+        /*
+        BlockState frontState = this.getWorld().getBlockState(frontBlock);
+        BlockState frontUpState = this.getWorld().getBlockState(frontBlock.up());
+        BlockState upState = this.getWorld().getBlockState(this.getBlockPos().up());
+        BlockState upTwiceState = this.getWorld().getBlockState(this.getBlockPos().up().up());
+
+        boolean crawlCondition1 = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
+        boolean crawlCondition2 = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
+         */
+
+        return continueCrawl || crawlCondition1 || crawlCondition2;
+    }
+
+    boolean containsHitbox(BlockPos pos){
+        float width = super.getBaseDimensions(EntityPose.STANDING).width() / 2f;
+        float height = super.getBaseDimensions(EntityPose.STANDING).height();
+        Box box = new Box(-width, 0, -width, width, height, width);
+
+        VoxelShape collisionShape = this.getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos);
+        boolean bl1 = !collisionShape.isEmpty();
+        boolean bl2 = bl1 && !collisionShape.getBoundingBox().intersects(box);
+
+        return bl1 || bl2;
     }
 
     public void runTick(){
@@ -412,9 +471,15 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                 return ActionResult.SUCCESS;
             }
         } else if (player.getMainHandStack().isOf(ItemInit.PAINTBRUSH)) {
-            String skin = ((IEntityDataSaver) this).getPersistentData().getString("Reskin");
+            if(player instanceof ServerPlayerEntity p) {
+                NbtCompound nbt = new NbtCompound();
+                nbt.putInt("entityID", getId());
+                nbt.put("data", ((IEntityDataSaver)this).getPersistentData());
+                ServerPlayNetworking.send(p, new SetScreenS2CPayload("skins", nbt, PayloadDef.ENTITY_DATA));
+            }
+            /*String skin = ((IEntityDataSaver) this).getPersistentData().getString("Reskin");
             if (Objects.equals(skin, "neon")) ((IEntityDataSaver) this).getPersistentData().putString("Reskin", "");
-            else ((IEntityDataSaver) this).getPersistentData().putString("Reskin", "neon");
+            else ((IEntityDataSaver) this).getPersistentData().putString("Reskin", "neon");*/
             return ActionResult.SUCCESS;
         }
         return super.interactAt(player, hitPos, hand);
@@ -581,13 +646,16 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     public String demoAnim() {
         return defaultIdleAnim();
     }
+    public abstract float demo_scale();
     protected abstract String defaultIdleAnim();
     protected abstract String defaultWalkingAnim();
     protected abstract String defaultRunningAnim();
     protected abstract String performingAnim();
     protected abstract String deactivatingAnim();
+    protected abstract int deactivatingLength();
     protected abstract String deactivatedAnim();
     protected abstract String activatingAnim();
+    protected abstract int activatingLength();
     protected abstract String aggressiveIdleAnim();
     protected abstract String aggressiveWalkingAnim();
     protected abstract String aggressiveRunningAnim();
@@ -600,4 +668,6 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     protected abstract int attackLength();
     protected abstract String dyingAnim();
     protected abstract int deathLength();
+    protected abstract float walkAnimationSpeed();
+    protected abstract float runAnimationSpeed();
 }

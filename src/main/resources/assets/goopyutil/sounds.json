@@ -46,5 +46,11 @@
     "sounds": [
       "goopyutil:songs/casual_bongos"
     ]
+  },
+  "zephyr_jumpscare": {
+    "subtitle": "sounds.goopyutil.zephyr_jumpscare",
+    "sounds": [
+      "goopyutil:jumpscares/zephyr_jumpscare"
+    ]
   }
 }

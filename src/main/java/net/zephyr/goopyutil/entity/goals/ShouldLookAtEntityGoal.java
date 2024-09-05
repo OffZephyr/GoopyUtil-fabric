@@ -14,7 +14,7 @@ public class ShouldLookAtEntityGoal extends LookAtEntityGoal {
     public boolean canStart() {
         if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "look_nearby_entities", entity);
-            return super.canStart() && bl;
+            return super.canStart() && bl && !entity.isCrawling();
         }
         return false;
     }
@@ -23,7 +23,7 @@ public class ShouldLookAtEntityGoal extends LookAtEntityGoal {
     public boolean shouldContinue() {
         if(mob instanceof GoopyUtilEntity entity) {
             boolean bl = entity.boolData(entity.getBehavior(), "look_nearby_entities", entity);
-            return super.shouldContinue() && bl;
+            return super.shouldContinue() && bl && !entity.isCrawling();
         }
         return false;
     }

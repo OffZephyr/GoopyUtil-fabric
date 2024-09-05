@@ -14,6 +14,9 @@ import net.zephyr.goopyutil.entity.goals.ShouldActiveTargetGoal;
 import net.zephyr.goopyutil.entity.goals.ShouldLookAroundGoal;
 import net.zephyr.goopyutil.entity.goals.ShouldLookAtEntityGoal;
 import net.zephyr.goopyutil.entity.goals.ShouldWanderGoal;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
+
+import java.util.Arrays;
 
 public class ZephyrEntity extends GoopyUtilEntity {
     public ZephyrEntity(EntityType<ZephyrEntity> type, World world) {
@@ -46,7 +49,12 @@ public class ZephyrEntity extends GoopyUtilEntity {
 
     @Override
     public String demoAnim() {
-        return performingAnim();
+        return aggressiveIdleAnim();
+    }
+
+    @Override
+    public float demo_scale() {
+        return 1.2f;
     }
 
     public String defaultIdleAnim() {
@@ -73,8 +81,18 @@ public class ZephyrEntity extends GoopyUtilEntity {
         return "animation.zephyr.deactivated";
     }
 
+    @Override
+    protected int deactivatingLength() {
+        return 50;
+    }
+
     public String activatingAnim() {
         return "animation.zephyr.activating";
+    }
+
+    @Override
+    protected int activatingLength() {
+        return 90;
     }
 
     public String aggressiveIdleAnim() {
@@ -124,6 +142,16 @@ public class ZephyrEntity extends GoopyUtilEntity {
 
     public int deathLength() {
         return 60;
+    }
+
+    @Override
+    protected float walkAnimationSpeed() {
+        return 1.5f;
+    }
+
+    @Override
+    protected float runAnimationSpeed() {
+        return 1.25f;
     }
 
     @Override

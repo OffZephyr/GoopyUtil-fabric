@@ -123,9 +123,6 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
 
-        if(player.isSneaking()){
-            return emptyDisk(data, world, pos, state);
-        }
         if(player.getMainHandStack().isOf(ItemInit.FLOPPYDISK)){
             emptyDisk(data, world, pos, state);
             data.put("ai_data", player.getMainHandStack().encodeAllowEmpty(world.getRegistryManager()));
@@ -140,6 +137,10 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
             }
         }
         return ActionResult.SUCCESS;
+    }
+    public void ejectFloppy(World world, BlockPos pos){
+        NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
+        emptyDisk(data, world, pos, world.getBlockState(pos));
     }
 
     ActionResult emptyDisk(NbtCompound blockData, World world, BlockPos pos, BlockState state){

@@ -485,6 +485,7 @@ public class CameraTabletScreen extends GoopyScreen {
     @Override
     public void tick() {
         if(!closing) {
+            if(MinecraftClient.getInstance().player.hurtTime > 0) close();
             for (long cam : cams) {
                 setUsed(cam, cam == currentCam && !closing);
             }

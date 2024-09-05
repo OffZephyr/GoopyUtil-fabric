@@ -6,6 +6,7 @@
     "BlacklistMixin",
     "CameraMixin",
     "ClientPlayerEntityMixin",
+    "DeathScreenMixin",
     "GameRendererMixin",
     "LightmapTextureManagerMixin",
     "MinecraftClientMixin",

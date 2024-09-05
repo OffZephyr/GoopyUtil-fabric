@@ -24,6 +24,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.cache.object.GeoBone;
 
+import java.util.Arrays;
+
 @Mixin(Camera.class)
 public class CameraMixin {
     @Shadow boolean ready;
@@ -90,10 +92,9 @@ public class CameraMixin {
         this.thirdPerson = thirdPerson;
         this.lastTickDelta = tickDelta;
 
-        World world = MinecraftClient.getInstance().world;
         PlayerEntity player = MinecraftClient.getInstance().player;
 
-        int ID = ((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().getInt("JumpscareID");
+        GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
 
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen screen){
             Vec3d pos = screen.camPos();
@@ -107,16 +108,12 @@ public class CameraMixin {
                 player.isDead() &&
                 player.getRecentDamageSource() != null &&
                 player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                world.getEntityById(ID) instanceof GoopyUtilEntity entity &&
+                entity != null &&
                 entity.hasJumpScare()
         ) {
-            long[] camPos = ((IEntityDataSaver)entity).getPersistentData().getLongArray("JumpScarePos");
+            long[] camPos = entity.JumpscareCamPos;
             Vector3d JumpscareCamPos = new Vector3d(camPos[0] / 10000000d, camPos[1] / 10000000d, camPos[2] / 10000000d);
             Vector3d JumpscareCamRot = new Vector3d(camPos[3] / 10000000d, camPos[4] / 10000000d, camPos[5] / 10000000d);
-            System.out.println(entity.getPos());
-            System.out.println(camPos[0] / 10000000d);
-            System.out.println(camPos[1] / 10000000d);
-            System.out.println(camPos[2] / 10000000d);
 
             this.setRotation(-(float)JumpscareCamRot.y + (entity.getBodyYaw() + 180), (float)JumpscareCamRot.x, (float)JumpscareCamRot.z);
             this.setPos((float)JumpscareCamPos.x, (float)JumpscareCamPos.y, (float)JumpscareCamPos.z);

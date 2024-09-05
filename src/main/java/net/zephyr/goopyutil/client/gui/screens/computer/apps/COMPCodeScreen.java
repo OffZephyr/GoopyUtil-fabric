@@ -1,5 +1,7 @@
 package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -14,9 +16,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.computer.ComputerBlock;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.ItemInit;
+import net.zephyr.goopyutil.networking.payloads.ComputerEjectPayload;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ScreenUtils;
 import org.joml.Quaternionf;
@@ -105,10 +110,21 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (isOnButton(mouseX, mouseY, this.width / 2 + 248 / 2 - 2 - (int) (16 * 2.5f), this.height / 2 - 248 / 2 + 2, 16, 16)) {
+        if (isOnButton(mouseX, mouseY, this.width / 2 + 248 / 2 - 2 - (int) (16 * 2f), this.height / 2 - 248 / 2 + 2, 16, 16)) {
             if (Dirty) {
                 saveChanges();
                 this.Dirty = false;
+            }
+        }
+        if (isOnButton(mouseX, mouseY, this.width / 2 + 248 / 2 - 2 - (int) (16 * 3f), this.height / 2 - 248 / 2 + 2, 16, 16)) {
+            if (floppy_disk.isOf(ItemInit.FLOPPYDISK)) {
+                close();
+
+                ClientPlayNetworking.send(new ComputerEjectPayload(getBlockPos().asLong()));
+                BlockState state = MinecraftClient.getInstance().world.getBlockState(getBlockPos());
+                if(state.isOf(BlockInit.COMPUTER)){
+                    ((ComputerBlock)state.getBlock()).ejectFloppy(MinecraftClient.getInstance().world, getBlockPos());
+                }
             }
         }
 
@@ -350,7 +366,9 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
         }
         super.render(context, mouseX, mouseY, delta);
         boolean blockSaveBL = !Dirty;
-        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 2.5f), this.height / 2 - 248 / 2 + 2, 16*3, 16*2, 16*4, 16*2, 16*5, 16*2, 16, 16, 128, 128, mouseX, mouseY, getHolding(), blockSaveBL);
+        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 2f), this.height / 2 - 248 / 2 + 2, 16*3, 16*2, 16*4, 16*2, 16*5, 16*2, 16, 16, 128, 128, mouseX, mouseY, getHolding(), blockSaveBL);
+
+        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 3f), this.height / 2 - 248 / 2 + 2, 16*3, 16*3, 16*4, 16*3, 16*5, 16*3, 16, 16, 128, 128, mouseX, mouseY, getHolding(), !floppy_disk.isOf(ItemInit.FLOPPYDISK));
     }
     void drawBehaviorSelection(DrawContext context, int mouseX, int mouseY){
         if(ComputerData.getAIBehavior(currentBehavior) instanceof ComputerAI ai){
@@ -555,16 +573,14 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
         this.entity = entityType.create(this.client.world);
         if(this.entity instanceof GoopyUtilEntity ent){
             ent.menuTick = true;
-            String anim = ent.demoAnim().toString();
-            ent.triggerAnim("Movement", anim);
         }
     }
     protected void drawEntity(DrawContext context, float x, float y) {
-        if(this.entity instanceof LivingEntity) {
+        if(this.entity instanceof GoopyUtilEntity ent) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, -50.0);
             context.getMatrices().translate(0, 0, (float) -50);
-            InventoryScreen.drawEntity(context, x, y, (float) 60.0, COMPCodeScreen.ENTITY_TRANSLATION, COMPCodeScreen.ENTITY_ROTATION, null, this.entity);
+            InventoryScreen.drawEntity(context, x, y, ent.demo_scale() * ((float) 40.0), COMPCodeScreen.ENTITY_TRANSLATION, COMPCodeScreen.ENTITY_ROTATION, null, this.entity);
             context.getMatrices().pop();
         }
 

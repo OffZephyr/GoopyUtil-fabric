@@ -67,7 +67,19 @@
   "item.goopyutil.zephyr_spawn.description.0.0": "§b§lClick §ron this entity with a",
   "item.goopyutil.zephyr_spawn.description.0.1": "§d§lFloppy Disk §rto give it an AI.",
 
+  "entity.goopyutil.skin_screen.confirm": "Save & Close",
   "entity.goopyutil.zephyr": "Zephyr",
+  "entity.goopyutil.zephyr.default": "Blue Outfit",
+  "entity.goopyutil.zephyr.default.description": "TEST 1 THIS IS A ONE LINER",
+  "entity.goopyutil.zephyr.neon": "Neon Outfit",
+  "entity.goopyutil.zephyr.neon.description": "TEST 2 THIS IS A LONGER ONE LINER TO TEST THE RESIZING!!!",
+
+  "death.goopyutil.back": "Back",
+  "death.goopyutil.confirm": "Confirm",
+  "death.goopyutil.game_over": "§lGAME OVER",
+
+  "death.goopyutil.default_death": "You died...",
+  "death.goopyutil.stabbed.by": "You were stabbed by %s...",
 
   "goopyutil.creative": "GoopyUtil",
 
@@ -163,6 +175,7 @@
   "goopyutil.computer.behavior.option.custom_moving_animation": "Use a custom animations ?",
   "goopyutil.computer.behavior.option.idle_animation": "Custom Idle animation",
   "goopyutil.computer.behavior.option.walking_animation": "Custom Walking animation ?",
+  "goopyutil.computer.behavior.option.running_animation": "Custom Running animation ?",
   "goopyutil.computer.behavior.option.look_around": "Should look around ?",
-  "goopyutil.computer.behavior.option.look_nearby_entity": "Should look at nearby entities ?"
+  "goopyutil.computer.behavior.option.look_nearby_entities": "Should look at nearby entities ?"
 }

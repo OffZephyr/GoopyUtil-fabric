@@ -129,4 +129,8 @@ public abstract class GoopyScreen extends Screen {
         float scale = (textRenderer.getWidth(text) * baseScale) > maxTextWidth ? (baseScale / textRenderer.getWidth(text)) * maxTextWidth : baseScale;
         drawResizableText(context, textRenderer, text, scale, x, y + (1 / scale), color, backgroundColor, shadow, centered);
     }
+    public static float getResizedTextHeight(TextRenderer textRenderer, Text text, float baseScale, float maxTextWidth){
+        float scale = (textRenderer.getWidth(text) * baseScale) > maxTextWidth ? (baseScale / textRenderer.getWidth(text)) * maxTextWidth : baseScale;
+        return 8 * scale;
+    }
 }

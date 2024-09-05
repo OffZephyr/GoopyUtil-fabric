@@ -19,19 +19,33 @@ public class PayloadDef {
     public static final Identifier C2SSetNbtID = Identifier.of(GoopyUtil.MOD_ID, "c2s_nbt_set");
     public static final Identifier S2CMoneyID = Identifier.of(GoopyUtil.MOD_ID, "c2s_money_sync");
     public static final Identifier C2SMoneyID = Identifier.of(GoopyUtil.MOD_ID, "s2c_money_sync");
+    public static final Identifier S2CJumpscareData = Identifier.of(GoopyUtil.MOD_ID, "s2c_jumpscare_sync");
+    public static final Identifier C2SJumpscarePos = Identifier.of(GoopyUtil.MOD_ID, "c2s_jumpscare_sync");
+    public static final Identifier C2SComputerEject = Identifier.of(GoopyUtil.MOD_ID, "s2c_computer_eject");
 
     public static void registerC2SPackets() {
         PayloadTypeRegistry.playC2S().register(GetNbtC2SPayload.ID, GetNbtC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SetNbtS2CPayload.ID, SetNbtS2CPayload.CODEC);
+
         PayloadTypeRegistry.playC2S().register(MoneySyncDataC2SPayload.ID, MoneySyncDataC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MoneySyncDataS2CPayload.ID, MoneySyncDataS2CPayload.CODEC);
+
         PayloadTypeRegistry.playS2C().register(SetScreenS2CPayload.ID, SetScreenS2CPayload.CODEC);
+
+        PayloadTypeRegistry.playS2C().register(UpdateJumpscareDataS2CPayload.ID, UpdateJumpscareDataS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(UpdateJumpscarePosC2SPayload.ID, UpdateJumpscarePosC2SPayload.CODEC);
+
+        PayloadTypeRegistry.playC2S().register(ComputerEjectPayload.ID, ComputerEjectPayload.CODEC);
+
         ServerPlayNetworking.registerGlobalReceiver(GetNbtC2SPayload.ID, GetNbtC2SPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(MoneySyncDataC2SPayload.ID, MoneySyncDataC2SPayload::receive);
+        ServerPlayNetworking.registerGlobalReceiver(UpdateJumpscarePosC2SPayload.ID, UpdateJumpscarePosC2SPayload::receive);
+        ServerPlayNetworking.registerGlobalReceiver(ComputerEjectPayload.ID, ComputerEjectPayload::receive);
     }
     public static void registerS2CPackets() {
         ClientPlayNetworking.registerGlobalReceiver(SetNbtS2CPayload.ID, SetNbtS2CPayload::receive);
         ClientPlayNetworking.registerGlobalReceiver(MoneySyncDataS2CPayload.ID, MoneySyncDataS2CPayload::receive);
         ClientPlayNetworking.registerGlobalReceiver(SetScreenS2CPayload.ID, SetScreenS2CPayload::receive);
+        ClientPlayNetworking.registerGlobalReceiver(UpdateJumpscareDataS2CPayload.ID, UpdateJumpscareDataS2CPayload::receive);
     }
 }
