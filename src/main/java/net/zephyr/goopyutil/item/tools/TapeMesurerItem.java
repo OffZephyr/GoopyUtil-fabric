@@ -46,6 +46,11 @@ public class TapeMesurerItem extends Item {
 
 
     @Override
+    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
+        return false;
+    }
+
+    @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         if (user.isSneaking() && !user.getOffHandStack().isOf(ItemInit.TABLET)) {
             resetTape(user.getStackInHand(hand), user, world);

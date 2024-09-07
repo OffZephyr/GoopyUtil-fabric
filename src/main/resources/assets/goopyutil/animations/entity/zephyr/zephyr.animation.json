@@ -9064,10 +9064,6 @@
 							"easing": "easeInElastic",
 							"easingArgs": []
 						}
-					},
-					"scale": {
-						"vector": ["linear", "linear", "linear"],
-						"easing": "linear"
 					}
 				},
 				"RightLeg": {
@@ -9159,25 +9155,25 @@
 				},
 				"Tail": {
 					"rotation": {
-						"vector": ["easeInOutCubic", "easeInOutCubic", "easeInOutCubic"],
+						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
 					}
 				},
 				"Tail2": {
 					"rotation": {
-						"vector": ["easeInOutCubic", "easeInOutCubic", "easeInOutCubic"],
+						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
 					}
 				},
 				"Tail3": {
 					"rotation": {
-						"vector": ["easeInOutCubic", "easeInOutCubic", "easeInOutCubic"],
+						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
 					}
 				},
 				"Tail4": {
 					"rotation": {
-						"vector": ["easeInOutCubic", "easeInOutCubic", "easeInOutCubic"],
+						"vector": ["linear", "linear", "linear"],
 						"easing": "linear"
 					}
 				}

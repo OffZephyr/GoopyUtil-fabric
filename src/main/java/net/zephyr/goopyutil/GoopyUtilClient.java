@@ -25,7 +25,7 @@ public class GoopyUtilClient implements ClientModInitializer {
 
 		ModelLoadingPlugin.register(new ModelLoading());
 		ItemInit.clientRegisterItem();
-		ComputerData.runInitializers();
+		ComputerData.runInitializersClient();
 		ScreensInit.init();
 		BlockInit.registerBlocksOnClient();
 		EntityInit.registerEntitiesOnClient();

@@ -111,7 +111,7 @@ public abstract class GoopyScreen extends Screen {
         RenderSystem.disableBlend();
     }
 
-    public void drawResizableText(DrawContext context, TextRenderer textRenderer, Text text, float scale, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
+    public static void drawResizableText(DrawContext context, TextRenderer textRenderer, Text text, float scale, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
 
         x = x / scale;
         y = y / scale;

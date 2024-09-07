@@ -102,10 +102,10 @@ public class TabOverlayClass implements HudRenderCallback {
 
                         drawContext.fill(0, 0, width, 50, 0x66000000);
 
-                        ScreenUtils.drawResizableText(drawContext, renderer, line1, 1.25f, 5, 5, 0xFFFFFFFF, 0, true, false);
-                        ScreenUtils.drawResizableText(drawContext, renderer, line2, 0.8f, 5, 22, 0xFFFFFFFF, 0, true, false);
-                        ScreenUtils.drawResizableText(drawContext, renderer, line3, 0.8f, 5, 30, 0xFFFFFFFF, 0, true, false);
-                        ScreenUtils.drawResizableText(drawContext, renderer, line4, 0.8f, 5, 40, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line1, 1.25f, 5, 5, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line2, 0.8f, 5, 22, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line3, 0.8f, 5, 30, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line4, 0.8f, 5, 40, 0xFFFFFFFF, 0, true, false);
                     }
                     else if(client.player.getMainHandStack().isOf(ItemInit.PAINTBRUSH)) {
                         Text line1 = Text.translatable("item.goopyutil.paintbrush.map_cam.line1");
@@ -115,8 +115,8 @@ public class TabOverlayClass implements HudRenderCallback {
 
                         drawContext.fill(0, 0, width, 32, 0x66000000);
 
-                        ScreenUtils.drawResizableText(drawContext, renderer, line1, 1.25f, 5, 5, 0xFFFFFFFF, 0, true, false);
-                        ScreenUtils.drawResizableText(drawContext, renderer, line2, 0.8f, 5, 22, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line1, 1.25f, 5, 5, 0xFFFFFFFF, 0, true, false);
+                        GoopyScreen.drawResizableText(drawContext, renderer, line2, 0.8f, 5, 22, 0xFFFFFFFF, 0, true, false);
 
                     }
                 }

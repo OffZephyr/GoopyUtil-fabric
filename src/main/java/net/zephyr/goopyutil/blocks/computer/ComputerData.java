@@ -27,6 +27,13 @@ public class ComputerData {
 
     public static void runInitializers(){
         for (Initializer init: Initializers) {
+            AIAnimatronics.addAll(init.getAnimatronics());
+            AICategories.addAll(init.getAICategories());
+            AIBehaviors.addAll(init.getAIBehaviors());
+        }
+    }
+    public static void runInitializersClient(){
+        for (Initializer init: Initializers) {
             Wallpapers.addAll(init.getWallpapers());
             Apps.addAll(init.getApps());
             Songs.addAll(init.getSongs());

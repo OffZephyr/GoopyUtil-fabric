@@ -1,5 +1,6 @@
 package net.zephyr.goopyutil.entity.base;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
@@ -29,9 +30,7 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.EntitySpawnItem;
 import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
-import net.zephyr.goopyutil.networking.payloads.SetScreenS2CPayload;
-import net.zephyr.goopyutil.networking.payloads.UpdateJumpscareDataS2CPayload;
+import net.zephyr.goopyutil.networking.payloads.*;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.ScreenUtils;
@@ -60,6 +59,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     int crawlingCooldown = 0;
     boolean deactivated = false;
     public boolean menuTick = false;
+    public int serverBehaviorIndex = -1;
     private String behavior;
 
     public GoopyUtilEntity(EntityType<? extends PathAwareEntity> type, World world) {
@@ -588,21 +588,42 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         int index = getIndex(behavior, option);
         return getAIData(entity, entity.getWorld()).getString("" + index);
     }
-    private int getIndex(String behavior, String option){
-        if(ComputerData.getAIBehavior(behavior) instanceof ComputerAI ai) {
-            return ai.getOptionIndex(option);
+    public int getIndex(String behavior, String option) {
+        if(!this.getWorld().isClient()){
+            for(ServerPlayerEntity p : PlayerLookup.all(getServer())) {
+                if(behavior != null && option != null) {
+                    ServerPlayNetworking.send(p, new AIBehaviorUpdateS2CPayload(behavior, option, getId()));
+                }
+            }
+            return ((IEntityDataSaver)this).getPersistentData().getInt(behavior + "." + option);
+        }
+        else {
+            if (ComputerData.getAIBehavior(behavior) instanceof ComputerAI ai) {
+                return ai.getOptionIndex(option);
+            }
         }
         return -1;
     }
 
     float crawlHeight(){
-        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
-        return manager.getEntityData(getType()).crawl_height();
+        if(getWorld().isClient()) {
+            EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
+            float height = manager.getEntityData(getType()).crawl_height();
+            ((IEntityDataSaver)this).getPersistentData().putFloat("crawl_height", height);
+            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)this).getPersistentData(), getId());
+            return height;
+        }
+        else return ((IEntityDataSaver)this).getPersistentData().getFloat("crawl_height");
     }
     boolean canCrawl(){
-        EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
-        return manager.getEntityData(getType()).can_crawl();
-
+        if(getWorld().isClient()) {
+            EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
+            boolean can_crawl = manager.getEntityData(getType()).can_crawl();
+            ((IEntityDataSaver)this).getPersistentData().putBoolean("can_crawl", can_crawl);
+            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)this).getPersistentData(), getId());
+            return can_crawl;
+        }
+        else return ((IEntityDataSaver)this).getPersistentData().getBoolean("can_crawl");
     }
 
     List<String> getStatueAnimations(){

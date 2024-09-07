@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
+import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.util.ScreenUtils;
@@ -130,10 +131,8 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
             return ActionResult.SUCCESS;
         }
         else {
-            if (!world.isClient()) {
-                if (player instanceof ServerPlayerEntity p) {
-                    ScreenUtils.openScreenOnServer(p, "computer_boot", pos, data);
-                }
+            if (world.isClient()) {
+                ClientHook.openScreen("computer_boot", data, pos.asLong());
             }
         }
         return ActionResult.SUCCESS;

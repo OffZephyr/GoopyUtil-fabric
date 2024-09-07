@@ -82,24 +82,4 @@ public class ScreenUtils {
     public interface Factory<T extends Screen, R> {
         T create(Text title, NbtCompound data, long other);
     }
-
-
-    public static void drawResizableText(DrawContext context, TextRenderer textRenderer, Text text, float scale, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
-
-        x = x / scale;
-        y = y / scale;
-        if(centered) x -= (textRenderer.getWidth(text) / 2f);
-
-        MatrixStack matrices = context.getMatrices();
-        VertexConsumerProvider verticies = context.getVertexConsumers();
-
-        matrices.push();
-        matrices.scale(scale, scale, scale);
-        textRenderer.draw(text, x, y, color, shadow, matrices.peek().getPositionMatrix(), verticies, TextRenderer.TextLayerType.NORMAL, backgroundColor, 0xF000F0);
-        matrices.pop();
-    }
-    public static void drawAutoResizedText(DrawContext context, TextRenderer textRenderer, Text text, float baseScale, float maxTextWidth, float x, float y, int color, int backgroundColor, boolean shadow, boolean centered){
-        float scale = (textRenderer.getWidth(text) * baseScale) > maxTextWidth ? (baseScale / textRenderer.getWidth(text)) * maxTextWidth : baseScale;
-        drawResizableText(context, textRenderer, text, scale, x, y + (1 / scale), color, backgroundColor, shadow, centered);
-    }
 }

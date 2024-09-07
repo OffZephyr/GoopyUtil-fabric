@@ -1,10 +1,13 @@
 package net.zephyr.goopyutil.item.tools;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.init.BlockInit;
@@ -15,6 +18,10 @@ public class WrenchItem extends Item {
         super(settings);
     }
 
+    @Override
+    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
+        return false;
+    }
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();

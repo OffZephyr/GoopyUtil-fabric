@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
+import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.init.*;
 import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.util.GoopyBlacklist;
@@ -23,6 +24,7 @@ public class GoopyUtil implements ModInitializer {
 		BlockEntityInit.registerBlockEntities();
 		ItemGroupsInit.registerItemGroups();
 		SoundsInit.registerSounds();
+		ComputerData.runInitializers();
 
 
 		registerCommands();

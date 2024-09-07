@@ -29,10 +29,6 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
     private final int entityID;
     private final boolean isHardcore;
     private boolean goBackToTitle = false;
-    private Text scoreText;
-    private final List<ButtonWidget> buttons = Lists.newArrayList();
-    @Nullable
-    private ButtonWidget titleScreenButton;
     public AbstractGoopyUtilKillScreen(Text text, NbtCompound nbtCompound, long l) {
         super(text);
         this.isHardcore = nbtCompound.getBoolean("isHardcore");

@@ -198,12 +198,13 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         if(world.isClient()) {
             if (!data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt()))
                 ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
-        }
 
-        if(data.getBoolean("closing")) {
-            this.closing = true;
-            data.putBoolean("closing", false);
-            ScreenUtils.saveNbtFromScreen(data);
+
+            if(data.getBoolean("closing")) {
+                this.closing = true;
+                data.putBoolean("closing", false);
+                ScreenUtils.saveNbtFromScreen(data);
+            }
         }
 
         if(entity instanceof PlayerEntity player) {
