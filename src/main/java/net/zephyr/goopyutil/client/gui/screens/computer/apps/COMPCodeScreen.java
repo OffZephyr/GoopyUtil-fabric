@@ -117,7 +117,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
             }
         }
         if (isOnButton(mouseX, mouseY, this.width / 2 + 248 / 2 - 2 - (int) (16 * 3f), this.height / 2 - 248 / 2 + 2, 16, 16)) {
-            if (floppy_disk.isOf(ItemInit.FLOPPYDISK)) {
+            if (!floppy_disk.isEmpty()) {
                 close();
 
                 ClientPlayNetworking.send(new ComputerEjectPayload(getBlockPos().asLong()));
@@ -128,17 +128,17 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
             }
         }
 
-        if (floppy_disk.isOf(ItemInit.FLOPPYDISK)) {
+        if (!floppy_disk.isEmpty()) {
             int x = (int) topCornerX + ((int) appAvailableSizeX / 2) + 10;
             if (this.subWindow == DEFAULT) {
                 if (isOnButton(mouseX, mouseY, x, (int) topCornerY, 90, 22)) {
                     this.subWindow = ANIMATRONIC_SELECTION;
-                } else if (isOnButton(mouseX, mouseY, (int) topCornerX, (int) topCornerY, 126, 22)) {
+                } else if (floppy_disk.isOf(ItemInit.FLOPPYDISK) && isOnButton(mouseX, mouseY, (int) topCornerX, (int) topCornerY, 126, 22)) {
                     openSubList((int) mouseX, (int) mouseY, ComputerData.getAIBehaviors());
                 }
 
 
-                if (ComputerData.getAIBehavior(currentBehavior) instanceof ComputerAI ai) {
+                if (floppy_disk.isOf(ItemInit.FLOPPYDISK) && ComputerData.getAIBehavior(currentBehavior) instanceof ComputerAI ai) {
                     for (int i = 0; i < ai.getList().size(); i++) {
                         ComputerAI.Option<?> option = ai.getList().get(i);
                         int dependency = ai.getList().indexOf(ai.getOption(option.getDependency()));
@@ -352,23 +352,29 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill((int)topCornerX, (int) topCornerY, (int)(topCornerX + appAvailableSizeX), (int)(topCornerY + appAvailableSizeY), -100, 0xFF182562);
 
-        if(floppy_disk.isOf(ItemInit.FLOPPYDISK)) {
+        if(!floppy_disk.isEmpty()) {
             context.drawTexture(BASE, (int) topCornerX + ((int) appAvailableSizeX / 2) + 6, (int) topCornerY - 1, 0, 0, 114, (int) appAvailableSizeY + 2, 256, 256);
             drawEntitySelection(context, mouseX, mouseY);
-            drawBehaviorSelection(context, mouseX, mouseY);
-            sideScrollWheel(context);
+            if(floppy_disk.isOf(ItemInit.FLOPPYDISK)) {
+                drawBehaviorSelection(context, mouseX, mouseY);
+                sideScrollWheel(context);
+            }
+            else {
+                context.fill((int)topCornerX, (int)topCornerY, (int)topCornerX + 126, (int)topCornerY + (int)appAvailableSizeY, 0x66000000);
+                context.fill((int)topCornerX + (int)appAvailableSizeX - 16, (int)topCornerY, (int)topCornerX + (int)appAvailableSizeX, (int)topCornerY + (int)appAvailableSizeY, 0x66000000);
+            }
 
             drawTextEdit(context);
         }
         else {
             Text noDisk = Text.translatable("goopyutil.screens.computer_code.no_floppy_disk");
-            super.drawResizableText(context, client.textRenderer, noDisk, 2.5f, this.width /2f, this.height /2f, 0xFFFFFFFF, 0x00000000, false, true);
+            drawResizableText(context, client.textRenderer, noDisk, 2.5f, this.width /2f, this.height /2f, 0xFFFFFFFF, 0x00000000, false, true);
         }
         super.render(context, mouseX, mouseY, delta);
         boolean blockSaveBL = !Dirty;
         renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 2f), this.height / 2 - 248 / 2 + 2, 16*3, 16*2, 16*4, 16*2, 16*5, 16*2, 16, 16, 128, 128, mouseX, mouseY, getHolding(), blockSaveBL);
 
-        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 3f), this.height / 2 - 248 / 2 + 2, 16*3, 16*3, 16*4, 16*3, 16*5, 16*3, 16, 16, 128, 128, mouseX, mouseY, getHolding(), !floppy_disk.isOf(ItemInit.FLOPPYDISK));
+        renderButton(BUTTONS, context, this.width / 2 + 248 / 2 - 2 - (int) (16 * 3f), this.height / 2 - 248 / 2 + 2, 16*3, 16*3, 16*4, 16*3, 16*5, 16*3, 16, 16, 128, 128, mouseX, mouseY, getHolding(), floppy_disk.isEmpty());
     }
     void drawBehaviorSelection(DrawContext context, int mouseX, int mouseY){
         if(ComputerData.getAIBehavior(currentBehavior) instanceof ComputerAI ai){
@@ -595,7 +601,7 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
             float y = ((this.height / 2f) + 6 + (i * 16)) - (3f * scale);
 
             if(time%4 == 0)
-                super.drawResizableText(context, client.textRenderer, Text.literal("" + num), scale, x, y, 0xBBFFFFFF, 0x00000000, false, true);
+                drawResizableText(context, client.textRenderer, Text.literal("" + num), scale, x, y, 0xBBFFFFFF, 0x00000000, false, true);
         }
         if(Dirty){
             context.fill((int) (appAvailableSizeX + topCornerX - 16), (int) topCornerY, (int) (appAvailableSizeX + topCornerX), (int) (topCornerY + appAvailableSizeY), 0x88000000);

@@ -27,6 +27,7 @@ public class PayloadDef {
     public static final Identifier C2SComputerEject = Identifier.of(GoopyUtil.MOD_ID, "c2s_computer_eject");
     public static final Identifier C2SAIUpdate = Identifier.of(GoopyUtil.MOD_ID, "c2s_ai_update");
     public static final Identifier S2CAIUpdate = Identifier.of(GoopyUtil.MOD_ID, "s2c_ai_update");
+    public static final Identifier C2SCrawlUpdate = Identifier.of(GoopyUtil.MOD_ID, "c2s_crawl_update");
 
     public static void registerC2SPackets() {
         PayloadTypeRegistry.playC2S().register(GetNbtC2SPayload.ID, GetNbtC2SPayload.CODEC);
@@ -45,11 +46,14 @@ public class PayloadDef {
 
         PayloadTypeRegistry.playC2S().register(ComputerEjectPayload.ID, ComputerEjectPayload.CODEC);
 
+        PayloadTypeRegistry.playC2S().register(UpdateCrawlingC2SPayload.ID, UpdateCrawlingC2SPayload.CODEC);
+
         ServerPlayNetworking.registerGlobalReceiver(GetNbtC2SPayload.ID, GetNbtC2SPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(MoneySyncDataC2SPayload.ID, MoneySyncDataC2SPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(UpdateJumpscarePosC2SPayload.ID, UpdateJumpscarePosC2SPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(ComputerEjectPayload.ID, ComputerEjectPayload::receive);
         ServerPlayNetworking.registerGlobalReceiver(AIBehaviorUpdateC2SPayload.ID, AIBehaviorUpdateC2SPayload::receive);
+        ServerPlayNetworking.registerGlobalReceiver(UpdateCrawlingC2SPayload.ID, UpdateCrawlingC2SPayload::receive);
     }
     public static void registerS2CPackets() {
         ClientPlayNetworking.registerGlobalReceiver(SetNbtS2CPayload.ID, SetNbtS2CPayload::receive);

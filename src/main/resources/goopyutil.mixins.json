@@ -5,12 +5,13 @@
   "mixins": [
     "BlacklistMixin",
     "CameraMixin",
-    "ClientPlayerEntityMixin",
     "DeathScreenMixin",
     "GameRendererMixin",
     "LightmapTextureManagerMixin",
+    "LivingEntityMixin",
     "MinecraftClientMixin",
     "ModEntityDataSaverMixin",
+    "PlayerEntityMixin",
     "PlayerEntityRendererMixin",
     "PostEffectProcessorMixin",
     "WorldRendererMixin"

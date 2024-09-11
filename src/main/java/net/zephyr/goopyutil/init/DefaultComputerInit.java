@@ -160,6 +160,8 @@ public class DefaultComputerInit implements ComputerData.Initializer {
                 new ComputerAI.Option<>("head_pitch", 0, "rotate_head")
         ));
 
+        AIs.add(new ComputerAI("controllable"));
+
         return AIs;
     }
 }

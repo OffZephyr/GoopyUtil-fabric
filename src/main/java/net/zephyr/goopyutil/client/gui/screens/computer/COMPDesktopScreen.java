@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.ClientHook;
@@ -166,13 +167,11 @@ public class COMPDesktopScreen extends COMPBaseScreen {
                 int x = this.width / 2 - this.screenSize / 2 + (int) wallpaperOffset + (i * ((int) wallpaperSize + (int) wallpaperOffset)) + (int) wallpapersListOffset;
                 int y =(this.height / 2 + this.screenSize / 2) - (int) wallpaperMenuHeight + (int) wallpaperHeight;
 
-                context.drawTexture(wallpaper, x, y, 0, 0, (int) wallpaperSize, (int) wallpaperSize, (int) wallpaperSize, (int) wallpaperSize);
+                drawTextureOnScreen(context, wallpaper, x, y, 0, (int) wallpaperSize, (int) wallpaperSize, 0, 0, (int) wallpaperSize,(int) wallpaperSize,1, 1, 1, 1);
 
                 if(mouseX > x && mouseY > y && mouseX < x + wallpaperSize && mouseY < y + wallpaperSize && !dragging){
-                    if(holding)
-                        context.fill(x, y, x + (int) wallpaperSize, y + (int) wallpaperSize, 0x66FFFFFF);
-                    else
-                        context.fill(x, y, x + (int) wallpaperSize, y + (int) wallpaperSize, 0x33FFFFFF);
+                    int color = holding ? 0x66FFFFFF : 0x33FFFFFF;
+                    fillShapeOnScreen(context, x, y, 0, (int) wallpaperSize, (int) wallpaperSize, color);
                 }
 
             }

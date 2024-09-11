@@ -9,6 +9,7 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.TabOverlayClass;
 import net.zephyr.goopyutil.init.*;
 import net.zephyr.goopyutil.networking.PayloadDef;
+import net.zephyr.goopyutil.util.KeyInputHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,9 @@ public class GoopyUtilClient implements ClientModInitializer {
 		ScreensInit.init();
 		BlockInit.registerBlocksOnClient();
 		EntityInit.registerEntitiesOnClient();
+
+		KeyInputHandler.register();
+
 		try {
 			BlackWhitelistInit.Init();
 		} catch (IOException e) {

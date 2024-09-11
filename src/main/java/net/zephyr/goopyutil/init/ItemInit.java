@@ -11,6 +11,7 @@ import net.minecraft.util.Rarity;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.item.DeathCoin;
 import net.zephyr.goopyutil.item.FloppyDiskItem;
+import net.zephyr.goopyutil.item.IllusionDisc;
 import net.zephyr.goopyutil.item.ZephyrSpawn;
 import net.zephyr.goopyutil.item.tools.PaintbrushItem;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
@@ -35,6 +36,8 @@ public class ItemInit {
             new ZephyrSpawn(new Item.Settings().maxCount(1).rarity(Rarity.COMMON)));
     public static final Item DEATHCOIN = registerItem("deathcoin",
             new DeathCoin(new Item.Settings().maxCount(1).rarity(Rarity.EPIC)));
+    public static final Item ILLUSIONDISC = registerItem("illusion_disc",
+            new IllusionDisc(new Item.Settings().maxCount(1).rarity(Rarity.UNCOMMON)));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, Identifier.of(GoopyUtil.MOD_ID, name), item);

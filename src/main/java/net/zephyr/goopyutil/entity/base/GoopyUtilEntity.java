@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +38,7 @@ import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
+import net.zephyr.goopyutil.util.mixinAccessing.IPlayerCustomModel;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -47,15 +49,19 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEntity {
-    GoopyUtilEntityModel<? extends GoopyUtilEntity> model = null;
+    public GoopyUtilEntityModel<? extends GoopyUtilEntity> model = null;
+    public boolean mimic;
+    public PlayerEntity mimicPlayer;
+    public boolean mimicAggressive = false;
     private AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static GoopyUtilEntity jumpscareEntity = null;
     public long[] JumpscareCamPos = new long[6];
+    public boolean isGUI = false;
     public String killScreenID;
     boolean running = false;
     int freezeTime = 0;
     int runningCooldown = 0;
-    boolean crawling = false;
+    public boolean crawling = false;
     int crawlingCooldown = 0;
     boolean deactivated = false;
     public boolean menuTick = false;
@@ -115,93 +121,114 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         if(menuTick) {
             return event.setAndContinue(RawAnimation.begin().thenLoop(demoAnim()));
         }
-        if(event.getAnimatable().isDead()){
-            event.getController().transitionLength(0);
-            return event.setAndContinue(RawAnimation.begin().thenPlayAndHold(dyingAnim()));
-        }
-        else {
-
-            event.setControllerSpeed(1);
-            event.getController().transitionLength(3);
-            String idle = defaultIdleAnim();
-            String walking = defaultWalkingAnim();
-            String running = defaultRunningAnim();
-            String deactivating = deactivatingAnim();
-            String deactivated = deactivatedAnim();
-            String activating = activatingAnim();
-            RawAnimation wakeUp = RawAnimation.begin().thenPlay(activating).thenLoop(idle);
-            RawAnimation fallAsleep = RawAnimation.begin().thenPlay(deactivating).thenLoop(deactivated);
-
-            if (boolData(behavior, "custom_moving_animation", this)) {
-                idle = stringData(behavior, "idle_animation", this);
-                walking = stringData(behavior, "walking_animation", this);
-                running = stringData(behavior, "running_animation", this);
+        if(!mimic){
+            if (event.getAnimatable().isDead()) {
+                event.getController().transitionLength(0);
+                return event.setAndContinue(RawAnimation.begin().thenPlayAndHold(dyingAnim()));
             } else {
-                if (boolData(behavior, "aggressive", this)) {
-                    idle = aggressiveIdleAnim();
-                    walking = aggressiveWalkingAnim();
-                    running = aggressiveRunningAnim();
+
+                event.setControllerSpeed(1);
+                event.getController().transitionLength(3);
+                String idle = defaultIdleAnim();
+                String walking = defaultWalkingAnim();
+                String running = defaultRunningAnim();
+                String deactivating = deactivatingAnim();
+                String deactivated = deactivatedAnim();
+                String activating = activatingAnim();
+                RawAnimation wakeUp = RawAnimation.begin().thenPlay(activating).thenLoop(idle);
+                RawAnimation fallAsleep = RawAnimation.begin().thenPlay(deactivating).thenLoop(deactivated);
+
+                if (boolData(behavior, "custom_moving_animation", this)) {
+                    idle = stringData(behavior, "idle_animation", this);
+                    walking = stringData(behavior, "walking_animation", this);
+                    running = stringData(behavior, "running_animation", this);
+                } else {
+                    if (boolData(behavior, "aggressive", this)) {
+                        idle = aggressiveIdleAnim();
+                        walking = aggressiveWalkingAnim();
+                        running = aggressiveRunningAnim();
+                    }
+                    if (boolData(behavior, "performing", this)) {
+                        idle = performingAnim();
+                    }
                 }
-                if (boolData(behavior, "performing", this)) {
-                    idle = performingAnim();
-                }
-            }
 
 
-            if (this.crawling) {
-                if (event.isMoving()) {
-                    event.setControllerSpeed(walkAnimationSpeed());
-                    return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingWalkingAnim()));
-                }
-                else
-                    return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingIdleAnim()));
-            } else {
-                if (this.deactivated) {
+                if (this.crawling) {
                     if (event.isMoving()) {
                         event.setControllerSpeed(walkAnimationSpeed());
-                        return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
-                    }
-                    else {
-                        event.getController().transitionLength(0);
-                        return event.setAndContinue(fallAsleep);
-                    }
-                } else if (event.getController().getCurrentRawAnimation() != null && (event.getController().getCurrentRawAnimation().equals(fallAsleep) || (event.getController().getCurrentRawAnimation().equals(wakeUp) && event.getController().getCurrentAnimation().animation().loopType() != Animation.LoopType.LOOP))) {
-                    event.getController().transitionLength(0);
-                    return event.setAndContinue(wakeUp);
-                } else if (Objects.equals(behavior, "statue")) {
-                    if (event.isMoving()) {
-                        event.setControllerSpeed(walkAnimationSpeed());
-                        return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
-                    }
-                    else {
-                        String anim = stringData(behavior, "animation", this);
-                        return event.setAndContinue(RawAnimation.begin().thenLoop(anim));
-                    }
-                } else if (Objects.equals(behavior, "stage")) {
-                    if (event.isMoving()) {
-                        {
+                        return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingWalkingAnim()));
+                    } else
+                        return event.setAndContinue(RawAnimation.begin().thenLoop(crawlingIdleAnim()));
+                } else {
+                    if (this.deactivated) {
+                        if (event.isMoving()) {
                             event.setControllerSpeed(walkAnimationSpeed());
                             return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                        } else {
+                            event.getController().transitionLength(0);
+                            return event.setAndContinue(fallAsleep);
                         }
+                    } else if (event.getController().getCurrentRawAnimation() != null && (event.getController().getCurrentRawAnimation().equals(fallAsleep) || (event.getController().getCurrentRawAnimation().equals(wakeUp) && event.getController().getCurrentAnimation().animation().loopType() != Animation.LoopType.LOOP))) {
+                        event.getController().transitionLength(0);
+                        return event.setAndContinue(wakeUp);
+                    } else if (Objects.equals(behavior, "statue")) {
+                        if (event.isMoving()) {
+                            event.setControllerSpeed(walkAnimationSpeed());
+                            return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                        } else {
+                            String anim = stringData(behavior, "animation", this);
+                            return event.setAndContinue(RawAnimation.begin().thenLoop(anim));
+                        }
+                    } else if (Objects.equals(behavior, "stage")) {
+                        if (event.isMoving()) {
+                            {
+                                event.setControllerSpeed(walkAnimationSpeed());
+                                return event.setAndContinue(RawAnimation.begin().thenLoop(defaultWalkingAnim()));
+                            }
+                        } else {
+                            return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
+                        }
+
+                    } else if (Objects.equals(behavior, "moving")) {
+                        if (event.isMoving()) {
+                            if (this.running) {
+                                event.setControllerSpeed(runAnimationSpeed());
+                                return event.setAndContinue(RawAnimation.begin().thenLoop(running));
+                            } else {
+                                event.setControllerSpeed(walkAnimationSpeed());
+                                return event.setAndContinue(RawAnimation.begin().thenLoop(walking));
+                            }
+                        } else
+                            return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
                     } else {
                         return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
                     }
-
-                } else if (Objects.equals(behavior, "moving")) {
-                    if (event.isMoving()) {
-                        if (this.running) {
-                            event.setControllerSpeed(runAnimationSpeed());
-                            return event.setAndContinue(RawAnimation.begin().thenLoop(running));
-                        }
-                        else {
-                            event.setControllerSpeed(walkAnimationSpeed());
-                            return event.setAndContinue(RawAnimation.begin().thenLoop(walking));
-                        }
-                    } else
-                        return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
-                } else {
-                    return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
                 }
+            }
+        }
+        else {
+            boolean move = mimicPlayer.getVelocity().getZ() != 0 && mimicPlayer.getVelocity().getX() != 0;
+            boolean crawl = this.crawling;
+            boolean run = this.running;
+
+            String walking = mimicAggressive ? aggressiveWalkingAnim() : defaultWalkingAnim();
+            String running = mimicAggressive ? aggressiveRunningAnim() : defaultRunningAnim();
+            String crawlingIdle = crawlingIdleAnim();
+            String crawling = crawlingWalkingAnim();
+            String moving = crawl ? crawling : run ? running : walking;
+            String idle = crawl ? crawlingIdle : mimicAggressive ? aggressiveIdleAnim() : defaultIdleAnim();
+            String deactivating = deactivatingAnim();
+            String deactivated = deactivatedAnim();
+            String activating = activatingAnim();
+
+            if(move) {
+                float speed = run ? runAnimationSpeed() : walkAnimationSpeed();
+                event.setControllerSpeed(speed);
+                return event.setAndContinue(RawAnimation.begin().thenLoop(moving));
+            }
+            else {
+                return event.setAndContinue(RawAnimation.begin().thenLoop(idle));
             }
         }
         //return PlayState.STOP;
@@ -234,28 +261,38 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
             model.updateCamPos(this);
         }
 
-        syncFromServer(getWorld());
-        this.behavior = getAIMode(this, getWorld());
-        boolean shouldDeactivate = behavior.isEmpty() || boolData(behavior, "deactivated", this) || ((IEntityDataSaver)this).getPersistentData().getBoolean("Deactivated");
-        if(shouldDeactivate != this.deactivated) {
-            this.freezeTime = shouldDeactivate ? deactivatingLength() : activatingLength();
-        }
-        this.deactivated = shouldDeactivate;
+        if(mimic) {
+            calculateDimensions();
+            calculateBoundingBox();
 
-        runTick();
-        if(canCrawl()){
-            crawlTick();
+            boolean continueCrawling = mimicPlayer.isCrawling();
+            this.crawling = continueCrawling || getCrawling();
+            this.running = getRunning();
         }
-        if(behavior.equals("statue") || behavior.equals("stage")){
-            goalPosTick();
-        }
+        else {
+            syncFromServer(getWorld());
+            this.behavior = getAIMode(this, getWorld());
+            boolean shouldDeactivate = behavior.isEmpty() || boolData(behavior, "deactivated", this) || ((IEntityDataSaver) this).getPersistentData().getBoolean("Deactivated");
+            if (shouldDeactivate != this.deactivated) {
+                this.freezeTime = shouldDeactivate ? deactivatingLength() : activatingLength();
+            }
+            this.deactivated = shouldDeactivate;
 
-         if(freezeTime > 0) {
-            freezeTime--;
-            setHeadYaw(getBodyYaw());
-            setVelocity(0, 0, 0);
-            setJumping(false);
-            getNavigation().stop();
+            runTick();
+            if (canCrawl()) {
+                crawlTick();
+            }
+            if (behavior.equals("statue") || behavior.equals("stage")) {
+                goalPosTick();
+            }
+
+            if (freezeTime > 0) {
+                freezeTime--;
+                setHeadYaw(getBodyYaw());
+                setVelocity(0, 0, 0);
+                setJumping(false);
+                getNavigation().stop();
+            }
         }
     }
 
@@ -329,7 +366,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                 crawlingCooldown = Math.max(0, crawlingCooldown - 1);
 
                 if (crawlingCooldown == 0) {
-                    setCrawling(shouldCrawl);
+                    setCrawling(shouldCrawl, getWorld());
                 }
             }
             else if(crawling) {
@@ -362,16 +399,15 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         return continueCrawl || crawlCondition1 || crawlCondition2;
     }
 
-    boolean containsHitbox(BlockPos pos){
+    public boolean containsHitbox(BlockPos pos){
         float width = super.getBaseDimensions(EntityPose.STANDING).width() / 2f;
         float height = super.getBaseDimensions(EntityPose.STANDING).height();
         Box box = new Box(-width, 0, -width, width, height, width);
 
         VoxelShape collisionShape = this.getWorld().getBlockState(pos).getCollisionShape(getWorld(), pos);
-        boolean bl1 = !collisionShape.isEmpty();
-        boolean bl2 = bl1 && !collisionShape.getBoundingBox().intersects(box);
+        boolean bl1 = !collisionShape.isEmpty() && collisionShape.getBoundingBox().intersects(box);
 
-        return bl1 || bl2;
+        return bl1;
     }
 
     public void runTick(){
@@ -380,7 +416,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         if(!this.getWorld().isClient()) {
             boolean shouldRun = (this.getNavigation().getCurrentPath() != null && this.getTarget() != null);
             if (runningCooldown == 0 && (!running && shouldRun || running && !shouldRun)) {
-                setRunning(shouldRun);
+                setRunning(shouldRun, getWorld());
                 runningCooldown = 10;
             }
         }
@@ -391,35 +427,53 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         return cache;
     }
 
-    public void setCrawling(boolean crawling) {
+    public void setCrawling(boolean crawling, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Crawling", crawling);
         NbtCompound nbt = new NbtCompound();
         nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
         nbt.putInt("entityID", this.getId());
-        for (ServerPlayerEntity p : PlayerLookup.tracking(this)) {
-            ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+        if (!world.isClient()) {
+            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
+                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+            }
+        }
+        else {
+            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
         }
     }
-    public void setRunning(boolean running) {
+    public void setRunning(boolean running, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Running", running);
         NbtCompound nbt = new NbtCompound();
         nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
         nbt.putInt("entityID", this.getId());
-        for (ServerPlayerEntity p : PlayerLookup.tracking(this)) {
-            ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+        if (!world.isClient()) {
+            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
+                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+            }
+        }
+        else {
+            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
         }
     }
-    public void setDeactivated(boolean deactivated) {
+    public void setDeactivated(boolean deactivated, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Deactivated", deactivated);
         NbtCompound nbt = new NbtCompound();
         nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
         nbt.putInt("entityID", this.getId());
-        for (ServerPlayerEntity p : PlayerLookup.tracking(this)) {
-            ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+        if (!world.isClient()) {
+            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
+                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
+            }
+        }
+        else {
+            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
         }
     }
 
     public boolean getCrawling(){
+        if(mimic) {
+            return ((IPlayerCustomModel)mimicPlayer).shouldBeCrawling();
+        }
         return ((IEntityDataSaver)this).getPersistentData().getBoolean("Crawling");
     }
     public boolean getRunning(){
@@ -428,16 +482,22 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
     @Override
     public EntityDimensions getBaseDimensions(EntityPose pose) {
+        boolean dimCrawl = getCrawling();
         EntityDimensions entityDimensions = super.getBaseDimensions(pose);
-        if (this.getCrawling()) {
+        if (dimCrawl || pose == EntityPose.SWIMMING) {
             return EntityDimensions.fixed(entityDimensions.width(), crawlHeight()).withEyeHeight(0.5f);
         }
         return entityDimensions;
     }
+
+
+
     @Override
     public double getTick(Object entity) {
         if(this.menuTick)
             return MinecraftClient.getInstance().world.getTime();
+        else if(this.mimic)
+            return mimicPlayer.age;
         else
             return ((Entity)entity).age;
     }
@@ -456,13 +516,22 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {
         ItemStack stack = player.getMainHandStack();
         if (stack.isOf(ItemInit.FLOPPYDISK)) {
-            if (!getDisk(this, getWorld()).isEmpty()) {
-                dropStack(getDisk(this, getWorld()), (float) hitPos.y);
+            String animatronic = ItemNbtUtil.getNbt(stack).getString("entity");
+            if (!animatronic.isEmpty() && ComputerData.getAIAnimatronic(animatronic) instanceof ComputerData.Initializer.AnimatronicAI ai) {
+                if(this.getType() == ai.entityType()) {
+                    if (!getDisk(this, getWorld()).isEmpty()) {
+                        dropStack(getDisk(this, getWorld()), (float) hitPos.y);
+                    }
+                    ItemStack disk = player.getMainHandStack();
+                    putFloppyDisk(this, disk, getWorld());
+                    disk.decrementUnlessCreative(1, player);
+                    player.sendMessage(Text.translatable("item.goopyutil.floppy_disk.entity_updated"), true);
+                }
+                else {
+                    player.sendMessage(Text.translatable("item.goopyutil.floppy_disk.wrong_entity"), true);
+                }
+                return ActionResult.SUCCESS;
             }
-            ItemStack disk = player.getMainHandStack();
-            putFloppyDisk(this, disk, getWorld());
-            disk.decrementUnlessCreative(1, player);
-            return ActionResult.SUCCESS;
         } else if (player.getMainHandStack().isOf(ItemInit.WRENCH)) {
             ItemStack disk = getDisk(this, getWorld());
             if (!disk.isEmpty()) {
@@ -492,11 +561,11 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
     @Override
     public void onDeath(DamageSource damageSource) {
-        ItemStack disk = getDisk(this, getWorld());
+        /*ItemStack disk = getDisk(this, getWorld());
         if (!disk.isEmpty()) {
             dropStack(disk);
             putFloppyDisk(this, ItemStack.EMPTY, getWorld());
-        }
+        }*/
         ItemStack spawnItem = getPickBlockStack();
 
         dropStack(spawnItem);
@@ -606,7 +675,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     }
 
     float crawlHeight(){
-        if(getWorld().isClient()) {
+        if(getWorld().isClient() && MinecraftClient.getInstance().player != null) {
             EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
             float height = manager.getEntityData(getType()).crawl_height();
             ((IEntityDataSaver)this).getPersistentData().putFloat("crawl_height", height);

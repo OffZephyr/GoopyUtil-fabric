@@ -25,6 +25,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class ZephyrRenderer extends GoopyUtilEntityRenderer<ZephyrEntity> {
     public ZephyrRenderer(EntityRendererFactory.Context renderManager) {
         super(renderManager, new ZephyrModel());
+        addRenderLayer(new NightGlowLayer<>(this));
     }
 }
 

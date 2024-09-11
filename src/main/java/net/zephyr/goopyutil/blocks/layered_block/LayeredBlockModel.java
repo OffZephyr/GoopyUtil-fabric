@@ -149,8 +149,6 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
 
                             Identifier texture = thisLayer.cantRecolorLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
                             Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture).getSprite();
-                            if(k == 0 && directionId == 0) particleSprite = sprite;
-                            if(particleSprite == null) particleSprite = baseSprite;
 
                             int colorValue = data.getCompound("layer" + i).getInt(directionId + "_" + k + "_color");
                             float r = ColorHelper.Argb.getRed(colorValue);
@@ -163,6 +161,17 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                             emitter.color(color, color, color, color);
                             emitter.emit();
                         }
+
+                        if(!thisLayer.getOverlay().getPath().isEmpty()) {
+                            Identifier overlay = thisLayer.getOverlay();
+                            Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, overlay).getSprite();
+
+                            emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+                            emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
+                            emitter.color(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
+                            emitter.emit();
+                        }
+                        if(particleSprite == null) particleSprite = baseSprite;
 
                     }
                 }
@@ -204,8 +213,6 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
 
                         Identifier texture = thisLayer.cantRecolorLayer() ? thisLayer.getTexture() : thisLayer.getRgbTexture(k);
                         Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, texture).getSprite();
-                        if (k == 0 && directionId == 0) particleSprite = sprite;
-                        if (particleSprite == null) particleSprite = baseSprite;
 
                         int colorValue = data.getCompound("layer" + i).getInt(directionId + "_" + k + "_color");
                         float r = ColorHelper.Argb.getRed(colorValue);
@@ -219,6 +226,15 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
                         emitter.emit();
                     }
 
+                    if(!thisLayer.getOverlay().getPath().isEmpty()) {
+                        Identifier overlay = thisLayer.getOverlay();
+                        Sprite sprite = new SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, overlay).getSprite();
+
+                        emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+                        emitter.spriteBake(sprite, MutableQuadView.BAKE_LOCK_UV);
+                        emitter.color(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
+                        emitter.emit();
+                    }
                 }
             }
         }

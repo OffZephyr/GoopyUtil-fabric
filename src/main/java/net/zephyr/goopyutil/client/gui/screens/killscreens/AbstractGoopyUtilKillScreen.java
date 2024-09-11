@@ -94,8 +94,8 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
         final float transitionMax = 100;
 
         Entity entity = GoopyUtilEntity.jumpscareEntity;
-        int jumpscareLength = entity != null && MinecraftClient.getInstance().world.getEntityById(entityID) instanceof GoopyUtilEntity goopyutilEntity ? goopyutilEntity.JumpScareLength() : 0;
-        if(this.tickSinceDeath < jumpscareLength) return;
+        int jumpscareLength = entity instanceof GoopyUtilEntity goopyutilEntity ? goopyutilEntity.JumpScareLength() : 0;
+        if(this.tickSinceDeath < jumpscareLength - 2) return;
         int animationTick = this.tickSinceDeath - jumpscareLength;
 
         context.fill(0, 0, this.width, this.height, 0, 0xFD000000);

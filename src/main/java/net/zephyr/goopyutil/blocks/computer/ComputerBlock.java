@@ -124,7 +124,7 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
 
-        if(player.getMainHandStack().isOf(ItemInit.FLOPPYDISK)){
+        if(player.getMainHandStack().isOf(ItemInit.FLOPPYDISK) || player.getMainHandStack().isOf(ItemInit.ILLUSIONDISC)){
             emptyDisk(data, world, pos, state);
             data.put("ai_data", player.getMainHandStack().encodeAllowEmpty(world.getRegistryManager()));
             player.getMainHandStack().decrementUnlessCreative(1, player);

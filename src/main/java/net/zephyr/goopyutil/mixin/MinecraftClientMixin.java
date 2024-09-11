@@ -5,15 +5,19 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
+import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
@@ -81,6 +85,17 @@ public class MinecraftClientMixin implements IGetClientManagers {
 		this.resourceManager.registerReloader(this.entityDataManager);
 	}
 
+	@Inject(method = "getCameraEntity", at = @At("HEAD"), cancellable = true)
+	public void getCameraEntity(CallbackInfoReturnable<Entity> cir) {
+		MinecraftClient client = ((MinecraftClient) (Object) this);
+		if (client.currentScreen instanceof COMPRemoteScreen screen && screen.getControl() != null) {
+			Entity entity = MinecraftClient.getInstance().player;
+			Vec3d pos = entity.getPos();
+			entity.setPosition(screen.getControl().getPos());
+			cir.setReturnValue(entity);
+			entity.setPosition(pos);
+		}
+	}
 	@Override
 	public LayeredBlockManager getLayerManager() {
 		return this.layerManager;

@@ -125,7 +125,7 @@ public class ZephyrEntity extends GoopyUtilEntity {
     }
 
     public int JumpScareLength() {
-        return 150; //90
+        return 40;
     }
 
     public String attackAnim() {

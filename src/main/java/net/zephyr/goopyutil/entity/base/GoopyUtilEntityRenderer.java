@@ -6,6 +6,8 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
 import net.zephyr.goopyutil.entity.zephyr.NightGlowLayer;
 import net.zephyr.goopyutil.entity.zephyr.ZephyrEntity;
 import net.zephyr.goopyutil.entity.zephyr.ZephyrModel;
@@ -17,12 +19,16 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public abstract class GoopyUtilEntityRenderer<T extends GoopyUtilEntity> extends GeoEntityRenderer<T> {
     public GoopyUtilEntityRenderer(EntityRendererFactory.Context renderManager, GeoModel<T> model) {
         super(renderManager, model);
-        addRenderLayer(new NightGlowLayer<>(this));
     }
 
     @Override
     public void render(T entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight) {
+        if(this.getGeoModel() instanceof GoopyUtilEntityModel<T> model){
+            model.entityRenderer = this;
+        }
+
         if(MinecraftClient.getInstance().player.isDead() && GoopyUtilEntity.jumpscareEntity != null && entity.getId() != GoopyUtilEntity.jumpscareEntity.getId()) return;
+
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 

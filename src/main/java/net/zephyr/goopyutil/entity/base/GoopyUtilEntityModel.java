@@ -1,6 +1,7 @@
 package net.zephyr.goopyutil.entity.base;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
@@ -16,6 +17,8 @@ import software.bernie.geckolib.model.data.EntityModelData;
 import java.util.Arrays;
 
 public abstract class GoopyUtilEntityModel<T extends GoopyUtilEntity> extends GeoModel<T> {
+    public AnimationState<T> animationState;
+    public GoopyUtilEntityRenderer<T> entityRenderer;
     @Override
     public Identifier getModelResource(T animatable) {
         EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
@@ -48,16 +51,9 @@ public abstract class GoopyUtilEntityModel<T extends GoopyUtilEntity> extends Ge
 
     @Override
     public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-        GeoBone head = getAnimationProcessor().getBone("Head");
-
-        if (head != null && !((IEntityDataSaver) animatable).getPersistentData().getBoolean("Crawling")) {
-            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-            head.setRotX(entityData.headPitch() * MathHelper.RADIANS_PER_DEGREE);
-            head.setRotY(entityData.netHeadYaw() * MathHelper.RADIANS_PER_DEGREE);
-        }
-
         animatable.setModel(this);
         updateCamPos(animatable);
+        this.animationState = animationState;
     }
 
     public void updateCamPos(GoopyUtilEntity entity){

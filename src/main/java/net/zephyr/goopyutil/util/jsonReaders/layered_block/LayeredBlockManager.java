@@ -49,11 +49,14 @@ public class LayeredBlockManager extends SinglePreparationResourceReloader<List<
 
                         for (Map.Entry<String, LayeredBlockEntry> entry : layerEntries.entrySet()) {
                             boolean canRecolor = entry.getValue().canRecolor();
+                            String overlayString = entry.getValue().overlayTexture() == null ? "" : entry.getValue().overlayTexture();
+                            Identifier overlay = Identifier.of(resource.getPackId(), overlayString);
+
                             Identifier[] textures = new Identifier[entry.getValue().textures().length];
                             for(int i = 0; i < entry.getValue().textures().length; i++) {
                                 textures[i] = Identifier.of(resource.getPackId(), entry.getValue().textures()[i]);
                             }
-                            LayeredBlockLayer layer = new LayeredBlockLayer(entry.getKey(), canRecolor, textures);
+                            LayeredBlockLayer layer = new LayeredBlockLayer(entry.getKey(), canRecolor, overlay, textures);
                             layers.add(layer);
                         }
                     } catch (RuntimeException runtimeException) {

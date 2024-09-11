@@ -2,19 +2,72 @@ package net.zephyr.goopyutil.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
+import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntityModel;
+import net.zephyr.goopyutil.entity.base.GoopyUtilEntityRenderer;
 import net.zephyr.goopyutil.init.ItemInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
+import net.zephyr.goopyutil.util.mixinAccessing.IPlayerCustomModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.data.EntityModelData;
+
 @Mixin(PlayerEntityRenderer.class)
-public class PlayerEntityRendererMixin {
+public class PlayerEntityRendererMixin{
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    public <T extends GoopyUtilEntity> void render(AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float partialTick, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci){
+        T entity = (T) ((IPlayerCustomModel) abstractClientPlayerEntity).getCurrentEntity();
+        MinecraftClient client = MinecraftClient.getInstance();
+        if(entity != null) {
+            EntityType<T> entityType = (EntityType<T>) entity.getType();
+
+            EntityRendererFactory.Context context = new EntityRendererFactory.Context(
+                    client.getEntityRenderDispatcher(), client.getItemRenderer(), client.getBlockRenderManager(), client.getEntityRenderDispatcher().getHeldItemRenderer(), client.getResourceManager(), client.getEntityModelLoader(), client.textRenderer
+            );
+
+            EntityRenderer<T> renderer = (EntityRenderer<T>) GoopyUtil.RENDERER_FACTORIES.get(entityType).create(context);
+
+            if(renderer instanceof GoopyUtilEntityRenderer<T> entityRenderer) {
+
+                entity.setHeadYaw(entity.mimicPlayer.getBodyYaw());
+                float bodyYawDiff = entity.mimicPlayer.getBodyYaw() - ((IPlayerCustomModel)entity.mimicPlayer).getMimicYaw();
+                float max = 45;
+                if(MathHelper.abs(bodyYawDiff) > max) {
+                    float diff = ((IPlayerCustomModel)entity.mimicPlayer).getMimicYaw() > entity.mimicPlayer.getHeadYaw() ? max : -max;
+                    ((IPlayerCustomModel)entity.mimicPlayer).setMimicYaw(entity.mimicPlayer.getBodyYaw() + diff);
+                }
+                if(entity.mimicPlayer.forwardSpeed > 0) {
+                    ((IPlayerCustomModel)entity.mimicPlayer).setMimicYaw(entity.mimicPlayer.getBodyYaw());
+                }
+                entity.setBodyYaw(((IPlayerCustomModel)entity.mimicPlayer).getMimicYaw());
+                entity.setPitch(entity.mimicPlayer.getPitch());
+
+                entityRenderer.render(entity, f, 1, matrixStack, vertexConsumerProvider, i);
+            }
+            ci.cancel();
+        }
+    }
+
     /**
      * @author zephyr
      * @reason geckolib didn't do it, so I did.

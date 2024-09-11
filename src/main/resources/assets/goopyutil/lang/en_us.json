@@ -7,6 +7,8 @@
   "goopyutil.symbol.floppy_disk": "§d§l💾",
   "goopyutil.symbol.computer": "§6§l🖥",
 
+  "key.goopyutil.crawl": "Crawl",
+
   "block.goopyutil.computer": "Computer",
 
   "block.goopyutil.layered_block": "Layered Block",
@@ -38,6 +40,9 @@
   "item.goopyutil.tablet.description.0.5": "§bof a line.",
 
   "item.goopyutil.floppy_disk": "Floppy Disk",
+  "item.goopyutil.floppy_disk.wrong_entity": "§cEntity does not match the currently saved Entity Type.",
+  "item.goopyutil.floppy_disk.entity_updated": "§aEntity AI Successfully updated.",
+  "item.goopyutil.floppy_disk.entity_name": "§3Currently saved: %s",
   "item.goopyutil.floppy_disk.description.0.length": "3",
   "item.goopyutil.floppy_disk.description.0.0": "§rThis item §bholds a custom entity's AI.",
   "item.goopyutil.floppy_disk.description.0.1": "§b§lINSERT §rthis item into the §6§lCOMPUTER",
@@ -62,6 +67,17 @@
   "item.goopyutil.deathcoin.description.0.2": "be done §bonce §ras the item will be",
   "item.goopyutil.deathcoin.description.0.3": "deleted if you use it.",
 
+  "item.goopyutil.illusion_disc": "Illusion Disc",
+  "item.goopyutil.illusion_disc.entity_updated": "§aEntity Data Successfully updated.",
+  "item.goopyutil.illusion_disc.description.0.length": "4",
+  "item.goopyutil.illusion_disc.description.0.0": "§rThis item §bmakes you become",
+  "item.goopyutil.illusion_disc.description.0.1": "§lSOMEONE OR SOMETHING ELSE §rwhen EQUIPPED.",
+  "item.goopyutil.illusion_disc.description.0.2": "§b§lClick §ron an entity with an",
+  "item.goopyutil.illusion_disc.description.0.3": "§d§lIllusion Disc §rto copy its data.",
+  "item.goopyutil.illusion_disc.description.1.length": "2",
+  "item.goopyutil.illusion_disc.description.1.0": "§b§lINSERT §rthis item into the §6§lCOMPUTER",
+  "item.goopyutil.illusion_disc.description.1.1": "to §bpick an Entity to replicate.",
+
   "item.goopyutil.zephyr_spawn": "Pile of goo",
   "item.goopyutil.zephyr_spawn.description.0.length": "2",
   "item.goopyutil.zephyr_spawn.description.0.0": "§b§lClick §ron this entity with a",
@@ -70,9 +86,9 @@
   "entity.goopyutil.skin_screen.confirm": "Save & Close",
   "entity.goopyutil.zephyr": "Zephyr",
   "entity.goopyutil.zephyr.default": "Blue Outfit",
-  "entity.goopyutil.zephyr.default.description": "TEST 1 THIS IS A ONE LINER",
+  "entity.goopyutil.zephyr.default.description": "The classic, the default, the usual.",
   "entity.goopyutil.zephyr.neon": "Neon Outfit",
-  "entity.goopyutil.zephyr.neon.description": "TEST 2 THIS IS A LONGER ONE LINER TO TEST THE RESIZING!!!",
+  "entity.goopyutil.zephyr.neon.description": "Quirked up dark boi with a little bit of 80s swag.",
 
   "death.goopyutil.back": "Back",
   "death.goopyutil.confirm": "Confirm",
@@ -153,6 +169,7 @@
   "goopyutil.computer.behavior.statue": "STATUE MODE",
   "goopyutil.computer.behavior.moving": "WANDERING MODE",
   "goopyutil.computer.behavior.custom_path": "CUSTOM PATH [WIP]",
+  "goopyutil.computer.behavior.controllable": "CONTROLLABLE [WIP]",
 
   "goopyutil.computer.behavior.option.animation": "Animation",
   "goopyutil.computer.behavior.option.spawn_pos": "Use the entity's Spawn Position ?",

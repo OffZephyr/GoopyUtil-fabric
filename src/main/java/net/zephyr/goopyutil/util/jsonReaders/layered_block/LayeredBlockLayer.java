@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public record LayeredBlockLayer(String name, boolean can_recolor, Identifier... textures) {
+public record LayeredBlockLayer(String name, boolean can_recolor, Identifier overlayTexture, Identifier... textures) {
     public String getName() {
         return this.name;
     }
@@ -16,6 +16,9 @@ public record LayeredBlockLayer(String name, boolean can_recolor, Identifier... 
 
     public Identifier getTexture() {
         return getRgbTexture(0);
+    }
+    public Identifier getOverlay() {
+        return this.overlayTexture;
     }
 
     public Identifier getRgbTexture(Integer index) {

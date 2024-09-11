@@ -394,6 +394,11 @@ public class PaintbrushScreen extends GoopyScreen {
                         Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
                         context.drawSprite(xCorner + 7 + iconXPos, yCorner + 7 + iconYPos, 1, 16, 16, sprite);
                     }
+                    if(!currentLayer.getOverlay().getPath().isEmpty()) {
+                        Identifier texture = currentLayer.getOverlay();
+                        Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
+                        context.drawSprite(xCorner + 7 + iconXPos, yCorner + 7 + iconYPos, 1, 16, 16, sprite);
+                    }
                 }
             }
 
@@ -427,8 +432,15 @@ public class PaintbrushScreen extends GoopyScreen {
                         context.drawSprite(cornerX + 8, cornerY + 61, 3, 102, 102, sprite, r, g, b, 1);
                     }
                 }
-                if (!hasRgb || layer.cantRecolorLayer()) {
+                if (layer.cantRecolorLayer()) {
                     Identifier texture = layer.getTexture();
+                    Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
+                    context.drawSprite(cornerX + 8 + i * (36), cornerY + 25, 3, 30, 30, sprite, 1, 1, 1, 1);
+
+                    context.drawSprite(cornerX + 8, cornerY + 61, 3, 102, 102, sprite, 1, 1, 1, 1);
+                }
+                if(!layer.getOverlay().getPath().isEmpty()) {
+                    Identifier texture = layer.getOverlay();
                     Sprite sprite = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(texture);
                     context.drawSprite(cornerX + 8 + i * (36), cornerY + 25, 3, 30, 30, sprite, 1, 1, 1, 1);
 
