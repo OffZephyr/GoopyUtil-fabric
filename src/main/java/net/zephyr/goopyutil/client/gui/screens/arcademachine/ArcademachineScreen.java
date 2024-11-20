@@ -32,6 +32,10 @@ public class ArcademachineScreen extends GoopyScreen {
         this.characterY = (this.height - CHARACTERSIZE) / 2;
     }
 
+    public ArcademachineScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
+    }
+
 
     @Override
     protected void init() {

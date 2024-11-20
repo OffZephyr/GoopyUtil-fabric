@@ -2,9 +2,11 @@ package net.zephyr.goopyutil.entity.base;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.init.ScreensInit;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
@@ -67,8 +69,9 @@ public abstract class GoopyUtilEntityModel<T extends GoopyUtilEntity> extends Ge
             entity.killScreenID = manager.getSkin(entity.getType(), skin).getKillScreenID();
         }
         GeoBone camera = getAnimationProcessor().getBone("camera");
+        Entity jumpscareEntity = MinecraftClient.getInstance().world.getEntityById(((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().getInt("JumpscareID"));
 
-        if (camera != null && GoopyUtilEntity.jumpscareEntity != null && entity.getId() == GoopyUtilEntity.jumpscareEntity.getId()) {
+        if (camera != null && jumpscareEntity != null && entity.getId() == jumpscareEntity.getId()) {
             long[] camPos = new long[6];
             camPos[0] = Double.valueOf(camera.getWorldPosition().x() * 10000000).longValue();
             camPos[1] = Double.valueOf(camera.getWorldPosition().y() * 10000000).longValue();
@@ -84,6 +87,6 @@ public abstract class GoopyUtilEntityModel<T extends GoopyUtilEntity> extends Ge
     public abstract Identifier getDefaultGeoModel();
     public abstract Identifier getDefaultAnimations();
     public String getDefaultKillScreenID() {
-        return "death_goopy_default";
+        return ScreensInit.DEFAULT_KILLSCREEN;
     };
 }

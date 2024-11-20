@@ -5,6 +5,8 @@ import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.nbt.NbtCompound;
 import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,12 +24,15 @@ public class DeathScreenMixin {
 
             ClientHook.openScreen(index, deathNbt, entity.getId());
         }*/
+        if(MinecraftClient.getInstance().world.getEntityById(((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().getInt("JumpscareID")) instanceof GoopyUtilEntity entity && entity.hasJumpScare()) {
         NbtCompound deathNbt = new NbtCompound();
         deathNbt.putBoolean("isHardcore", MinecraftClient.getInstance().world.getLevelProperties().isHardcore());
-        String index = "death_goopy";
+        String index = entity.killScreenID;
 
         System.out.println(index);
 
-        ClientHook.openScreen(index, deathNbt, 5);
+        GoopyNetworkingUtils.setClientScreen(index, deathNbt, entity.getId());
+        }
+
     }
 }

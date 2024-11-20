@@ -13,6 +13,7 @@ import net.zephyr.goopyutil.blocks.camera.CameraBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.init.BlockEntityInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.joml.Matrix3f;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
     }
 
     public void updateCams(){
-        camData = getCustomData().getCompound("cam_data");
+        camData = ((IEntityDataSaver)this).getPersistentData().getCompound("cam_data");
         cams = new ArrayList<>();
         long[] camsData = camData.getLongArray("Cameras");
         if(camsData.length > 0) {
@@ -100,7 +101,7 @@ public class CameraDeskBlockEntity extends GoopyBlockEntity {
         if(world != null) {
             BlockPos pos = BlockPos.fromLong(currentCam);
             if (world.getBlockEntity(pos) instanceof CameraBlockEntity ent) {
-                return ent.getCustomData();
+                return ((IEntityDataSaver)ent).getPersistentData();
             } else {
                 currentCam = 0;
             }

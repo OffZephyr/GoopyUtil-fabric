@@ -11,10 +11,12 @@ import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlockEntity;
+import net.zephyr.goopyutil.blocks.plushies.BephPlushieBlockEntity;
 
 public class BlockEntityInit {
     public static BlockEntityType<ComputerBlockEntity> COMPUTER;
     public static BlockEntityType<LayeredBlockEntity> LAYERED_BLOCK;
+    public static BlockEntityType<BephPlushieBlockEntity> BEPH_PLUSHIE;
     public static BlockEntityType<CameraBlockEntity> CAMERA;
     public static BlockEntityType<CameraDeskBlockEntity> CAMERA_DESK;
     public static BlockEntityType<ArcademachineBlockEntity> ARCADE_MACHINE;
@@ -28,6 +30,10 @@ public class BlockEntityInit {
                 Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "layered_block"),
                         FabricBlockEntityTypeBuilder.create(LayeredBlockEntity::new,
                                 BlockInit.LAYERED_BLOCK_BASE).build());
+        BEPH_PLUSHIE =
+                Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "beph_plushie"),
+                        FabricBlockEntityTypeBuilder.create(BephPlushieBlockEntity::new,
+                                BlockInit.BEPH_PLUSHIE).build());
 
         CAMERA =
                 Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(GoopyUtil.MOD_ID, "camera"),

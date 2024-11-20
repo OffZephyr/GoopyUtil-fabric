@@ -36,7 +36,8 @@ public class GoopyUtil implements ModInitializer {
 
 
 		registerCommands();
-
+		NetworkingInit.registerPayloads();
+		NetworkingInit.registerServerReceivers();
 		PayloadDef.registerC2SPackets();
 		LOGGER.info("The GOOP is in the bag.");
 	}

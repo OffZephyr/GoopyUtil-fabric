@@ -1,15 +1,13 @@
 package net.zephyr.goopyutil.client.gui.screens.computer;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.util.Computer.ComputerApp;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 
 import java.util.Objects;
 
@@ -18,8 +16,8 @@ public class COMPBootupScreen extends COMPBaseScreen {
     private int bootProgress = 0;
     private final int bootProgressLength = 40;
 
-    public COMPBootupScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+    public COMPBootupScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
     }
 
     @Override
@@ -70,11 +68,11 @@ public class COMPBootupScreen extends COMPBaseScreen {
         if(!Objects.equals(window, "default")) {
             for(ComputerApp app : ComputerData.getApps()){
                 if(Objects.equals(app.getName(), window)) {
-                    ClientHook.openScreen(app.getName(), getNbtData(), getBlockPos().asLong());
+                    GoopyNetworkingUtils.setClientScreen(app.getName(), getNbtData(), getBlockPos());
                     return;
                 }
             }
         }
-        ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
+        GoopyNetworkingUtils.setClientScreen("desktop", getNbtData(), getBlockPos());
     }
 }

@@ -39,6 +39,7 @@ import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class CameraBlock extends BlockWithEntity {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        NbtCompound data = ((CameraBlockEntity)world.getBlockEntity(pos)).getCustomData();
+        NbtCompound data = ((IEntityDataSaver)world.getBlockEntity(pos)).getPersistentData();
         data.putDouble("pitch", 0);
         data.putDouble("yaw", 0);
         data.putString("Name", Text.translatable("goopyutil.screens.camera_tablet.default_name").getString());
@@ -163,14 +164,9 @@ public class CameraBlock extends BlockWithEntity {
 
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-        ItemStack itemStack = new ItemStack(this);
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
-        if(blockEntity instanceof GoopyBlockEntity ent){
-            NbtCompound nbt = ent.getCustomData();
-            itemStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, existingNbt -> NbtComponent.of(existingNbt.copyNbt().copyFrom(nbt)));
-        }
         List<ItemStack> item = new ArrayList<>();
-        item.add(itemStack);
+        item.add(getPickStack(builder.getWorld(), blockEntity.getPos(), state));
         return item;
     }
     @Nullable

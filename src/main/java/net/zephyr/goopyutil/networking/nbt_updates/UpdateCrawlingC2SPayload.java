@@ -1,6 +1,5 @@
-package net.zephyr.goopyutil.networking.payloads;
+package net.zephyr.goopyutil.networking.nbt_updates;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -10,7 +9,7 @@ import net.zephyr.goopyutil.networking.PayloadDef;
 import net.zephyr.goopyutil.util.mixinAccessing.IPlayerCustomModel;
 
 public record UpdateCrawlingC2SPayload(boolean crawl) implements CustomPayload {
-    public static final CustomPayload.Id<UpdateCrawlingC2SPayload> ID = new CustomPayload.Id<>(PayloadDef.C2SCrawlUpdate);
+    public static final CustomPayload.Id<UpdateCrawlingC2SPayload> ID = new CustomPayload.Id<>(NbtPayloads.C2SCrawlUpdate);
     public static final PacketCodec<RegistryByteBuf, UpdateCrawlingC2SPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.BOOL, UpdateCrawlingC2SPayload::crawl,
             UpdateCrawlingC2SPayload::new);

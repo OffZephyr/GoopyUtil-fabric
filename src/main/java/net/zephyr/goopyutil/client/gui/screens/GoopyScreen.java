@@ -13,8 +13,9 @@ import net.minecraft.util.math.BlockPos;
 import org.joml.Matrix4f;
 
 public abstract class GoopyScreen extends Screen {
-    BlockPos blockPos;
-    int entityID;
+    BlockPos blockPos = BlockPos.ORIGIN;
+    int entityID = 0;
+    String itemSlot = "";
     NbtCompound nbtData = new NbtCompound();
     public void putNbtData(NbtCompound nbt){
         nbtData = nbt.copy();
@@ -32,6 +33,7 @@ public abstract class GoopyScreen extends Screen {
         return blockPos;
     }
     public int getEntityID(){ return entityID; }
+    public String getItemSlot(){ return itemSlot; }
     public GoopyScreen(Text title) {
         super(title);
     }
@@ -40,6 +42,13 @@ public abstract class GoopyScreen extends Screen {
         this.nbtData = nbt;
         this.blockPos = BlockPos.fromLong(l);
         this.entityID = l < Integer.MAX_VALUE ? (int) l : Integer.MAX_VALUE;
+    }
+    public GoopyScreen(Text text, NbtCompound nbtCompound, Object o) {
+        this(text);
+        this.nbtData = nbtCompound;
+        if(o instanceof BlockPos pos) this.blockPos = pos;
+        else if(o instanceof Integer num) this.entityID = num;
+        else if(o instanceof String slot) this.itemSlot = slot;
     }
 
     public static boolean isOnButton(double mouseX, double mouseY, int x, int y, int width, int height) {

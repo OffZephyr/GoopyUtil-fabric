@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class CameraBlockEntity extends GoopyBlockEntity {
     final float cameraBaseSpeed = 0.416f;
@@ -17,7 +18,7 @@ public class CameraBlockEntity extends GoopyBlockEntity {
 
     @Override
     public void tick(World world, BlockPos blockPos, BlockState state, GoopyBlockEntity entity) {
-        NbtCompound data = getCustomData();
+        NbtCompound data = ((IEntityDataSaver)this).getPersistentData();
         if(data.getByte("ModeX") == 1){
             byte speedX = data.getByte("yawSpeed");
 
@@ -61,11 +62,11 @@ public class CameraBlockEntity extends GoopyBlockEntity {
             data.putDouble("pitch", -endPitch);
         }
 
-        if(state.get(CameraBlock.LIT) != getCustomData().getBoolean("Lit")) {
-            world.setBlockState(blockPos, state.with(CameraBlock.LIT, getCustomData().getBoolean("Lit")), Block.NOTIFY_ALL);
+        if(state.get(CameraBlock.LIT) != ((IEntityDataSaver)this).getPersistentData().getBoolean("Lit")) {
+            world.setBlockState(blockPos, state.with(CameraBlock.LIT, ((IEntityDataSaver)this).getPersistentData().getBoolean("Lit")), Block.NOTIFY_ALL);
         }
-        if(state.get(CameraBlock.POWERED) != getCustomData().getBoolean("Powered")) {
-            world.setBlockState(blockPos, state.with(CameraBlock.POWERED, getCustomData().getBoolean("Powered")), Block.NOTIFY_ALL);
+        if(state.get(CameraBlock.POWERED) != ((IEntityDataSaver)this).getPersistentData().getBoolean("Powered")) {
+            world.setBlockState(blockPos, state.with(CameraBlock.POWERED, ((IEntityDataSaver)this).getPersistentData().getBoolean("Powered")), Block.NOTIFY_ALL);
         }
         super.tick(world, blockPos, state, entity);
     }

@@ -1,7 +1,6 @@
-package net.zephyr.goopyutil.networking.payloads;
+package net.zephyr.goopyutil.networking.nbt_updates.goopy_entity;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -9,9 +8,10 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.networking.PayloadDef;
+import net.zephyr.goopyutil.networking.nbt_updates.NbtPayloads;
 
 public record AIBehaviorUpdateS2CPayload(String behavior, String option, int entityID) implements CustomPayload {
-    public static final Id<AIBehaviorUpdateS2CPayload> ID = new Id<>(PayloadDef.S2CAIUpdate);
+    public static final Id<AIBehaviorUpdateS2CPayload> ID = new Id<>(NbtPayloads.S2CAIUpdate);
     public static final PacketCodec<RegistryByteBuf, AIBehaviorUpdateS2CPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.STRING, AIBehaviorUpdateS2CPayload::behavior,
             PacketCodecs.STRING, AIBehaviorUpdateS2CPayload::option,

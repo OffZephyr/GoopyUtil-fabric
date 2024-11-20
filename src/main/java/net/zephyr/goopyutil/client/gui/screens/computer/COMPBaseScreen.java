@@ -8,22 +8,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPBaseAppScreen;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.SoundsInit;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 
 import java.util.Objects;
 
 public abstract class COMPBaseScreen extends GoopyScreen {
     public Identifier WALLPAPER = ComputerData.getWallpapers().get(0).getTexture();
     public Identifier OUTLINE = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/computer_outline.png");
-    public COMPBaseScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+    public COMPBaseScreen(Text title, NbtCompound nbt, Object o) {
+        super(title, nbt, o);
     }
     final int screenSizeBase = 256;
     public int screenSize = 256;
@@ -43,12 +42,7 @@ public abstract class COMPBaseScreen extends GoopyScreen {
     }
 
     public void updateIndex(String currentScreen){
-        if(ScreenUtils.getScreens().containsKey(currentScreen)) {
-            this.getNbtData().putString("Window", currentScreen);
-        }
-        else {
-            this.getNbtData().putString("Window", "default");
-        }
+        this.getNbtData().putString("Window", currentScreen);
     }
 
     @Override
@@ -101,12 +95,12 @@ public abstract class COMPBaseScreen extends GoopyScreen {
 
         if (MinecraftClient.getInstance().currentScreen instanceof COMPBaseAppScreen appScreen) {
             this.updateIndex(appScreen.appName());
-            ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
+            GoopyNetworkingUtils.saveBlockNbt(getBlockPos(), getNbtData());
             return;
         }
 
         this.updateIndex("default");
-        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
+        GoopyNetworkingUtils.saveBlockNbt(getBlockPos(), getNbtData());
     }
 
     @Override

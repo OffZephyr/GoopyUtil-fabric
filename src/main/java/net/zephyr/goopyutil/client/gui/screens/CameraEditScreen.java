@@ -10,7 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,8 @@ public class CameraEditScreen extends GoopyScreen {
     boolean sneaking = false;
     boolean renameActionButton = false;
 
-    public CameraEditScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+    public CameraEditScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class CameraEditScreen extends GoopyScreen {
         nbt.putBoolean("Action", this.action);
         nbt.putByte("NightVision", this.nightvision);
 
-        ScreenUtils.saveNbtFromScreen(nbt, getBlockPos());
+        GoopyNetworkingUtils.saveBlockNbt(getBlockPos(), nbt);
     }
 
     @Override

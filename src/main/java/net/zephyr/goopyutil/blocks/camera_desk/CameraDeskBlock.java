@@ -27,6 +27,7 @@ import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 
 import static net.zephyr.goopyutil.blocks.camera.CameraBlock.FACING;
@@ -60,7 +61,7 @@ public class CameraDeskBlock extends GoopyBlockWithEntity {
 
 
             if(player.getMainHandStack().getItem() instanceof TabletItem){
-                ent.getCustomData().put("cam_data", ItemNbtUtil.getNbt(player.getMainHandStack()));
+                ((IEntityDataSaver)ent).getPersistentData().put("cam_data", ItemNbtUtil.getNbt(player.getMainHandStack()));
             }
 
             ent.updateCams();

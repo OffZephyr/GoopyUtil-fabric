@@ -1,11 +1,11 @@
 package net.zephyr.goopyutil.item.tablet;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
@@ -19,14 +19,12 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
-import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.CameraTabletScreen;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.init.ScreensInit;
 import net.zephyr.goopyutil.init.SoundsInit;
 import net.zephyr.goopyutil.item.ItemWithDescription;
-import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.networking.payloads.GetNbtC2SPayload;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -86,7 +84,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                 if (!(MinecraftClient.getInstance().world.getBlockEntity(BlockPos.fromLong(camsData.get(j))) instanceof CameraBlockEntity)) {
                     camsData.remove(j);
                     data.putLongArray("Cameras", camsData);
-                    ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
+                    GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
                 }
             }
         }
@@ -124,11 +122,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         data.put("data", new NbtCompound());
         data.putLong("pos", 0);
 
-        if (user instanceof ServerPlayerEntity p) {
-            ScreenUtils.openScreenOnServer(p, "camera_tablet", data);
-        } else {
-            ClientHook.openScreen("camera_tablet", data, 0);
-        }
+        GoopyNetworkingUtils.setScreen(user, ScreensInit.CAMERA_TABLET, data, EquipmentSlot.MAINHAND.getName());
     }
 
     @Override
@@ -152,7 +146,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                                 camsData.remove(i);
 
                                 data.putLongArray("Cameras", camsData);
-                                ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
+                                GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
                                 return ActionResult.SUCCESS;
                             }
                         }
@@ -169,7 +163,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
                             camsData.add(pos);
 
                             data.putLongArray("Cameras", camsData);
-                            ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
+                            GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
                             return ActionResult.SUCCESS;
                         }
                         else {
@@ -197,13 +191,13 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         }
         if(world.isClient()) {
             if (!data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt()))
-                ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
+                GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
 
 
             if(data.getBoolean("closing")) {
                 this.closing = true;
                 data.putBoolean("closing", false);
-                ScreenUtils.saveNbtFromScreen(data);
+                GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
             }
         }
 
@@ -221,7 +215,7 @@ public class TabletItem extends ItemWithDescription implements GeoItem {
         }
 
         if(world.isClient() && !data.equals(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt())){
-            ClientPlayNetworking.send(new GetNbtC2SPayload(data, PayloadDef.ITEM_DATA));
+            GoopyNetworkingUtils.saveItemNbt(EquipmentSlot.MAINHAND.getName(), data);
 
             if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen) {
                 transition = false;

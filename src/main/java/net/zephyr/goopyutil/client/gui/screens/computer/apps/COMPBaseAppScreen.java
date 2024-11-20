@@ -1,16 +1,12 @@
 package net.zephyr.goopyutil.client.gui.screens.computer.apps;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.blocks.computer.ComputerData;
-import net.zephyr.goopyutil.client.ClientHook;
-import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.COMPBaseScreen;
-import net.zephyr.goopyutil.client.gui.screens.computer.COMPDesktopScreen;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 
 public abstract class COMPBaseAppScreen extends COMPBaseScreen {
     public Identifier BOTTOM_BAR = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/bottom_bar.png");
@@ -18,6 +14,9 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
     public Identifier BUTTONS = Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/computer_buttons.png");
     public COMPBaseAppScreen(Text title, NbtCompound nbt, long l) {
         super(title, nbt, l);
+    }
+    public COMPBaseAppScreen(Text title, NbtCompound nbt, Object o) {
+        super(title, nbt, o);
     }
     boolean holding = false;
     boolean dragging = false;
@@ -62,7 +61,7 @@ public abstract class COMPBaseAppScreen extends COMPBaseScreen {
 
 
     public void closeButton(){
-        ClientHook.openScreen("desktop", getNbtData(), getBlockPos().asLong());
+        GoopyNetworkingUtils.setClientScreen("desktop", getNbtData(), getBlockPos());
     }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {

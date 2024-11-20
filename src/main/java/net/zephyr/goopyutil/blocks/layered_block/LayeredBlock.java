@@ -6,6 +6,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.component.DataComponentTypes;
@@ -33,6 +34,8 @@ import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.util.ItemNbtUtil;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -68,14 +71,9 @@ public class LayeredBlock extends GoopyBlockWithEntity {
 
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-        ItemStack itemStack = new ItemStack(this);
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
-        if(blockEntity instanceof GoopyBlockEntity ent){
-            NbtCompound nbt = ent.getCustomData();
-            itemStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, existingNbt -> NbtComponent.of(existingNbt.copyNbt().copyFrom(nbt)));
-        }
         List<ItemStack> item = new ArrayList<>();
-        item.add(itemStack);
+        item.add(getPickStack(blockEntity.getWorld(), blockEntity.getPos(), state));
         return item;
     }
 
@@ -92,7 +90,7 @@ public class LayeredBlock extends GoopyBlockWithEntity {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        NbtCompound data = itemStack.getOrDefault(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT).copyNbt().getCompound("goopyutil");
+        NbtCompound data = itemStack.getOrDefault(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT).copyNbt().getCompound("goopyutil.persistent");
 
         if (data.getBoolean("rotates")) {
             world.setBlockState(pos, state.with(FACING, placer.getHorizontalFacing()));
@@ -100,7 +98,7 @@ public class LayeredBlock extends GoopyBlockWithEntity {
             world.setBlockState(pos, state);
         }
         if (world.getBlockEntity(pos) instanceof LayeredBlockEntity entity) {
-            entity.putCustomData(data);
+            ((IEntityDataSaver)entity).getPersistentData().copyFrom(data);
         }
     }
 

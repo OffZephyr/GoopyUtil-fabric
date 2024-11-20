@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "goopyutil:block/beph_plushie"
+    },
+    "facing=east": {
+      "model": "goopyutil:block/beph_plushie",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "goopyutil:block/beph_plushie",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "goopyutil:block/beph_plushie",
+      "y": 270
+    }
+  }
+}

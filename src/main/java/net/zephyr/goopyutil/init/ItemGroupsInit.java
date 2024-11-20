@@ -24,6 +24,7 @@ public class ItemGroupsInit {
                         entries.add(BlockInit.COMPUTER);
                         entries.add(ItemInit.FLOPPYDISK);
                         entries.add(ItemInit.ZEPHYRSPAWN);
+                        entries.add(BlockInit.BEPH_PLUSHIE);
                         entries.add(ItemInit.DEATHCOIN);
                         entries.add(ItemInit.ILLUSIONDISC);
                         entries.add(BlockInit.LAYERED_BLOCK_BASE);

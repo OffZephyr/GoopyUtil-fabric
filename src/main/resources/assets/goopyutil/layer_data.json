@@ -48,6 +48,27 @@
       "block/layers/goopyutil_demo_wall1"
     ]
   },
+  "goopyutil_demo_wall2": {
+    "can_recolor": false,
+    "overlay": "",
+    "textures": [
+      "block/layers/goopyutil_demo_wall2"
+    ]
+  },
+  "goopyutil_demo_ceiling": {
+    "can_recolor": false,
+    "overlay": "",
+    "textures": [
+      "block/layers/goopyutil_demo_ceiling"
+    ]
+  },
+  "goopyutil_demo_vent": {
+    "can_recolor": false,
+    "overlay": "",
+    "textures": [
+      "block/layers/goopyutil_demo_vent"
+    ]
+  },
   "goopyutil_demo_walltiles2_bottom": {
     "can_recolor": true,
     "overlay": "block/layers/goopyutil_demo_walltiles2_bottom",

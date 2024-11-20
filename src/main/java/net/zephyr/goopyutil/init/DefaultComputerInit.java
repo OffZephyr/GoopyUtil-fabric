@@ -37,7 +37,7 @@ public class DefaultComputerInit implements ComputerData.Initializer {
         apps.add(new MusicApp("music_player", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/music_icon.png")));
         apps.add(new BrowserApp("browser", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/browser_icon.png")));
         apps.add(new RemoteApp("remote", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/remote_icon.png")));
-        apps.add(new CodeApp("code", Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/code_icon.png")));
+        apps.add(new CodeApp(ScreensInit.COMPUTER_CODE, Identifier.of(GoopyUtil.MOD_ID, "textures/gui/computer/icons/code_icon.png")));
         return apps;
     }
 

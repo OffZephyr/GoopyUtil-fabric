@@ -7,7 +7,9 @@ import net.minecraft.client.gui.screen.MessageScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
@@ -16,6 +18,7 @@ import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.init.SoundsInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -26,16 +29,20 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
     public int StaticAmount = 4;
     public String staticTexturePath = "textures/gui/static/";
     int tickSinceDeath = 0;
-    private final int entityID;
+    public EntityType<?> type;
+    public String skin;
     private final boolean isHardcore;
     private boolean goBackToTitle = false;
-    public AbstractGoopyUtilKillScreen(Text text, NbtCompound nbtCompound, long l) {
-        super(text);
+    public AbstractGoopyUtilKillScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
         this.isHardcore = nbtCompound.getBoolean("isHardcore");
-        this.entityID = l < Integer.MAX_VALUE ? (int) l : Integer.MAX_VALUE;
+        Entity entity = MinecraftClient.getInstance().world.getEntityById(getEntityID());
+        this.skin = ((IEntityDataSaver)entity).getPersistentData().getString("Reskin");
+        this.type = entity.getType();
         MinecraftClient.getInstance().options.hudHidden = true;
     }
 
+    abstract SoundEvent jumpscareSound();
     @Override
     public boolean shouldPause() {
         return false;
@@ -43,6 +50,9 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
 
     @Override
     public void tick() {
+        if(this.tickSinceDeath <= 0) {
+            MinecraftClient.getInstance().player.playSound(jumpscareSound(), 1, 1);
+        }
         this.tickSinceDeath++;
         this.Static = this.Static + 1 >= StaticAmount ? 0 : this.Static + 1;
         super.tick();
@@ -76,7 +86,7 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
             if(hovering1) {
                 MinecraftClient.getInstance().player.playSound(SoundsInit.CAM_SWITCH, 1, 1.2f);
                 this.client.options.hudHidden = false;
-                GoopyUtilEntity.jumpscareEntity = null;
+                ((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().putInt("JumpscareID", -1);
                 this.client.player.requestRespawn();
                 this.close();
             }
@@ -93,7 +103,8 @@ public abstract class AbstractGoopyUtilKillScreen extends GoopyScreen {
         final float transitionMin = 40;
         final float transitionMax = 100;
 
-        Entity entity = GoopyUtilEntity.jumpscareEntity;
+        Entity entity = MinecraftClient.getInstance().world.getEntityById(((IEntityDataSaver)MinecraftClient.getInstance().player).getPersistentData().getInt("JumpscareID"));
+
         int jumpscareLength = entity instanceof GoopyUtilEntity goopyutilEntity ? goopyutilEntity.JumpScareLength() : 0;
         if(this.tickSinceDeath < jumpscareLength - 2) return;
         int animationTick = this.tickSinceDeath - jumpscareLength;

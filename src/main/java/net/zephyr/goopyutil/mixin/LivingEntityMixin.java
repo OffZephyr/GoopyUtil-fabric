@@ -10,6 +10,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.init.ItemInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IPlayerCustomModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,18 +40,20 @@ public class LivingEntityMixin{
     @Inject(method = "updatePostDeath", at = @At("HEAD"), cancellable = true)
     public void updatePostDeath(CallbackInfo info) {
         LivingEntity player = ((LivingEntity) (Object) this);
-        GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
+        if(player != null) {
+        Entity entity = player.getWorld().getEntityById(((IEntityDataSaver)player).getPersistentData().getInt("JumpscareID"));
 
         if (player.getRecentDamageSource() != null &&
                 player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                entity != null &&
-                entity.hasJumpScare()) {
+                entity instanceof GoopyUtilEntity ent &&
+                ent.hasJumpScare()) {
             ++player.deathTime;
 
-            if (player.deathTime >= entity.JumpScareLength()) {
+            if (player.deathTime >= ent.JumpScareLength()) {
                 player.remove(Entity.RemovalReason.KILLED);
             }
             info.cancel();
         }
+    }
     }
 }

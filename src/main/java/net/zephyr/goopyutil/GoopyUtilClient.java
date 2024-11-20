@@ -40,6 +40,7 @@ public class GoopyUtilClient implements ClientModInitializer {
 			LOGGER.info("COULDNT FETCH LISTS");
 		}
 
+		NetworkingInit.registerClientReceivers();
 		PayloadDef.registerS2CPackets();
 		HudRenderCallback.EVENT.register(new TabOverlayClass());
 		LOGGER.info("Client Initialized.");

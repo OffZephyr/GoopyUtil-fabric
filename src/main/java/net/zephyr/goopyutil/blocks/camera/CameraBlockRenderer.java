@@ -24,6 +24,7 @@ import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
 import net.zephyr.goopyutil.client.JavaModels;
 import net.zephyr.goopyutil.init.BlockInit;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntity> {
     private final ModelPart model;
@@ -57,7 +58,7 @@ public class CameraBlockRenderer implements BlockEntityRenderer<CameraBlockEntit
         boolean bl = world != null;
         BlockState blockState = bl ? entity.getCachedState() : BlockInit.CAMERA.getDefaultState().with(LayeredBlock.FACING, Direction.SOUTH);
 
-        NbtCompound data = entity.getCustomData();
+        NbtCompound data = ((IEntityDataSaver)entity).getPersistentData();
         float f = blockState.get(LayeredBlock.FACING).asRotation();
 
         matrices.push();

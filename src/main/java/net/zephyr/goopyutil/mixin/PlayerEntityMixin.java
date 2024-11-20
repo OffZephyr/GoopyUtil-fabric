@@ -56,6 +56,10 @@ public class PlayerEntityMixin implements IPlayerCustomModel {
                 entity.setCrawling(entity.mimicPlayer.isCrawling(), world);
                 entity.setRunning(entity.mimicPlayer.isSprinting(), world);
 
+                if(player.getAttacking() instanceof PlayerEntity p) {
+                    ((IEntityDataSaver)p).getPersistentData().putInt("JumpscareID", entity.getId());
+                }
+
                 player.calculateDimensions();
             }
         }

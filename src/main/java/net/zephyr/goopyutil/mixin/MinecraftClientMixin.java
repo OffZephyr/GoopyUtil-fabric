@@ -2,24 +2,15 @@ package net.zephyr.goopyutil.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraRenderer;
-import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
-import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
@@ -65,18 +56,16 @@ public class MinecraftClientMixin implements IGetClientManagers {
 		MinecraftClient client = ((MinecraftClient) (Object) this);
 
 		ClientPlayerEntity player = client.player;
-		GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
+		if(player != null) {
+			Entity entity = client.world.getEntityById(((IEntityDataSaver) player).getPersistentData().getInt("JumpscareID"));
 
-
-		if(player != null &&
-				entity != null &&
-				entity.hasJumpScare() )
-		{
-			if(MinecraftClient.getInstance().currentScreen instanceof GoopyScreen && screen != null){
-				cir.cancel();
+			if (entity instanceof GoopyUtilEntity ent &&
+					ent.hasJumpScare()) {
+				if (MinecraftClient.getInstance().currentScreen instanceof GoopyScreen && screen != null) {
+					cir.cancel();
+				}
 			}
 		}
-
     }
 
 	@Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/resource/ResourcePackManager;scanPacks()V"))

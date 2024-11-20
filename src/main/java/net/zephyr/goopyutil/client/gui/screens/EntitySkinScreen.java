@@ -1,7 +1,6 @@
 package net.zephyr.goopyutil.client.gui.screens;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -11,11 +10,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import net.zephyr.goopyutil.GoopyUtil;
-import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPCodeScreen;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntitySkin;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
@@ -35,8 +32,9 @@ public class EntitySkinScreen extends GoopyScreen{
     private static final Quaternionf ENTITY_ROTATION = new Quaternionf().rotationXYZ(0.2f, (float) Math.PI, (float) Math.PI);
 
     private LivingEntity entity;
-    public EntitySkinScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+
+    public EntitySkinScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
         GoopyUtilEntity actualEntity = ((GoopyUtilEntity)MinecraftClient.getInstance().world.getEntityById(getEntityID()));
         updateEntity((EntityType<? extends LivingEntity>) actualEntity.getType());
     }
@@ -75,7 +73,7 @@ public class EntitySkinScreen extends GoopyScreen{
         int confirmWidth = this.width - (this.width / 32) - confirmX;
         int confirmHeight = this.height - (this.height / 32) - confirmY;
         if(isOnButton(mouseX, mouseY, confirmX, confirmY, confirmWidth, confirmHeight)) {
-            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)entity).getPersistentData(), getEntityID());
+            GoopyNetworkingUtils.saveEntityData(getEntityID(), ((IEntityDataSaver)entity).getPersistentData());
             close();
         }
         int minX = 0;

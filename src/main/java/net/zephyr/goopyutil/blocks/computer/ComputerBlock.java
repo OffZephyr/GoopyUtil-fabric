@@ -3,8 +3,8 @@ package net.zephyr.goopyutil.blocks.computer;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
@@ -25,18 +24,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
-import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
-import net.zephyr.goopyutil.client.ClientHook;
 import net.zephyr.goopyutil.init.BlockEntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.init.ScreensInit;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityProvider {
+public class ComputerBlock extends BlockWithEntity implements BlockEntityProvider {
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public ComputerBlock(Settings settings) {
@@ -78,6 +76,14 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
         return new ComputerBlockEntity(pos, state);
     }
 
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+
+        return validateTicker(type, BlockEntityInit.COMPUTER,
+                (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity));
+
+    }
     @Override
     protected boolean canPathfindThrough(BlockState state, NavigationType type) {
         return false;
@@ -91,12 +97,8 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        BlockEntity entity = world.getBlockEntity(pos);
-        if(entity instanceof ComputerBlockEntity ent) {
-            NbtCompound nbt =  ent.getCustomData().copy();
-            nbt.putString("wallpaper", "blue_checker");
-            ent.putCustomData(nbt);
-        }
+        NbtCompound nbt =  ((IEntityDataSaver)world.getBlockEntity(pos)).getPersistentData();
+        nbt.putString("wallpaper", "blue_checker");
     }
     @Override
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
@@ -109,20 +111,17 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
 
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-        ItemStack itemStack = new ItemStack(this);
         BlockEntity blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY);
-        if(blockEntity instanceof GoopyBlockEntity ent){
-            NbtCompound nbt = ent.getCustomData();
-            itemStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, existingNbt -> NbtComponent.of(existingNbt.copyNbt().copyFrom(nbt)));
-        }
+
         List<ItemStack> item = new ArrayList<>();
-        item.add(itemStack);
+        item.add(getPickStack(builder.getWorld(), blockEntity.getPos(), state));
         return item;
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
+        //NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
+        NbtCompound data = ((IEntityDataSaver)world.getBlockEntity(pos)).getPersistentData();
 
         if(player.getMainHandStack().isOf(ItemInit.FLOPPYDISK) || player.getMainHandStack().isOf(ItemInit.ILLUSIONDISC)){
             emptyDisk(data, world, pos, state);
@@ -131,14 +130,12 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
             return ActionResult.SUCCESS;
         }
         else {
-            if (world.isClient()) {
-                ClientHook.openScreen("computer_boot", data, pos.asLong());
-            }
+            GoopyNetworkingUtils.setScreen(player, ScreensInit.COMPUTER_BOOT, data, pos);
         }
         return ActionResult.SUCCESS;
     }
     public void ejectFloppy(World world, BlockPos pos){
-        NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
+        NbtCompound data = ((IEntityDataSaver)world.getBlockEntity(pos)).getPersistentData();
         emptyDisk(data, world, pos, world.getBlockState(pos));
     }
 
@@ -152,5 +149,4 @@ public class ComputerBlock extends GoopyBlockWithEntity implements BlockEntityPr
         }
         return ActionResult.PASS;
     }
-
 }

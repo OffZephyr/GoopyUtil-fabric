@@ -6,10 +6,11 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.zephyr.goopyutil.networking.PayloadDef;
+import net.zephyr.goopyutil.networking.nbt_updates.NbtPayloads;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public record MoneySyncDataS2CPayload(int credits) implements CustomPayload {
-    public static final CustomPayload.Id<MoneySyncDataS2CPayload> ID = new CustomPayload.Id<>(PayloadDef.S2CMoneyID);
+    public static final CustomPayload.Id<MoneySyncDataS2CPayload> ID = new CustomPayload.Id<>(NbtPayloads.S2CMoneyID);
     public static final PacketCodec<PacketByteBuf, MoneySyncDataS2CPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.INTEGER, MoneySyncDataS2CPayload::credits,
             MoneySyncDataS2CPayload::new);

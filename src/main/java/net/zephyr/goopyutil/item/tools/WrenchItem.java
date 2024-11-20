@@ -11,7 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.init.BlockInit;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.init.ScreensInit;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class WrenchItem extends Item {
     public WrenchItem(Settings settings) {
@@ -28,10 +30,10 @@ public class WrenchItem extends Item {
         if (world.getBlockState(context.getBlockPos()).isOf(BlockInit.CAMERA)) {
 
             if (world.getBlockEntity(context.getBlockPos()) instanceof CameraBlockEntity entity) {
-                NbtCompound data = entity.getCustomData();
+                NbtCompound data = ((IEntityDataSaver)entity).getPersistentData();
 
                 if (context.getPlayer() instanceof ServerPlayerEntity p) {
-                    ScreenUtils.openScreenOnServer(p, "camera_edit", context.getBlockPos(), data);
+                    GoopyNetworkingUtils.setScreen(p, ScreensInit.CAMERA_EDIT, data, context.getBlockPos());
                 }/* else {
                 ClientHook.openScreen(GoopyScreens.getScreens().get("camera_edit"), context.getBlockPos(), data);
                 }*/

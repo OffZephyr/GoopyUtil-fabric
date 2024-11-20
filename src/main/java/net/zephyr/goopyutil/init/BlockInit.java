@@ -2,7 +2,6 @@ package net.zephyr.goopyutil.init;
 
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -15,6 +14,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.blocks.plushies.BephPlushieBlock;
 import net.zephyr.goopyutil.blocks.arcademachine.ArcademachineBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlock;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockRenderer;
@@ -22,8 +22,8 @@ import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlock;
 import net.zephyr.goopyutil.blocks.camera_desk.CameraDeskBlockRenderer;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlock;
 import net.zephyr.goopyutil.blocks.layered_block.LayeredBlock;
+import net.zephyr.goopyutil.blocks.plushies.BephPlushieRenderer;
 import net.zephyr.goopyutil.client.JavaModels;
-import net.zephyr.goopyutil.entity.cameramap.CameraMappingEntityRenderer;
 import net.zephyr.goopyutil.item.ItemWithDescription;
 import net.zephyr.goopyutil.item.BlockItemWithDescription;
 
@@ -41,6 +41,9 @@ public class BlockInit {
             new CameraDeskBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never)));
     public static final Block ARCADE_MACHINE = registerBlock("arcade_machine",
             new ArcademachineBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never)));
+
+    public static final Block BEPH_PLUSHIE = registerBlock("beph_plushie",
+            new BephPlushieBlock(AbstractBlock.Settings.copy(Blocks.STONE).nonOpaque().allowsSpawning(Blocks::never).solidBlock(Blocks::never).suffocates(Blocks::never).blockVision(Blocks::never).noCollision()));
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, Identifier.of(GoopyUtil.MOD_ID, name), block);
@@ -64,8 +67,12 @@ public class BlockInit {
         EntityModelLayerRegistry.registerModelLayer(JavaModels.CAMERA_SCREEN, CameraDeskBlockRenderer::getTexturedModelData);
         BlockEntityRendererFactories.register(BlockEntityInit.CAMERA_DESK, CameraDeskBlockRenderer::new);
 
+        BlockEntityRendererFactories.register(BlockEntityInit.BEPH_PLUSHIE, BephPlushieRenderer::new);
+
         BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.LAYERED_BLOCK_BASE, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CAMERA, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CAMERA_DESK, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.BEPH_PLUSHIE, RenderLayer.getCutout());
 
         GoopyUtil.LOGGER.info("Registering Blocks On CLIENT for " + GoopyUtil.MOD_ID.toUpperCase());
     }

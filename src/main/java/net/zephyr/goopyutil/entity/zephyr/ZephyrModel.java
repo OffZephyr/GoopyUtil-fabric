@@ -4,6 +4,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntityModel;
+import net.zephyr.goopyutil.init.ScreensInit;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -28,7 +29,7 @@ public class ZephyrModel extends GoopyUtilEntityModel<ZephyrEntity> {
 
     @Override
     public String getDefaultKillScreenID() {
-        return "death_goopy";
+        return ScreensInit.ZEPHYR_KILLSCREEN;
     }
 
     @Override

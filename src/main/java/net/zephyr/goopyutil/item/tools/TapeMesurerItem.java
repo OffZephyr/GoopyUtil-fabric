@@ -1,7 +1,6 @@
 package net.zephyr.goopyutil.item.tools;
 
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
@@ -10,9 +9,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtLongArray;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -34,8 +34,8 @@ import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.EntityInit;
 import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.item.tablet.TabletItem;
-import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.networking.payloads.SetNbtS2CPayload;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
+import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class TapeMesurerItem extends Item {
@@ -167,30 +167,8 @@ public class TapeMesurerItem extends Item {
         Item item = flag2 ? ((PlayerEntity) entity).getOffHandStack().getItem() : null;
         boolean flag3 = flag2 && item instanceof TabletItem && data.getBoolean("hasCorner");
 
-        if (flag2 && selected && item instanceof TabletItem && !data.getBoolean("summon_entity")) {
-            BlockPos entPos = entity.getBlockPos();
-            if (world instanceof ServerWorld servWorld) {
-                this.map.setPos(entPos.getX() + 0.5f, entPos.getY() - 20, entPos.getZ() + 0.5f);
-                System.out.println(this.map);
-                servWorld.spawnEntity(this.map);
-                data.putInt("mapEntityID", this.map.getId());
-
-                for (ServerPlayerEntity p : PlayerLookup.tracking(entity)){
-                    NbtCompound pack = new NbtCompound();
-                    pack.put("data", ((IEntityDataSaver)this.map).getPersistentData().copy());
-                    pack.putInt("entityID", this.map.getId());
-                    ServerPlayNetworking.send(p, new SetNbtS2CPayload(pack, PayloadDef.ENTITY_DATA));
-                }
-            }
-            data.putBoolean("summon_entity", true);
-        }
         if (!flag2 || !selected || !(item instanceof TabletItem)) {
             data.putBoolean("hasCorner", false);
-            data.putBoolean("summon_entity", false);
-            if (this.map != null && data.getInt("mapEntityID") != 0 && world.getEntityById(data.getInt("mapEntityID")) != null) {
-                world.getEntityById(data.getInt("mapEntityID")).remove(Entity.RemovalReason.DISCARDED);
-            }
-            data.putInt("mapEntityID", 0);
         }
 
         data.putBoolean("used", flag1 || flag3);
@@ -216,7 +194,7 @@ public class TapeMesurerItem extends Item {
     }
     private void copyPaste(ItemUsageContext context, LayeredBlockEntity entity){
         World world = context.getWorld();
-        NbtCompound nbt = context.getStack().getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+        NbtCompound nbt = ItemNbtUtil.getNbt(context.getStack());
 
         BlockState state = world.getBlockState(context.getBlockPos());
         int rotationAmount = getDirectionId(state.get(LayeredBlock.FACING));
@@ -232,16 +210,17 @@ public class TapeMesurerItem extends Item {
 
         if (nbt == null || !nbt.getBoolean("hasData")) {
             NbtCompound data = new NbtCompound();
+            NbtCompound entityData = ((IEntityDataSaver)entity).getPersistentData();
             data.putBoolean("hasData", true);
             data.putByte("editSide", direction);
 
             NbtCompound blockData = new NbtCompound();
             for (int i = 0; i < 3; i++) {
-                blockData.putString("layer" + i, entity.getCustomData().getCompound("layer" + i).getString("" + direction));
-                blockData.putString("layer" + i, entity.getCustomData().getCompound("layer" + i).getString("" + direction));
-                blockData.putString("layer" + i, entity.getCustomData().getCompound("layer" + i).getString("" + direction));
+                blockData.putString("layer" + i, entityData.getCompound("layer" + i).getString("" + direction));
+                blockData.putString("layer" + i, entityData.getCompound("layer" + i).getString("" + direction));
+                blockData.putString("layer" + i, entityData.getCompound("layer" + i).getString("" + direction));
                 for (int j = 0; j < 3; j++) {
-                    blockData.putInt(i + "_color_" + j, entity.getCustomData().getCompound("layer" + i).getInt(direction + "_" + j + "_color"));
+                    blockData.putInt(i + "_color_" + j, entityData.getCompound("layer" + i).getInt(direction + "_" + j + "_color"));
                 }
             }
             data.put("data", blockData);
@@ -251,7 +230,7 @@ public class TapeMesurerItem extends Item {
             PlayerEntity player = context.getPlayer();
             world.playSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_SPYGLASS_USE, SoundCategory.PLAYERS, 1, 1, true);
         } else {
-            NbtCompound entityData = entity.getCustomData().copy();
+            NbtCompound entityData = ((IEntityDataSaver)entity).getPersistentData().copy();
             NbtCompound itemData = nbt.getCompound("data");
             for (int i = 0; i < 3; i++) {
 
@@ -263,7 +242,9 @@ public class TapeMesurerItem extends Item {
                 entityData.put("layer" + i, layerData);
             }
 
-            entity.putCustomData(entityData);
+            if(world.isClient()){
+                GoopyNetworkingUtils.saveBlockNbt(entity.getPos(), entityData);
+            }
             PlayerEntity player = context.getPlayer();
             world.playSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_SPYGLASS_USE, SoundCategory.PLAYERS, 1, 1, true);
             world.playSound(context.getBlockPos().getX(), context.getBlockPos().getY(), context.getBlockPos().getZ(), SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1, 1, true);

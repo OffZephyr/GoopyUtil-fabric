@@ -6,11 +6,13 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.zephyr.goopyutil.client.gui.screens.computer.apps.COMPRemoteScreen;
 import net.zephyr.goopyutil.entity.zephyr.NightGlowLayer;
 import net.zephyr.goopyutil.entity.zephyr.ZephyrEntity;
 import net.zephyr.goopyutil.entity.zephyr.ZephyrModel;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.GeoModel;
@@ -27,7 +29,10 @@ public abstract class GoopyUtilEntityRenderer<T extends GoopyUtilEntity> extends
             model.entityRenderer = this;
         }
 
-        if(MinecraftClient.getInstance().player.isDead() && GoopyUtilEntity.jumpscareEntity != null && entity.getId() != GoopyUtilEntity.jumpscareEntity.getId()) return;
+        PlayerEntity player = MinecraftClient.getInstance().player;
+        Entity jumpscareEntity = MinecraftClient.getInstance().world.getEntityById(((IEntityDataSaver)player).getPersistentData().getInt("JumpscareID"));
+
+        if(MinecraftClient.getInstance().player.isDead() && jumpscareEntity != null && entity.getId() != jumpscareEntity.getId()) return;
 
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

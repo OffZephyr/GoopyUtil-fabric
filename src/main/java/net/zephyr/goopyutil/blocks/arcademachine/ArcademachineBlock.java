@@ -29,7 +29,8 @@ import net.zephyr.goopyutil.blocks.GoopyBlockEntity;
 import net.zephyr.goopyutil.blocks.GoopyBlockWithEntity;
 import net.zephyr.goopyutil.blocks.computer.ComputerBlockEntity;
 import net.zephyr.goopyutil.init.BlockEntityInit;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.init.ScreensInit;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -121,10 +122,10 @@ public class ArcademachineBlock extends GoopyBlockWithEntity implements BlockEnt
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        NbtCompound data = world.getBlockEntity(pos) instanceof ComputerBlockEntity ent ? ent.getCustomData() : new NbtCompound();
+        NbtCompound data = world.getBlockEntity(pos) instanceof GoopyBlockEntity ent ? ent.getCustomData() : new NbtCompound();
         if (!world.isClient()) {
             if (player instanceof ServerPlayerEntity p) {
-                ScreenUtils.openScreenOnServer(p, "arcade_machine", pos, data);
+                GoopyNetworkingUtils.setScreen(p, ScreensInit.ARCADE_MACHINE, data, pos);
             }
         }
         return ActionResult.SUCCESS;

@@ -21,9 +21,9 @@ import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.entity.base.GoopyUtilEntity;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.ItemInit;
-import net.zephyr.goopyutil.networking.payloads.ComputerEjectPayload;
+import net.zephyr.goopyutil.networking.nbt_updates.computer.ComputerEjectPayload;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
-import net.zephyr.goopyutil.util.ScreenUtils;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -66,11 +66,11 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
     private int editNum = 0;
     private int editNumIndex = 0;
 
-    public COMPCodeScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+    public COMPCodeScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
         world = client.world != null ? client.world : null;
         if (world == null) return;
-        floppy_disk = ItemStack.fromNbtOrEmpty(world.getRegistryManager(), nbt.getCompound("ai_data"));
+        floppy_disk = ItemStack.fromNbtOrEmpty(world.getRegistryManager(), getNbtData().getCompound("ai_data"));
         diskData = floppy_disk.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
         this.hourCompound = diskData.getCompound("" + this.hour);
 
@@ -647,6 +647,6 @@ public class COMPCodeScreen extends COMPBaseAppScreen {
         }));
         getNbtData().put("ai_data", stack.encodeAllowEmpty(world.getRegistryManager()));
         this.floppy_disk = stack.copy();
-        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
+        GoopyNetworkingUtils.saveBlockNbt(getBlockPos(), getNbtData());
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
 import net.zephyr.goopyutil.blocks.camera.CameraBlockEntity;
 import net.zephyr.goopyutil.client.gui.screens.GoopyScreen;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +102,7 @@ public class CameraMapUiDrawer {
 
                 if(isMonitor){
                     if (bl2 && MinecraftClient.getInstance().world != null) {
-                        String name = ((CameraBlockEntity) MinecraftClient.getInstance().world.getBlockEntity(pos)).getCustomData().getString("Name");
+                        String name = ((IEntityDataSaver) MinecraftClient.getInstance().world.getBlockEntity(pos)).getPersistentData().getString("Name");
                         matrices.pop();
                         context.drawTooltip(MinecraftClient.getInstance().textRenderer, Text.literal(name), mouseX, mouseY);
                         matrices.push();

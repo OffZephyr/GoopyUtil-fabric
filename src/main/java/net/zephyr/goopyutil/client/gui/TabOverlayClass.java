@@ -19,7 +19,6 @@ import net.zephyr.goopyutil.init.ItemInit;
 import net.zephyr.goopyutil.networking.payloads.MoneySyncDataC2SPayload;
 import net.zephyr.goopyutil.util.CameraMapUiDrawer;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
-import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 
 public class TabOverlayClass implements HudRenderCallback {

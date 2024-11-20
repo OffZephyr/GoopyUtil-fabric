@@ -110,7 +110,7 @@ public class CameraMixin implements ISetCameraThirdPerson {
 
         PlayerEntity player = MinecraftClient.getInstance().player;
 
-        GoopyUtilEntity entity = GoopyUtilEntity.jumpscareEntity;
+        Entity entity = MinecraftClient.getInstance().world.getEntityById(((IEntityDataSaver)player).getPersistentData().getInt("JumpscareID"));
 
         if(MinecraftClient.getInstance().currentScreen instanceof CameraTabletScreen screen){
             Vec3d pos = screen.camPos();
@@ -126,15 +126,15 @@ public class CameraMixin implements ISetCameraThirdPerson {
                 player.isDead() &&
                 player.getRecentDamageSource() != null &&
                 player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                entity != null &&
-                entity.hasJumpScare()
+                entity instanceof GoopyUtilEntity ent &&
+                ent.hasJumpScare()
         ) {
-            entity.model.updateCamPos(entity);
-            long[] camPos = entity.JumpscareCamPos;
+            ent.model.updateCamPos(ent);
+            long[] camPos = ent.JumpscareCamPos;
             Vector3d JumpscareCamPos = new Vector3d(camPos[0] / 10000000d, camPos[1] / 10000000d, camPos[2] / 10000000d);
             Vector3d JumpscareCamRot = new Vector3d(camPos[3] / 10000000d, camPos[4] / 10000000d, camPos[5] / 10000000d);
 
-            this.setRotation(-(float)JumpscareCamRot.y + (entity.getBodyYaw() + 180), (float)JumpscareCamRot.x, (float)JumpscareCamRot.z);
+            this.setRotation(-(float)JumpscareCamRot.y + (ent.getBodyYaw() + 180), (float)JumpscareCamRot.x, (float)JumpscareCamRot.z);
             this.setPos((float)JumpscareCamPos.x, (float)JumpscareCamPos.y, (float)JumpscareCamPos.z);
 
             info.cancel();

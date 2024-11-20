@@ -13,9 +13,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.zephyr.goopyutil.GoopyUtil;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockLayer;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockManager;
-import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
@@ -40,8 +40,8 @@ public class PaintbrushScreen extends GoopyScreen {
     double[][] colorScrollX = new double[3][3];
     boolean[][] colorHoldingScroll = new boolean[3][3];
 
-    public PaintbrushScreen(Text title, NbtCompound nbt, long l) {
-        super(title, nbt, l);
+    public PaintbrushScreen(Text text, NbtCompound nbtCompound, Object o) {
+        super(text, nbtCompound, o);
         layerManager = ((IGetClientManagers)MinecraftClient.getInstance()).getLayerManager();
     }
 
@@ -144,7 +144,7 @@ public class PaintbrushScreen extends GoopyScreen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
     void saveData(){
-        ScreenUtils.saveNbtFromScreen(getNbtData(), getBlockPos());
+        GoopyNetworkingUtils.saveBlockNbt(getBlockPos(), getNbtData());
         close();
     }
 

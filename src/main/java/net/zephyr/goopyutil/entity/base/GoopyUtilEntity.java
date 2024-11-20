@@ -1,9 +1,7 @@
 package net.zephyr.goopyutil.entity.base;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
@@ -29,12 +27,14 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.zephyr.goopyutil.blocks.computer.ComputerData;
 import net.zephyr.goopyutil.init.ItemInit;
+import net.zephyr.goopyutil.init.ScreensInit;
 import net.zephyr.goopyutil.item.EntitySpawnItem;
-import net.zephyr.goopyutil.networking.PayloadDef;
-import net.zephyr.goopyutil.networking.payloads.*;
+import net.zephyr.goopyutil.networking.nbt_updates.goopy_entity.AIBehaviorUpdateS2CPayload;
+import net.zephyr.goopyutil.networking.nbt_updates.goopy_entity.UpdateEntityNbtS2CPongPayload;
+import net.zephyr.goopyutil.networking.nbt_updates.goopy_entity.UpdateJumpscareDataS2CPayload;
 import net.zephyr.goopyutil.util.Computer.ComputerAI;
+import net.zephyr.goopyutil.util.GoopyNetworkingUtils;
 import net.zephyr.goopyutil.util.ItemNbtUtil;
-import net.zephyr.goopyutil.util.ScreenUtils;
 import net.zephyr.goopyutil.util.jsonReaders.entity_skins.EntityDataManager;
 import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
@@ -83,14 +83,11 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "Main", 3, this::movementAnimController)
-                .triggerableAnim(demoAnim(), RawAnimation.begin().thenLoop(demoAnim()))
-                .triggerableAnim(activatingAnim(), RawAnimation.begin().thenPlay(attackAnim())));
+        controllers.add(new AnimationController<>(this, "Main", 3, this::movementAnimController));
         controllers.add(new AnimationController<>(this, "Attack", 1, this::attackAnimController));
     }
 
     private <E extends GoopyUtilEntity> PlayState attackAnimController(AnimationState<E> event) {
-        event.getController().setAnimationSpeed(1.5);
         if (getWorld().isClient()) {
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
             if (hasJumpScare() &&
@@ -98,14 +95,15 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                     player.isDead() &&
                     player.getRecentDamageSource() != null &&
                     player.getRecentDamageSource().getAttacker() instanceof GoopyUtilEntity &&
-                    jumpscareEntity.getId() == this.getId()
+                    ((IEntityDataSaver)player).getPersistentData().getInt("JumpscareID") == this.getId()
             ) {
+                event.getController().setAnimationSpeed(1.5);
                 this.freezeTime = JumpScareLength();
                 return event.setAndContinue(RawAnimation.begin().thenPlay(JumpScareAnim()));
             }
         }
 
-        if(this.handSwinging) {
+        if(this.handSwinging || (this.mimic && this.mimicPlayer.handSwinging)) {
             event.getController().forceAnimationReset();
             this.handSwinging = false;
 
@@ -237,7 +235,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     @Override
     public boolean tryAttack(Entity target) {
         if(target instanceof ServerPlayerEntity p && !p.isDead()) {
-            jumpscareEntity = this;
+            ((IEntityDataSaver)p).getPersistentData().putInt("JumpscareID", this.getId());
             ServerPlayNetworking.send(p, new UpdateJumpscareDataS2CPayload(getId()));
         }
         return super.tryAttack(target);
@@ -247,7 +245,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     public boolean onKilledOther(ServerWorld world, LivingEntity other) {
         this.freezeTime = JumpScareLength();
         if(other instanceof ServerPlayerEntity p) {
-            jumpscareEntity = this;
+            ((IEntityDataSaver)p).getPersistentData().putInt("JumpscareID", this.getId());
             ServerPlayNetworking.send(p, new UpdateJumpscareDataS2CPayload(getId()));
             p.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, getEyePos());
         }
@@ -257,11 +255,13 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     @Override
     public void tick() {
         super.tick();
+
         if(model != null) {
             model.updateCamPos(this);
         }
 
         if(mimic) {
+
             calculateDimensions();
             calculateBoundingBox();
 
@@ -270,7 +270,6 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
             this.running = getRunning();
         }
         else {
-            syncFromServer(getWorld());
             this.behavior = getAIMode(this, getWorld());
             boolean shouldDeactivate = behavior.isEmpty() || boolData(behavior, "deactivated", this) || ((IEntityDataSaver) this).getPersistentData().getBoolean("Deactivated");
             if (shouldDeactivate != this.deactivated) {
@@ -293,22 +292,17 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
                 setJumping(false);
                 getNavigation().stop();
             }
+
+            if(!getWorld().isClient()) {
+                for (ServerPlayerEntity p : PlayerLookup.all(getServer())) {
+                    ServerPlayNetworking.send(p, new UpdateEntityNbtS2CPongPayload(getId(), ((IEntityDataSaver) this).getPersistentData()));
+                }
+            }
         }
     }
 
     public void setModel(GoopyUtilEntityModel<? extends GoopyUtilEntity> model) {
         this.model = model;
-    }
-
-    void syncFromServer(World world){
-        if(!world.isClient()){
-            NbtCompound nbt = new NbtCompound();
-            nbt.put("data", ((IEntityDataSaver)this).getPersistentData());
-            nbt.putInt("entityID", getId());
-            for (ServerPlayerEntity p : PlayerLookup.all(getServer())) {
-                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
-            }
-        }
     }
 
     void goalPosTick() {
@@ -386,16 +380,6 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         boolean crawlCondition1 = containsHitbox(frontUpBlock) && !containsHitbox(frontBlock);
         boolean crawlCondition2 = containsHitbox(frontBlock) && !containsHitbox(frontUpBlock) && containsHitbox(frontUpUpBlock);
 
-        /*
-        BlockState frontState = this.getWorld().getBlockState(frontBlock);
-        BlockState frontUpState = this.getWorld().getBlockState(frontBlock.up());
-        BlockState upState = this.getWorld().getBlockState(this.getBlockPos().up());
-        BlockState upTwiceState = this.getWorld().getBlockState(this.getBlockPos().up().up());
-
-        boolean crawlCondition1 = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
-        boolean crawlCondition2 = (this.getNavigation().getCurrentPath() != null && (frontState.getCollisionShape(getWorld(), frontBlock).isEmpty() && !frontUpState.getCollisionShape(getWorld(), frontBlock.up()).isEmpty())) || !upState.getCollisionShape(getWorld(), this.getBlockPos().up()).isEmpty();
-         */
-
         return continueCrawl || crawlCondition1 || crawlCondition2;
     }
 
@@ -429,44 +413,35 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
 
     public void setCrawling(boolean crawling, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Crawling", crawling);
-        NbtCompound nbt = new NbtCompound();
-        nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
-        nbt.putInt("entityID", this.getId());
-        if (!world.isClient()) {
-            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
-                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
-            }
+        if(world.isClient()){
+            GoopyNetworkingUtils.saveEntityData(getId(), ((IEntityDataSaver) this).getPersistentData().copy());
         }
         else {
-            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
+            for (ServerPlayerEntity p : PlayerLookup.all(getServer())) {
+                ServerPlayNetworking.send(p, new UpdateEntityNbtS2CPongPayload(getId(), ((IEntityDataSaver) this).getPersistentData()));
+            }
         }
     }
     public void setRunning(boolean running, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Running", running);
-        NbtCompound nbt = new NbtCompound();
-        nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
-        nbt.putInt("entityID", this.getId());
-        if (!world.isClient()) {
-            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
-                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
-            }
+        if(world.isClient()){
+            GoopyNetworkingUtils.saveEntityData(getId(), ((IEntityDataSaver) this).getPersistentData().copy());
         }
         else {
-            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
+            for (ServerPlayerEntity p : PlayerLookup.all(getServer())) {
+                ServerPlayNetworking.send(p, new UpdateEntityNbtS2CPongPayload(getId(), ((IEntityDataSaver) this).getPersistentData()));
+            }
         }
     }
     public void setDeactivated(boolean deactivated, World world) {
         ((IEntityDataSaver) this).getPersistentData().putBoolean("Deactivated", deactivated);
-        NbtCompound nbt = new NbtCompound();
-        nbt.put("data", ((IEntityDataSaver) this).getPersistentData().copy());
-        nbt.putInt("entityID", this.getId());
-        if (!world.isClient()) {
-            for (ServerPlayerEntity p : PlayerLookup.all(world.getServer())) {
-                ServerPlayNetworking.send(p, new SetNbtS2CPayload(nbt, PayloadDef.ENTITY_DATA));
-            }
+        if(world.isClient()){
+            GoopyNetworkingUtils.saveEntityData(getId(), ((IEntityDataSaver) this).getPersistentData().copy());
         }
         else {
-            ClientPlayNetworking.send(new GetNbtC2SPayload(nbt, PayloadDef.ENTITY_DATA));
+            for (ServerPlayerEntity p : PlayerLookup.all(getServer())) {
+                ServerPlayNetworking.send(p, new UpdateEntityNbtS2CPongPayload(getId(), ((IEntityDataSaver) this).getPersistentData()));
+            }
         }
     }
 
@@ -497,7 +472,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
         if(this.menuTick)
             return MinecraftClient.getInstance().world.getTime();
         else if(this.mimic)
-            return mimicPlayer.age;
+            return MinecraftClient.getInstance().world.getTime();
         else
             return ((Entity)entity).age;
     }
@@ -541,14 +516,8 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
             }
         } else if (player.getMainHandStack().isOf(ItemInit.PAINTBRUSH)) {
             if(player instanceof ServerPlayerEntity p) {
-                NbtCompound nbt = new NbtCompound();
-                nbt.putInt("entityID", getId());
-                nbt.put("data", ((IEntityDataSaver)this).getPersistentData());
-                ServerPlayNetworking.send(p, new SetScreenS2CPayload("skins", nbt, PayloadDef.ENTITY_DATA));
+                GoopyNetworkingUtils.setScreen(p, ScreensInit.SKINS, ((IEntityDataSaver)this).getPersistentData(), getId());
             }
-            /*String skin = ((IEntityDataSaver) this).getPersistentData().getString("Reskin");
-            if (Objects.equals(skin, "neon")) ((IEntityDataSaver) this).getPersistentData().putString("Reskin", "");
-            else ((IEntityDataSaver) this).getPersistentData().putString("Reskin", "neon");*/
             return ActionResult.SUCCESS;
         }
         return super.interactAt(player, hitPos, hand);
@@ -596,7 +565,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
     void putFloppyDisk(PathAwareEntity entity, ItemStack disk, World world){
         ((IEntityDataSaver)entity).getPersistentData().put("floppy_disk", disk.encodeAllowEmpty(world.getRegistryManager()));
         if(world.isClient()){
-            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)entity).getPersistentData(), entity.getId());
+            GoopyNetworkingUtils.saveEntityData(entity.getId(), ((IEntityDataSaver)entity).getPersistentData());
         }
     }
     ItemStack getDisk(PathAwareEntity entity, World world){
@@ -679,7 +648,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
             EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
             float height = manager.getEntityData(getType()).crawl_height();
             ((IEntityDataSaver)this).getPersistentData().putFloat("crawl_height", height);
-            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)this).getPersistentData(), getId());
+            GoopyNetworkingUtils.saveEntityData(getId(), ((IEntityDataSaver)this).getPersistentData());
             return height;
         }
         else return ((IEntityDataSaver)this).getPersistentData().getFloat("crawl_height");
@@ -689,7 +658,7 @@ public abstract class GoopyUtilEntity extends PathAwareEntity implements GeoEnti
             EntityDataManager manager = ((IGetClientManagers) MinecraftClient.getInstance()).getEntityDataManager();
             boolean can_crawl = manager.getEntityData(getType()).can_crawl();
             ((IEntityDataSaver)this).getPersistentData().putBoolean("can_crawl", can_crawl);
-            ScreenUtils.saveNbtFromScreen(((IEntityDataSaver)this).getPersistentData(), getId());
+            GoopyNetworkingUtils.saveEntityData(getId(), ((IEntityDataSaver)this).getPersistentData());
             return can_crawl;
         }
         else return ((IEntityDataSaver)this).getPersistentData().getBoolean("can_crawl");

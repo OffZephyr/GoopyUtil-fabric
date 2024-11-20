@@ -6,8 +6,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.zephyr.goopyutil.networking.payloads.UpdateCrawlingC2SPayload;
+import net.zephyr.goopyutil.networking.nbt_updates.UpdateCrawlingC2SPayload;
 import net.zephyr.goopyutil.util.mixinAccessing.IPlayerCustomModel;
 import org.lwjgl.glfw.GLFW;
 

@@ -31,7 +31,9 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 import net.zephyr.goopyutil.init.BlockInit;
 import net.zephyr.goopyutil.init.ModelLoading;
+import net.zephyr.goopyutil.util.ItemNbtUtil;
 import net.zephyr.goopyutil.util.jsonReaders.layered_block.LayeredBlockLayer;
+import net.zephyr.goopyutil.util.mixinAccessing.IEntityDataSaver;
 import net.zephyr.goopyutil.util.mixinAccessing.IGetClientManagers;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,7 +121,7 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
 
         if (state.isOf(BlockInit.LAYERED_BLOCK_BASE)) {
             if (blockView.getBlockEntity(pos) instanceof LayeredBlockEntity entity) {
-                NbtCompound data = entity.getCustomData();
+                NbtCompound data = ((IEntityDataSaver)entity).getPersistentData();
                 LayeredBlockLayer[][] Layers = getLayerInfo(data);
 
                 for (int i = 0; i < 3; i++) {
@@ -190,7 +192,7 @@ public class LayeredBlockModel implements UnbakedModel, BakedModel, FabricBakedM
 
 
         if (stack.isOf(BlockInit.LAYERED_BLOCK_BASE.asItem())) {
-            NbtCompound data = stack.getOrDefault(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT).copyNbt().getCompound("goopyutil");
+            NbtCompound data = stack.getOrDefault(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT).copyNbt().getCompound("goopyutil.persistent");
             LayeredBlockLayer[][] Layers = getLayerInfo(data);
 
             for (int i = 0; i < 3; i++) {
